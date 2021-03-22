@@ -1,0 +1,23 @@
+parser code {:
+    Scanner s;
+    Parser(Scanner s){
+	this.s=s;
+    }
+    :}
+init with {: s.init(); :};
+scan with {: return s.next_token(); :};
+
+terminal PLUS, SEMI;
+terminal Integer INTEGER_LITERAL;
+non terminal expr_list;
+non terminal Integer expresion;
+
+precedence left PLUS;
+
+
+expr_list ::= expr_list expresion:e SEMI
+          |  expresion:e SEMI;
+          
+expresion ::= expresion:e1 PLUS expresion:e2  {: RESULT = e1+e2; :}
+          | INTEGER_LITERAL:n               {: RESULT = n; :}
+          ;
