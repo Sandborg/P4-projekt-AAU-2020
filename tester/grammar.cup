@@ -1,12 +1,3 @@
-parser code {:
-    Scanner s;
-    Parser(Scanner s){
-	this.s=s;
-    }
-    :}
-init with {: s.init(); :};
-scan with {: return s.next_token(); :};
-
 terminal PLUS, SEMI;
 terminal Integer INTEGER_LITERAL;
 non terminal expr_list;

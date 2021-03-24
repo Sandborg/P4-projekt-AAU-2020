@@ -26,21 +26,15 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* comments */
 //Comment = {EndOfLineComment}
 
-// Comment can be the last line of the file, without line terminator.
-//EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 
-//Identifier = [:jletter:] [:jletterdigit:]*
 
 DecIntegerLiteral = 0 | [1-9][0-9]*
 
-%state STRING
 
 %%
 /* keywords */
-//<YYINITIAL> "abstract"           { return symbol(sym.ABSTRACT); }
-//<YYINITIAL> "boolean"            { return symbol(sym.BOOLEAN); }
-//<YYINITIAL> "break"              { return symbol(sym.BREAK); }
-
+<YYINITIAL> ";" {return symbol(sym.SEMI);}
+<YYINITIAL> "-1" {return symbol(sym.EOF);}
 <YYINITIAL> {
 /* identifiers */
 //{Identifier}                   { return symbol(sym.IDENTIFIER); }
@@ -49,27 +43,15 @@ DecIntegerLiteral = 0 | [1-9][0-9]*
 {DecIntegerLiteral}            { return symbol(sym.INTEGER_LITERAL); }
 
 /* operators */
-//"="                            { return symbol(sym.EQ); }
-//"=="                           { return symbol(sym.EQEQ); }
+
 "+"                            { return symbol(sym.PLUS); }
 
 /* comments */
-//{Comment}                      { /* ignore */ }
+
 
 /* whitespace */
 {WhiteSpace}                   { /* ignore */ }
 }
 
-/*<STRING> {
-\"                             { yybegin(YYINITIAL);
-                               return symbol(sym.STRING_LITERAL,
-                               string.toString()); }
-[^\n\r\"\\]+                   { string.append( yytext() ); }
-\\t                            { string.append('\t'); }
-\\n                            { string.append('\n'); }
 
-\\r                            { string.append('\r'); }
-\\\"                           { string.append('\"'); }
-\\                             { string.append('\\'); }
-} */
 
