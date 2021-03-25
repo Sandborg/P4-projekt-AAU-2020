@@ -1,3 +1,8 @@
+all: 
+	jflex Scanner.jflex
+	cup grammar.cup
+	javac -cp java-cup-11b-runtime.jar Scanner.java sym.java parser.java
+
 parser:
 	cup grammar.cup
 	
@@ -11,7 +16,7 @@ main:
 	java -cp java-cup-11b-runtime.jar:. *.java Main
 
 remove:
-	rm -f *.java *.class;
+	rm -f *.java *.java~ *.class;
 	$(info Files removed!) @true
 	
 help: 
