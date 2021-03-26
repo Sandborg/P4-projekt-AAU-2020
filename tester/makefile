@@ -25,4 +25,5 @@ help:
 	$(info ~compile: Kompiler Scanner.java, sym.java, parser.java og laver Main.class.) @true
 	$(info ~main: Kører Main.) @true
 	$(info ~remove: Fjerner alle .java og .class filer fra mappen.) @true 
+	$(info ~all: Laver scanner, parser og compiler på en gang.) @true
 
