@@ -1,14 +1,18 @@
-terminal PLUS, SEMI;
-terminal Integer INTEGER_LITERAL;
-non terminal expr_list;
-non terminal Integer expresion;
 
+/* Terminals (tokens returned by the scanner). */
+terminal            SEMI, PLUS;
+terminal Integer    NUMBER;        // our scanner provides numbers as integers
+
+non terminal            expr_list;
+non terminal Integer    expr;      // used to store evaluated subexpressions
+
+/* Precedences */
 precedence left PLUS;
 
-
-expr_list ::= expr_list expresion:e SEMI
-          |  expresion:e SEMI;
-          
-expresion ::= expresion:e1 PLUS expresion:e2  {: RESULT = e1+e2; :}
-          | INTEGER_LITERAL:n               {: RESULT = n; :}
-          ;
+/* The grammar rules */
+expr_list ::= expr_list expr:e SEMI         
+            | expr:e SEMI                   
+;
+expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;       :}
+            | NUMBER:n	                     {: RESULT = n;           :}
+             ;

@@ -4,9 +4,7 @@ import java_cup.runtime.*;
 
 %class Scanner
 %cup
-%unicode
-%line
-%column
+
 
 %{
 StringBuffer string = new StringBuffer();
@@ -40,7 +38,7 @@ DecIntegerLiteral = 0 | [1-9][0-9]*
 //{Identifier}                   { return symbol(sym.IDENTIFIER); }
 
 /* literals */
-{DecIntegerLiteral}            { return symbol(sym.INTEGER_LITERAL); }
+{DecIntegerLiteral}            { return symbol(sym.NUMBER, new Integer(Integer.parseInt(yytext()))); }
 
 /* operators */
 
