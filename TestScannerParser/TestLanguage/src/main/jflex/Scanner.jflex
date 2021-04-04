@@ -4,6 +4,9 @@ import java_cup.runtime.*;
 
 %class Scanner
 %cup
+%line
+%column
+%char
 
 
 %{
