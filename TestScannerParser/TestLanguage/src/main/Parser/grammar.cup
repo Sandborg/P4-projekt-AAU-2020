@@ -1,22 +1,59 @@
+import java_cup.runtime.*;
+import lab7.*;
 
+action code {:
+   class BinaryOPNode extends AbstractNode {
+         String number1;
+         String number2;
+         String operator;
+
+         public BinaryOPNode (String number1, String number2, String operator) {
+            this.number1 = number1;
+            this.number2 = number2;
+            this.operator = operator;
+         }
+         public String getName() {return number1 + " " + operator + " " + number2;}
+   }
+   class SingleNode extends AbstractNode {
+         String name;
+
+         public SingleNode(String name) {
+            this.name = name;
+         }
+         public String getName() {return name;}
+   }
+
+   public AbstractNode makeNode(String number1, String number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
+   public AbstractNode makeNode(String name) {return new SingleNode(name);}
+:};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES;
 terminal Integer    NUMBER;        // our scanner provides numbers as integers
 
-non terminal            expr_list;
-non terminal Integer    expr;      // used to store evaluated subexpressions
+non terminal AbstractNode CompilationUnit;
+non terminal AbstractNode expr_list;
+non terminal AbstractNode expr;      // used to store evaluated subexpressions
 
 /* Precedences */
 precedence left PLUS, MINUS;
 precedence left TIMES;
 /* The grammar rules */
-expr_list ::= expr_list expr:e SEMI         
-            | expr:e SEMI                   
+
+start with CompilationUnit;
+
+CompilationUnit ::= expr_list:el
+{:
+    AbstractNode prog = makeNode("Program").adoptChildren(el);
+    prog.walkTree(new PrintTree(System.out));
+:};
+
+expr_list ::= expr_list:es expr:e SEMI {:RESULT = es.makeSibling(e); :}
+            | expr:e SEMI              {:RESULT = e; :}
 	    	;
 	    
-expr      ::= expr:e1 PLUS  expr:e2            {: RESULT = e1+e2;       :}
-	    	| expr:e1 MINUS expr:e2         {: RESULT = e1-e2;       :}
-	    	| expr:e1 TIMES expr:e2         {: RESULT = e1*e2;       :}
-	    	| NUMBER:n	                 {: RESULT = n;           :}
-	    	| MINUS expr:e                  {: RESULT = -e;          :}
+expr      ::= expr:e1 PLUS  expr:e2            {: RESULT = makeNode(e1.getName(), e2.getName(), "PLUS");      :}
+	    	| expr:e1 MINUS expr:e2         {: RESULT = makeNode(e1.getName(), e2.getName(), "MINUS");       :}
+	    	| expr:e1 TIMES expr:e2         {: RESULT = makeNode(e1.getName(), e2.getName(), "TIMES");        :}
+	    	| NUMBER:n	                 {: RESULT = makeNode(n.toString());        :}
+	    	| MINUS expr:e                  {: RESULT = makeNode("UNARY MINUS");           :}
             ;
