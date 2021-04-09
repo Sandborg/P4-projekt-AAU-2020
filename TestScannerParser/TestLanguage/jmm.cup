@@ -1,0 +1,613 @@
+package autogen;
+import lab7.*;
+import java_cup.runtime.*;
+
+import java.util.Vector;
+import java.util.Enumeration;
+
+// $Id: jmm.cup 33 2010-08-09 21:47:19Z cytron $
+
+/*
+ * Java minus minus grammar
+ *
+ */
+
+/*
+ * This is a standard Java grammar, modified for our use.  Many features
+ * are noted as "extra credit".  You must negotiate
+ * the extra credit with the professor.
+ *
+ * Some features are added too: look for comments to that effect.
+ * RC
+ */
+
+action code {:
+
+   /**  Code that is included with the action blocks
+     *
+     */
+
+   /* Need some classes that extend AbstractNode? Here's an example */
+   /* The TemporaryNode is just a place holder, and is good for development but
+    * should eventually go away.
+    */
+
+   class Example extends AbstractNode {
+      public String getName() { return "Example"; }
+   }
+
+   class TemporaryNode extends AbstractNode {
+   
+     private String s;
+   
+     public TemporaryNode(String s) {
+       this.s = s;
+     }
+   
+     public String getName() { return s; }
+   
+   }
+
+   class IntegerNode extends AbstractNode {
+      private Integer val;
+      public IntegerNode(Integer val) { this.val = val; }
+      public String getName() { return "Integer " + val; }
+   }
+
+   /*  Factory methods to make nodes 
+    *   Add ones here that make it easy for you.
+        The ones given here are temporary placeholders
+    */
+
+   public AbstractNode makeNode(Symbol s) { return new TemporaryNode(symString.symToString[s.sym]); }
+   public AbstractNode makeNode(String s) { return new TemporaryNode(s);   }
+   public AbstractNode makeNode(Integer i) { return new IntegerNode(i);   }
+
+
+:};
+
+/*
+ * Almost all of these can just be Symbol types, used for parsing.  Occasionally,
+ * a terminal has semantic information of use, as was the case for number in hw2.
+ * In those cases, declare the Symbol appropriately but you'll have to modify the
+ * Scanner to return the right type.  I've done this for integer and string types below
+ */
+
+terminal  Symbol   OP_GE, OP_LE, OP_EQ, OP_NE, OP_GT, OP_LT;
+terminal  Symbol   OP_LAND, OP_LOR;
+terminal  Symbol   INSTANCEOF;
+terminal  Symbol   HAT, TILDE;
+terminal  Symbol   BOOLEAN;
+terminal  Symbol   CLASS;
+terminal  Symbol   ELSE;
+terminal  Symbol   IF, INT;
+terminal  Symbol   NEW, NULL;
+terminal  Symbol   PRIVATE, PUBLIC;
+terminal  Symbol   RETURN;
+terminal  Symbol   STATIC, SUPER;
+terminal  Symbol   THIS;
+terminal  Symbol   VOID;
+terminal  Symbol   WHILE;
+terminal  Symbol   ASS_ADD;
+terminal  Symbol   LPAREN, RPAREN, LBRACE, RBRACE, EQUALS;
+terminal  Symbol   PERIOD, COLON, SEMICOLON, COMMA, PIPE, AND, ASTERICK;
+terminal  Symbol   PLUSOP, MINUSOP, RSLASH, PERCENT, QUESTION;
+terminal  Symbol   BANG; 
+
+terminal  String   IDENTIFIER, LITERAL;
+terminal  Integer  INTNUMBER;
+
+
+/* To save you typing, I've made all these AbstracNode types.  You will want
+ * to customize them as you go.
+ */
+
+non terminal   AbstractNode     CompilationUnit;
+non terminal   AbstractNode     FieldVariableDeclaration;
+non terminal   AbstractNode     MethodDeclaration;
+non terminal   AbstractNode     MethodDeclarator;
+non terminal   AbstractNode     ParameterList,  Parameter;
+non terminal   AbstractNode     MethodBody, ConstructorDeclaration;
+non terminal   AbstractNode     StaticInitializer;
+non terminal   AbstractNode     Block;
+non terminal   AbstractNode     LocalVariableDeclarationsAndStatements;
+non terminal   AbstractNode     LocalVariableDeclarationOrStatement;
+non terminal   AbstractNode     LocalVariableDeclarationStatement ;
+non terminal   AbstractNode     Statement, EmptyStatement;
+non terminal   AbstractNode     ExpressionStatement, SelectionStatement;
+non terminal   AbstractNode     IterationStatement;
+non terminal   AbstractNode     PrimaryExpression;
+non terminal   AbstractNode     NotJustName, ComplexPrimary, ComplexPrimaryNoParenthesis;
+non terminal   AbstractNode     FieldAccess, MethodCall, MethodReference;
+non terminal   AbstractNode     SpecialName, ArgumentList, AllocationExpression;
+non terminal   AbstractNode     PostfixExpression;
+non terminal   AbstractNode     UnaryExpression, LogicalUnaryExpression;
+non terminal   AbstractNode     LogicalUnaryOperator, ArithmeticUnaryOperator;
+non terminal   AbstractNode     CastExpression, MultiplicativeExpression;
+non terminal   AbstractNode     AdditiveExpression, ShiftExpression, RelationalExpression;
+non terminal   AbstractNode     EqualityExpression, AndExpression, ExclusiveOrExpression;
+non terminal   AbstractNode     InclusiveOrExpression, ConditionalAndExpression;
+non terminal   AbstractNode     ConditionalOrExpression;
+non terminal   AbstractNode     ConditionalExpression, AssignmentExpression;
+non terminal   AbstractNode     AssignmentOperator;
+non terminal   AbstractNode     Expression;
+non terminal   AbstractNode     ReturnStatement;
+
+non terminal   AbstractNode     Identifier;
+non terminal   AbstractNode     Literal;
+non terminal   AbstractNode     Number;
+non terminal   AbstractNode     DeclaratorName; 
+non terminal   AbstractNode     FieldVariableDeclaratorName; 
+non terminal   AbstractNode     MethodDeclaratorName; 
+non terminal   AbstractNode     LocalVariableDeclaratorName; 
+non terminal   AbstractNode     TypeDeclarations;
+non terminal   AbstractNode     TypeDeclaration;
+non terminal   AbstractNode     ClassDeclaration;
+non terminal   AbstractNode     ClassBody;
+non terminal   AbstractNode     Modifiers;
+non terminal   AbstractNode     FieldDeclarations;
+non terminal   AbstractNode     FieldDeclaration;
+non terminal   AbstractNode     FieldVariableDeclarators;
+non terminal   AbstractNode     LocalVariableDeclarators;
+non terminal   AbstractNode     QualifiedName; 
+non terminal   AbstractNode     TypeName, TypeSpecifier;
+non terminal   AbstractNode     PrimitiveType;
+
+start with CompilationUnit;
+
+
+CompilationUnit
+        ::=	TypeDeclarations:td
+		{:
+			AbstractNode prog = makeNode("Program").adoptChildren(td);
+
+			System.out.println("\nAST\n");
+			prog.walkTree(new PrintTree(System.out));
+		:}
+        ;
+
+/*
+ * Simple node magic to link nodes together as siblings.  Covered
+ * in class -- you have to be aware of how the list is growing
+ * These children will be adopted by CompilationUnit rule above.
+ */
+
+TypeDeclarations
+        ::= TypeDeclaration:td
+		{: RESULT = td; :}
+        |   TypeDeclarations:tds  TypeDeclaration:td
+		{: RESULT = tds.makeSibling(td);  :}
+        ;
+
+/*
+ * Extra credit:  interfaces, but classes are all we'll deal with by default
+ */
+TypeDeclaration
+        ::= ClassDeclaration:rhs
+		{: RESULT = makeNode("Class Declaration"); :}
+        ;
+
+
+ClassDeclaration
+        ::= Modifiers:mods CLASS:cl Identifier:id ClassBody:clb
+	;
+
+/*
+ * Process bottom-up to figure out whether the Modifiee
+ * is   static or not
+ * is   public or not
+ * A pair of booleans, like IntPair could be used, or IntPair could be used
+ * if you know what I mean.
+ */
+Modifiers
+	::= PUBLIC
+	|   PRIVATE
+	|   STATIC
+	|   Modifiers:mds PUBLIC
+	|   Modifiers:mds PRIVATE
+	|   Modifiers:mds STATIC
+	;
+
+
+/*
+ * Extra credit:  other types
+ */
+PrimitiveType
+        ::=	BOOLEAN:tok
+        | 	INT:tok
+        | 	VOID:tok
+        ;
+
+/*
+ * You need a nice structure to represent this list of identifiers.
+ * You might consider java.util.Vector
+ */
+QualifiedName
+        ::= Identifier:id
+        |   QualifiedName:qn PERIOD Identifier:id
+        ;
+
+/*
+ * In a given program, FieldDeclarations can occur in any order.
+ * But we would like them grouped together.
+ * So, structure your AST so that the items coming back from
+ * FieldDeclarations are grouped by:
+ *
+ *   fields, statics, constructors, methods, inner classes
+ *
+ * (run the class solution if confused)
+ */
+ClassBody
+	::= LBRACE FieldDeclarations:fds RBRACE
+	|   LBRACE RBRACE
+	;
+
+FieldDeclarations
+	::= FieldDeclaration:fd
+        |   FieldDeclarations:fds FieldDeclaration:fd
+        ;
+
+FieldDeclaration
+	::= FieldVariableDeclaration:fvd SEMICOLON
+	|   MethodDeclaration:rhs
+	|   ConstructorDeclaration:rhs
+	|   StaticInitializer:rhs
+	|   ClassDeclaration                     /* Inner classes */
+	;
+
+/*
+ * This isn't structured so nicely for a bottom up parse.  Recall
+ * the example I did in class for Digits, where the "type" of the digits
+ * (i.e., the base) is sitting off to the side.  You'll have to do something
+ * here to get the information where you want it, so that the declarations can
+ * be suitably annotated with their type and modifier information.
+ */
+FieldVariableDeclaration
+	::= Modifiers:m TypeSpecifier:t FieldVariableDeclarators:fvds
+	;
+
+TypeSpecifier
+        ::= TypeName:rhs
+        ;
+
+TypeName
+	::= PrimitiveType:rhs
+	|   QualifiedName:rhs
+	;
+
+FieldVariableDeclarators
+	::=  FieldVariableDeclaratorName:v
+	|    FieldVariableDeclarators:fds COMMA FieldVariableDeclaratorName:v
+	;
+
+/*
+ * We require modifiers, extra credit for package stuff
+ */
+MethodDeclaration
+	::= Modifiers:m TypeSpecifier:t MethodDeclarator:md     MethodBody:rhs
+	;
+
+MethodDeclarator
+	::= MethodDeclaratorName:dn LPAREN ParameterList:pl RPAREN
+	|   MethodDeclaratorName:dn LPAREN RPAREN
+	;
+
+ParameterList
+	::= Parameter:rhs
+	|   ParameterList:spine COMMA Parameter:rhs
+	;
+
+Parameter
+	::= TypeSpecifier:t DeclaratorName:dn
+	;
+
+DeclaratorName
+	::= Identifier:in
+        ;
+
+MethodDeclaratorName
+	::= Identifier:in
+        ;
+
+FieldVariableDeclaratorName
+	::= Identifier:in
+        ;
+
+LocalVariableDeclaratorName
+	::= Identifier:in
+        ;
+
+MethodBody
+	::= Block:rhs
+	;
+
+ConstructorDeclaration
+	::= Modifiers:m MethodDeclarator:md        Block:rhs
+	;
+
+StaticInitializer
+	::= STATIC Block:rhs
+	;
+
+/*
+ * These can't be reorganized, because the order matters.
+ * For example:  int i;  i = 5;  int j = i;
+ */
+Block
+	::= LBRACE LocalVariableDeclarationsAndStatements:stmts RBRACE
+	|   LBRACE RBRACE
+        ;
+
+LocalVariableDeclarationsAndStatements
+	::= LocalVariableDeclarationOrStatement:rhs
+	|   LocalVariableDeclarationsAndStatements:lvds 
+	    LocalVariableDeclarationOrStatement:rhs
+	;
+
+LocalVariableDeclarationOrStatement
+	::= LocalVariableDeclarationStatement:rhs
+	|   Statement:rhs
+	;
+
+LocalVariableDeclarationStatement
+	::= TypeSpecifier:t LocalVariableDeclarators:rhs SEMICOLON
+	|   ClassDeclaration                     /* Inner classes */
+	;
+
+LocalVariableDeclarators
+	::= LocalVariableDeclaratorName:v
+	|   LocalVariableDeclarators:fds COMMA LocalVariableDeclaratorName:v
+	;
+
+Statement
+	::= EmptyStatement
+	|   ExpressionStatement:rhs SEMICOLON
+        |   SelectionStatement
+        |   IterationStatement
+	|   ReturnStatement
+	|   Block:rhs
+	;
+
+EmptyStatement
+	::= SEMICOLON
+        ;
+
+ExpressionStatement
+	::= Expression:rhs
+	;
+
+/*
+ *  You will eventually have to address the shift/reduce error that
+ *     occurs when the second IF-rule is uncommented.
+ *
+ */
+
+SelectionStatement
+	::= IF LPAREN Expression RPAREN Statement ELSE Statement
+/*	|   IF LPAREN Expression RPAREN Statement
+ */
+	;
+
+/* 
+ * Extra Credit:  FOR statement, DO statement
+ */
+IterationStatement
+	::= WHILE LPAREN Expression RPAREN Statement
+	;
+
+ReturnStatement
+	::= RETURN Expression SEMICOLON
+	|   RETURN            SEMICOLON
+	;
+
+PrimaryExpression
+	::= QualifiedName:t
+	|   NotJustName:rhs
+/*
+ *  You will eventually have to explain the conflicts that arise when the rule below
+ *       is uncommented.
+ *  This rule lets a block ( { .... }  ) serve anywhere a primary expression could.
+ *  So you could write  a = { while (h>5) h = h -k; };
+ *
+ *	|   Block:rhs
+ */
+	;
+
+NotJustName
+	::= SpecialName
+	|   AllocationExpression
+	|   ComplexPrimary:rhs
+	;
+
+ComplexPrimary
+	::= LPAREN Expression:rhs RPAREN
+	|   ComplexPrimaryNoParenthesis:rhs
+	;
+
+ComplexPrimaryNoParenthesis
+	::= Literal:rhs
+	|   Number:rhs
+	|   FieldAccess
+	|   MethodCall
+	;
+
+FieldAccess
+	::= NotJustName PERIOD Identifier
+	;
+
+
+MethodCall
+	::= MethodReference LPAREN ArgumentList RPAREN
+	|   MethodReference LPAREN RPAREN
+	;
+
+MethodReference
+	::= ComplexPrimaryNoParenthesis
+	|   QualifiedName
+	|   SpecialName
+	;
+
+SpecialName
+	::= THIS
+	|   NULL
+	|   SUPER
+	;
+
+ArgumentList
+	::= Expression
+	|   ArgumentList COMMA Expression
+	;
+
+/*
+ * Extra credit:  anonymous subclasses
+ */
+AllocationExpression
+	::= NEW TypeName LPAREN ArgumentList RPAREN
+	|   NEW TypeName LPAREN              RPAREN
+	;
+
+/*
+ * Extra credit, add post increment and decrement
+ */
+PostfixExpression
+	::= PrimaryExpression:rhs
+        ;
+
+Expression
+	::= AssignmentExpression:rhs
+        ;
+
+/*
+ * Here we go.  Following are a bunch of rules to handle the right priority and
+ * associativity of operators.  These rules can be treated fairly uniformly 
+ * for now
+ * However, be aware that down the road, you will want subclassees that 
+ * can distinguish
+ * the nodes by type, so that you can generate different code for 
+ * plus vs. minus, for example.
+ */
+
+/*
+ * What kind of associativity do we get for assignment expressions - why?
+ */
+
+AssignmentExpression
+	::= ConditionalExpression:rhs
+	|   UnaryExpression:lhs AssignmentOperator:op AssignmentExpression:rhs
+	;
+
+AssignmentOperator
+	::= EQUALS:tok
+	|   ASS_ADD:tok   /* There are more of these if you're interested */
+	;
+
+ConditionalExpression
+	::= ConditionalOrExpression
+	|   ConditionalOrExpression QUESTION Expression COLON ConditionalExpression
+	;
+
+ConditionalOrExpression
+	::= ConditionalAndExpression
+	|   ConditionalOrExpression:left OP_LOR:op ConditionalAndExpression:right   /* short-circuit OR */
+	;
+
+ConditionalAndExpression
+	::= InclusiveOrExpression:rhs
+	|   ConditionalAndExpression:left OP_LAND:op InclusiveOrExpression:right   /* short-circuit AND */
+	;
+
+InclusiveOrExpression
+	::= ExclusiveOrExpression:rhs
+	|   InclusiveOrExpression:left PIPE:op ExclusiveOrExpression:right
+	;
+
+ExclusiveOrExpression
+	::= AndExpression:rhs
+	|   ExclusiveOrExpression:left HAT:op AndExpression:right
+	;
+
+AndExpression
+	::= EqualityExpression:rhs
+        |   AndExpression:left AND:op EqualityExpression:right
+        ;
+
+EqualityExpression
+	::= RelationalExpression:rhs
+        |   EqualityExpression:left OP_EQ:op RelationalExpression:right
+        |   EqualityExpression:left OP_NE:op RelationalExpression:right
+        ;
+ 
+RelationalExpression
+	::= ShiftExpression:rhs
+    |   RelationalExpression:left OP_GT:op    ShiftExpression:right
+	|   RelationalExpression:left OP_LT:op    ShiftExpression:right
+	|   RelationalExpression:left OP_LE:op      ShiftExpression:right
+	|   RelationalExpression:left OP_GE:op      ShiftExpression:right
+	|   RelationalExpression:left INSTANCEOF:op TypeSpecifier:right
+	;
+
+/*
+ * Extra credit:  shift expressions
+ */
+ShiftExpression
+	::= AdditiveExpression:rhs
+	;
+
+AdditiveExpression
+	::= MultiplicativeExpression:rhs
+        |   AdditiveExpression:lhs PLUSOP:op MultiplicativeExpression:rhs
+	|   AdditiveExpression:lhs MINUSOP:op MultiplicativeExpression:rhs
+        ;
+
+MultiplicativeExpression
+	::= CastExpression:rhs
+	|   MultiplicativeExpression:lhs ASTERICK:op CastExpression:rhs
+	|   MultiplicativeExpression:lhs RSLASH:op CastExpression:rhs
+	|   MultiplicativeExpression:lhs PERCENT:op CastExpression:rhs	/* remainder */
+	;
+
+/*
+ * Be sure to introduce an explicit cast operator
+ */
+CastExpression
+	::= UnaryExpression:rhs						/* no cast */
+        |   LPAREN PrimitiveType:s RPAREN CastExpression:lue		/* More casts coming */
+	|   LPAREN Expression:exp RPAREN LogicalUnaryExpression:lue	/* Final cast */
+	;
+
+/*
+ * Extra credit:  pre-increment and pre-decrement
+ */
+UnaryExpression
+	::= LogicalUnaryExpression:rhs
+	|   ArithmeticUnaryOperator:op CastExpression:exp
+	;
+
+ArithmeticUnaryOperator
+	::= PLUSOP:rhs
+	|   MINUSOP:rhs
+	;
+
+LogicalUnaryExpression
+	::= PostfixExpression:rhs
+	|   LogicalUnaryOperator:op UnaryExpression:uexp
+	;
+
+LogicalUnaryOperator
+	::= BANG:rhs
+	|  TILDE:rhs
+	;
+
+Identifier
+	::= IDENTIFIER:id
+	;
+
+Literal
+	::= LITERAL:lit
+	;
+
+Number
+	::= INTNUMBER:n
+		{: RESULT = makeNode(n); :}
+	;
+
