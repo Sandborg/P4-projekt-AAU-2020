@@ -51,9 +51,14 @@ expr_list ::= expr_list:es expr:e SEMI {:RESULT = es.makeSibling(e); :}
             | expr:e SEMI              {:RESULT = e; :}
 	    	;
 	    
-expr      ::= expr:e1 PLUS  expr:e2            {: RESULT = makeNode(e1.getName(), e2.getName(), "PLUS");      :}
-	    	| expr:e1 MINUS expr:e2         {: RESULT = makeNode(e1.getName(), e2.getName(), "MINUS");       :}
-	    	| expr:e1 TIMES expr:e2         {: RESULT = makeNode(e1.getName(), e2.getName(), "TIMES");        :}
-	    	| NUMBER:n	                 {: RESULT = makeNode(n.toString());        :}
-	    	| MINUS expr:e                  {: RESULT = makeNode("UNARY MINUS");           :}
+expr      ::= expr:e1 PLUS  expr:e2
+          {: RESULT = makeNode(e1.getName(), e2.getName(), "PLUS"); :}
+	    	| expr:e1 MINUS expr:e2
+	    	{: RESULT = makeNode(e1.getName(), e2.getName(), "MINUS"); :}
+	    	| expr:e1 TIMES expr:e2
+	    	{: RESULT = makeNode(e1.getName(), e2.getName(), "TIMES"); :}
+	    	| NUMBER:n
+	    	{: RESULT = makeNode(n.toString()); :}
+	    	| MINUS expr:e
+	    	{: RESULT = makeNode("UNARY MINUS"); :}
             ;
