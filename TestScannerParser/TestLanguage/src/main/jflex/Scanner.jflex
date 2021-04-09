@@ -35,7 +35,6 @@ DecIntegerLiteral = 0 | [1-9][0-9]*
 %%
 /* keywords */
 <YYINITIAL> ";" 		{ return symbol(sym.SEMI); }
-<YYINITIAL> "-1" 		{ return symbol(sym.EOF); }
 <YYINITIAL> {
 /* identifiers */
 //{Identifier}                   { return symbol(sym.IDENTIFIER); }
