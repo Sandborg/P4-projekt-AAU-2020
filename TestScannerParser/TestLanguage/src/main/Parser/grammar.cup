@@ -27,7 +27,7 @@ action code {:
    public AbstractNode makeNode(String name) {return new SingleNode(name);}
 :};
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES;
+terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD;
 terminal Integer    NUMBER;        // our scanner provides numbers as integers
 
 non terminal AbstractNode CompilationUnit;
@@ -36,7 +36,7 @@ non terminal AbstractNode expr;      // used to store evaluated subexpressions
 
 /* Precedences */
 precedence left PLUS, MINUS;
-precedence left TIMES;
+precedence left TIMES, DIVIDE, MOD;
 /* The grammar rules */
 
 start with CompilationUnit;
@@ -57,6 +57,10 @@ expr      ::= expr:e1 PLUS  expr:e2
 	    	{: RESULT = makeNode(e1.getName(), e2.getName(), "MINUS"); :}
 	    	| expr:e1 TIMES expr:e2
 	    	{: RESULT = makeNode(e1.getName(), e2.getName(), "TIMES"); :}
+	    	| expr:e1 DIVIDE expr:e2
+            {: RESULT = makeNode(e1.getName(), e2.getName(), "DIVIDE"); :}
+            | expr:e1 MOD expr:e2
+            {: RESULT = makeNode(e1.getName(), e2.getName(), "MOD"); :}
 	    	| NUMBER:n
 	    	{: RESULT = makeNode(n.toString()); :}
 	    	| MINUS expr:e
