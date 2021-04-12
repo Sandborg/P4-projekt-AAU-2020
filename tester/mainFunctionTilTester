@@ -1,7 +1,0 @@
-class Main {
-    public static void main(String[] argv) throws Exception{
-        System.out.println("Hej og velkommen til pil er med stort venner");
-        parser p = new parser(new Scanner(new java.io.FileReader("input")));
-        p.parse();
-    }
-}
