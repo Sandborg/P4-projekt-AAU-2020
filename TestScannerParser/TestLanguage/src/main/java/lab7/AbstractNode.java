@@ -5,7 +5,8 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 /** All AST nodes are subclasses of this node.  This node knows how to
   * link itself with other siblings and adopt children.
   * Each node gets a node number to help identify it distinctly in an AST.
@@ -18,6 +19,7 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    private AbstractNode child;
    private AbstractNode firstSib;
    private Type         type;
+   public JSONObject node = new JSONObject();
 
    public AbstractNode() {
       parent   = null;

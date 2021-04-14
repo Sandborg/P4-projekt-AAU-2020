@@ -1,1 +1,51 @@
-[{"type":"Program","body":[{"left":{"type":"Literal","value":6},"right":{"type":"Literal","value":6},"type":"BinaryExpression","operator":"-"},{"left":{"type":"Literal","value":2},"right":{"type":"Literal","value":2},"type":"BinaryExpression","operator":"-"},{"left":{"type":"Literal","value":5},"right":{"type":"Literal","value":5},"type":"BinaryExpression","operator":"-"},{"left":{"type":"Literal","value":3},"right":{"type":"Literal","value":9},"type":"BinaryExpression","operator":"*"},{"left":{"type":"Literal","value":2},"right":{"type":"Literal","value":1},"type":"BinaryExpression","operator":"*"},{"left":{"type":"Literal","value":5},"right":{"type":"Literal","value":5},"type":"BinaryExpression","operator":"*"}]}]
+[
+  {
+    "type": "Program",
+    "body": [
+      {
+        "left": {
+          "type": "Literal",
+          "value": 5
+        },
+        "right": {
+          "type": "Literal",
+          "value": 5
+        },
+        "type": "BinaryExpression",
+        "operator": "+"
+      },
+      {
+        "left": {
+          "type": "Literal",
+          "value": 2
+        },
+        "right": {
+          "left": {
+            "type": "Literal",
+            "value": 2
+          },
+          "right": {
+            "type": "Literal",
+            "value": 3
+          },
+          "type": "BinaryExpression",
+          "operator": "*"
+        },
+        "type": "BinaryExpression",
+        "operator": "+"
+      },
+      {
+        "left": {
+          "type": "Literal",
+          "value": 2
+        },
+        "right": {
+          "type": "Literal",
+          "value": 2
+        },
+        "type": "BinaryExpression",
+        "operator": "+"
+      }
+    ]
+  }
+]
