@@ -154,8 +154,10 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
 
    private void internWalk(int level, Visitable v) {
       v.pre(level, this);
-      for (AbstractNode c = child; c != null; c=c.mysib)
-         c.internWalk(level+1, v);
+      for (AbstractNode c = child; c != null; c=c.mysib) {
+         c.internWalk(level + 1, v);
+         
+      }
       v.post(level, this);
    }
 

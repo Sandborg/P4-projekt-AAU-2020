@@ -11,7 +11,23 @@ action code {:
    public JSONArray allNodesUnderProg = new JSONArray();
    public JSONArray expressions = new JSONArray();
 
+      public AbstractNode addAllNodesToJSON (AbstractNode n) {
+          if(n.getChild() != null) {
+              n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
+              allNodes.add(n.node);
+          }
+          return null;
+      }
 
+      public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
+          array.add(n.node);
+          if(n.getSib() != null) {
+
+              AddAllChild(n.getSib(),array);
+              System.out.println(array);
+          }
+          return array;
+      }
    class BinaryOPNode extends AbstractNode {
          AbstractNode number1;
          AbstractNode number2;
@@ -46,6 +62,7 @@ action code {:
    class SingleNode extends AbstractNode {
          String name;
 
+
          public SingleNode(String name) {
             this.name = name;
          }
@@ -74,11 +91,13 @@ start with CompilationUnit;
 CompilationUnit ::= expr_list:el
 {:
 
-    JSONObject progJSON = new JSONObject();
-    progJSON.put("type", "Program");
-    progJSON.put("body", allNodesUnderProg);
-    allNodes.add(progJSON);
-    allNodesUnderProg.add(el.node);
+    AbstractNode prog = makeNode("prog");
+
+    prog.node.put("type", "Program");
+
+    prog.adoptChildren(el);
+    addAllNodesToJSON(prog);
+
 
      try (FileWriter file = new FileWriter("ast.json")) {
                 //We can write any JSONArray or JSONObject instance to the file
@@ -90,12 +109,12 @@ CompilationUnit ::= expr_list:el
      }
 :};
 
-expr_list ::= expr_list:es expr:e SEMI {: RESULT = es; allNodesUnderProg.add(e.node); :}
+expr_list ::= expr_list:el expr:e SEMI {: RESULT = el.makeSibling(e); :}
             | expr:e SEMI              {: RESULT = e; :}
 	    	;
 	    
 expr      ::= expr:e1 PLUS  expr:e2
-          {: RESULT = makeNode(e1, e2, "+"); :}
+            {: RESULT = makeNode(e1, e2, "+"); :}
 	    	| expr:e1 MINUS expr:e2
 	    	{: RESULT = makeNode(e1, e2, "-"); :}
 	    	| expr:e1 TIMES expr:e2
