@@ -22,10 +22,9 @@ action code {:
       public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
           array.add(n.node);
           if(n.getSib() != null) {
-
               AddAllChild(n.getSib(),array);
-              System.out.println(array);
           }
+          if(n.getChild() != null) addAllNodesToJSON(n.getChild());
           return array;
       }
    class BinaryOPNode extends AbstractNode {
@@ -47,9 +46,33 @@ action code {:
          }
          public String getName() {return number1 + " " + operator + " " + number2;}
    }
-   class NumberNode extends AbstractNode {
+
+   class IdentifierNode extends AbstractNode {
+        String id;
+
+        public IdentifierNode (String id) {
+            this.id = id;
+            node.put("type", "Identifier");
+            node.put("id", id);
+        }
+        public String getValue() {return id;}
+   }
+
+   class TypeNode extends AbstractNode {
+        String type;
+
+        public TypeNode (String type) {
+            this.type = type;
+            node.put("type", "Type");
+            node.put("dataType", type);
+        }
+
+        public String getValue() {return type;}
+   }
+
+   class IntegerNode extends AbstractNode {
         int value;
-        public NumberNode(int value) {
+        public IntegerNode(int value) {
             this.value = value;
             node.put("type", "Literal");
             node.put("value", value);
@@ -58,6 +81,18 @@ action code {:
 
         public int getValue() {return value;}
    }
+
+      class FloatNode extends AbstractNode {
+           float value;
+           public FloatNode(float value) {
+               this.value = value;
+               node.put("type", "Decimal");
+               node.put("value", value);
+
+           }
+
+           public float getValue() {return value;}
+      }
 
    class SingleNode extends AbstractNode {
          String name;
@@ -70,17 +105,26 @@ action code {:
    }
 
    public AbstractNode makeNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
-   public AbstractNode makeNode(int value) {return new NumberNode(value);}
+   public AbstractNode makeNode(int value) {return new IntegerNode(value);}
+   public AbstractNode makeNode(float value) {return new FloatNode(value);}
    public AbstractNode makeNode(String name) {return new SingleNode(name);}
+   public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
+   public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
 :};
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD;
-terminal Integer    NUMBER;        // our scanner provides numbers as integers
+terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
+terminal Integer    INTEGER;        // our scanner provides numbers as integers
+terminal Float      DECIMAL;
+terminal String     IDENTIFIER;
+terminal            INT_TYPE, DECIMAL_TYPE;
 
 non terminal AbstractNode CompilationUnit;
 non terminal AbstractNode expr_list;
 non terminal AbstractNode expr;      // used to store evaluated subexpressions
-
+non terminal AbstractNode TypeDeclarations;
+non terminal AbstractNode TypeDeclaration;
+non terminal AbstractNode TypeName;
+non terminal AbstractNode Identifier;
 /* Precedences */
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
@@ -88,14 +132,14 @@ precedence left TIMES, DIVIDE, MOD;
 
 start with CompilationUnit;
 
-CompilationUnit ::= expr_list:el
+CompilationUnit ::= TypeDeclarations:td
 {:
 
     AbstractNode prog = makeNode("prog");
-
+    System.out.println(td);
     prog.node.put("type", "Program");
 
-    prog.adoptChildren(el);
+    prog.adoptChildren(td);
     addAllNodesToJSON(prog);
 
 
@@ -108,6 +152,18 @@ CompilationUnit ::= expr_list:el
          e.printStackTrace();
      }
 :};
+
+TypeDeclarations ::= TypeDeclaration: td
+                 {:  RESULT = td; :}
+                 |   TypeDeclarations:tds TypeDeclaration:td
+                 {:  RESULT = tds.makeSibling(td); :}
+                 ;
+
+TypeDeclaration ::= TypeName:tn Identifier:id SEMI
+                {: RESULT = tn.makeSibling(id); :}
+                |   TypeName:tn Identifier:id EQUALS expr_list:el
+                {: RESULT = tn.makeSibling(id).adoptChildren(el); :}
+                ;
 
 expr_list ::= expr_list:el expr:e SEMI {: RESULT = el.makeSibling(e); :}
             | expr:e SEMI              {: RESULT = e; :}
@@ -123,7 +179,19 @@ expr      ::= expr:e1 PLUS  expr:e2
             {: RESULT = makeNode(e1, e2, "/"); :}
             | expr:e1 MOD expr:e2
             {: RESULT = makeNode(e1, e2, "%"); :}
-	    	| NUMBER:n
+	    	| INTEGER:n
+	    	{: RESULT = makeNode(n); :}
+	    	| DECIMAL:n
 	    	{: RESULT = makeNode(n); :}
 	    	| MINUS expr:e
+            ;
+
+Identifier  ::= IDENTIFIER:id
+            {: RESULT = makeIdentifierNode(id); :}
+            ;
+
+TypeName    ::= INT_TYPE:type
+            {: RESULT = makeTypeNode("int"); :}
+            |  DECIMAL_TYPE:type
+            {: RESULT = makeTypeNode("decimal"); :}
             ;

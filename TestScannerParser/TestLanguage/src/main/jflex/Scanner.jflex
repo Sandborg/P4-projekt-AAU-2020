@@ -27,20 +27,23 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* comments */
 //Comment = {EndOfLineComment}
 
+Identifier = [:jletter:] [:jletterdigit:]*
 
-
-DecIntegerLiteral = 0 | [1-9][0-9]*
-
+Int = 0 | [1-9][0-9]*
+Decimal = [0-9]*\.[0-9]+
 
 %%
 /* keywords */
 <YYINITIAL> ";" 		{ return symbol(sym.SEMI); }
+<YYINITIAL> "int"       { return symbol(sym.INT_TYPE);}
+<YYINITIAL> "decimal"   { return symbol(sym.DECIMAL_TYPE);}
 <YYINITIAL> {
 /* identifiers */
-//{Identifier}                   { return symbol(sym.IDENTIFIER); }
+{Identifier}               { return symbol(sym.IDENTIFIER, yytext()); }
 
 /* literals */
-{DecIntegerLiteral}            { return symbol(sym.NUMBER, new Integer(Integer.parseInt(yytext()))); }
+{Int}            { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
+{Decimal}                       {return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));}
 
 /* operators */
 
@@ -49,6 +52,8 @@ DecIntegerLiteral = 0 | [1-9][0-9]*
 "*"				{ return symbol(sym.TIMES); }
 "/"             { return symbol(sym.DIVIDE);}
 "%"             { return symbol(sym.MOD);}
+"="             { return symbol(sym.EQUALS);}
+
 /* comments */
 
 
