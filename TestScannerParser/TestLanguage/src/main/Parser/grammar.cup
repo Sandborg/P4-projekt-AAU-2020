@@ -11,22 +11,28 @@ action code {:
    public JSONArray allNodesUnderProg = new JSONArray();
    public JSONArray expressions = new JSONArray();
 
-      public AbstractNode addAllNodesToJSON (AbstractNode n) {
-          if(n.getChild() != null) {
-              n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
-              allNodes.add(n.node);
-          }
-          return null;
-      }
+      public AbstractNode addAllNodesToJSON (AbstractNode n, boolean addToList) {
+                     if(n.getChild() != null) {
+                         n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
+                         if(addToList) {
+                             allNodes.add(n.node);
+                         }
+                     }
+                     return null;
+                 }
 
-      public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
-          array.add(n.node);
-          if(n.getSib() != null) {
-              AddAllChild(n.getSib(),array);
-          }
-          if(n.getChild() != null) addAllNodesToJSON(n.getChild());
-          return array;
-      }
+                 public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
+                     array.add(n.node);
+                     if(n.getChild() != null)
+                     {
+                         addAllNodesToJSON(n,false);
+                     }
+
+                     if(n.getSib() != null) {
+                         AddAllChild(n.getSib(),array);
+                     }
+                     return array;
+                 }
    class BinaryOPNode extends AbstractNode {
          AbstractNode number1;
          AbstractNode number2;
@@ -45,6 +51,25 @@ action code {:
 
          }
          public String getName() {return number1 + " " + operator + " " + number2;}
+   }
+
+   class VariableDeclarationNode extends AbstractNode {
+        AbstractNode type;
+        AbstractNode id;
+        AbstractNode body;
+
+        public VariableDeclarationNode (AbstractNode type, AbstractNode id, AbstractNode body) {
+            this.type = type;
+            this.id = id;
+            this.body = body;
+
+            node.put("type", "VariableDeclaration");
+            node.put("Identifier", id.node);
+            node.put("VariableType", type.node);
+            if(body != null) {
+                node.put("Init", body.node);
+            }
+        }
    }
 
    class IdentifierNode extends AbstractNode {
@@ -108,6 +133,8 @@ action code {:
    public AbstractNode makeNode(int value) {return new IntegerNode(value);}
    public AbstractNode makeNode(float value) {return new FloatNode(value);}
    public AbstractNode makeNode(String name) {return new SingleNode(name);}
+   public AbstractNode makeNode(AbstractNode type, AbstractNode id, AbstractNode body) {return new VariableDeclarationNode(type,id, body);}
+
    public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
    public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
 :};
@@ -140,7 +167,7 @@ CompilationUnit ::= TypeDeclarations:td
     prog.node.put("type", "Program");
 
     prog.adoptChildren(td);
-    addAllNodesToJSON(prog);
+    addAllNodesToJSON(prog,true);
 
 
      try (FileWriter file = new FileWriter("ast.json")) {
@@ -157,12 +184,14 @@ TypeDeclarations ::= TypeDeclaration: td
                  {:  RESULT = td; :}
                  |   TypeDeclarations:tds TypeDeclaration:td
                  {:  RESULT = tds.makeSibling(td); :}
+                 |   expr_list:el
+                 {:  RESULT = el; :}
                  ;
 
 TypeDeclaration ::= TypeName:tn Identifier:id SEMI
-                {: RESULT = tn.makeSibling(id); :}
+                {: RESULT = makeNode(tn,id,makeNode("lol")); :}
                 |   TypeName:tn Identifier:id EQUALS expr_list:el
-                {: RESULT = tn.makeSibling(id).adoptChildren(el); :}
+                {: RESULT = makeNode(tn,id,el); :}
                 ;
 
 expr_list ::= expr_list:el expr:e SEMI {: RESULT = el.makeSibling(e); :}
