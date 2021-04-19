@@ -44,6 +44,7 @@ action code {:
 
    public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
    public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
+   public AbstractNode makeAssignmentNode(AbstractNode set, AbstractNode to) {return new AssignmentNode(set,to);}
 :};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
@@ -59,19 +60,28 @@ non terminal AbstractNode TypeDeclarations;
 non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode TypeName;
 non terminal AbstractNode Identifier;
+non terminal AbstractNode Body;
+non terminal AbstractNode FieldDeclarations;
+non terminal AbstractNode FieldDeclaration;
+non terminal AbstractNode Assignments;
+non terminal AbstractNode Assignment;
 /* Precedences */
+
+precedence left INT_TYPE, DECIMAL_TYPE;
+precedence left IDENTIFIER;
+precedence left INTEGER, DECIMAL;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 /* The grammar rules */
 
 start with CompilationUnit;
 
-CompilationUnit ::= TypeDeclarations:td
+CompilationUnit ::= Body:b
 {:
-    prog = new ProgramNode(td);
+    prog = new ProgramNode(b);
     prog.node.put("type", "Program");
 
-    prog.adoptChildren(td);
+    prog.adoptChildren(b);
     addAllNodesToJSON(prog,true);
 
 
@@ -85,20 +95,48 @@ CompilationUnit ::= TypeDeclarations:td
      }
 :};
 
+Body ::= FieldDeclarations:fds
+                 {: RESULT = fds; :}
+                 ;
+
+
+FieldDeclarations ::= FieldDeclaration:fd
+                  {: RESULT = fd; :}
+                  |   FieldDeclarations:fds FieldDeclaration:fd
+                  {: RESULT = fds.makeSibling(fd); :}
+                  ;
+
+
+FieldDeclaration ::= TypeDeclarations:tds
+                 {:RESULT = tds; :}
+                 |   expr_list:el
+                 {:RESULT = el;:}
+                 | Assignments:as
+                 {: RESULT = as; :}
+                 ;
+
+
 TypeDeclarations ::= TypeDeclaration: td
                  {:  RESULT = td; :}
                  |   TypeDeclarations:tds TypeDeclaration:td
                  {:  RESULT = tds.makeSibling(td); :}
-                 |   expr_list:el
-                 {:  RESULT = el; :}
                  ;
 
 TypeDeclaration ::= TypeName:tn Identifier:id SEMI
                 {: RESULT = makeNode(tn,id,makeNode("lol")); :}
-                |   TypeName:tn Identifier:id EQUALS expr_list:el
+                |   TypeName:tn Identifier:id EQUALS expr:el SEMI
                 {: RESULT = makeNode(tn,id,el); :}
                 ;
 
+Assignments ::= Assignment:a
+             {: RESULT = a; :}
+             |  Assignments:as Assignment:a
+             {: RESULT = as.makeSibling(a); :}
+             ;
+
+Assignment ::= Identifier:id EQUALS expr:e SEMI
+            {: RESULT = makeAssignmentNode(id,e); :}
+            ;
 expr_list ::= expr_list:el expr:e SEMI {: RESULT = el.makeSibling(e); :}
             | expr:e SEMI              {: RESULT = e; :}
 	    	;
@@ -118,6 +156,8 @@ expr      ::= expr:e1 PLUS  expr:e2
 	    	| DECIMAL:n
 	    	{: RESULT = makeNode(n); :}
 	    	| MINUS expr:e
+	    	| Identifier:id
+	    	{: RESULT = id; :}
             ;
 
 Identifier  ::= IDENTIFIER:id
@@ -129,3 +169,5 @@ TypeName    ::= INT_TYPE:type
             |  DECIMAL_TYPE:type
             {: RESULT = makeTypeNode("decimal"); :}
             ;
+
+/* Et hus fuld af muuuuuuuuuuuuuuuuuuuuuuuuuus */

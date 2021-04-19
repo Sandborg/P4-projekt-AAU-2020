@@ -11,7 +11,7 @@ public class FloatNode extends AbstractNode {
         node.put("value", value);
 
     }
-
+    public String getName() {return "Decimal";}
     public float getValue() {return value;}
     public void accept(Visitor v) {
         v.visit(this);

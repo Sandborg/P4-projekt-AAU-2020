@@ -10,7 +10,7 @@ public class IntegerNode extends AbstractNode {
         node.put("value", value);
 
     }
-
+    public String getName() {return "Literal";}
     public int getValue() {return value;}
     public void accept(Visitor v) {
         v.visit(this);

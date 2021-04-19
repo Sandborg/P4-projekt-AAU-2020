@@ -4,7 +4,7 @@ import AST.Visitor.Visitor;
 import lab7.*;
 
 public class TypeNode extends AbstractNode {
-    String type;
+    public String type;
 
     public TypeNode (String type) {
         this.type = type;
@@ -13,7 +13,7 @@ public class TypeNode extends AbstractNode {
     }
 
     public String getValue() {return type;}
-
+    public String getName() {return type;}
     public void accept(Visitor v) {
         v.visit(this);
     }

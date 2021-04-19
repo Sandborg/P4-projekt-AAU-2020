@@ -4,10 +4,10 @@ import AST.Visitor.Visitor;
 import lab7.AbstractNode;
 
 public class ProgramNode extends AbstractNode {
-    public VariableDeclarationNode decls;
+    public AbstractNode decls;
 
-    public ProgramNode (VariableDeclarationNode decls) {
-        this.decls = decls;
+    public ProgramNode (AbstractNode n) {
+        this.decls = n;
     }
 
     public void accept(Visitor v) {

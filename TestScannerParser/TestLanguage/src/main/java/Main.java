@@ -18,11 +18,11 @@ import javax.xml.transform.stream.*;
 public class Main {
     public JSONArray allNodes = new JSONArray();
     public static void main(String[] args) throws Exception{
-        //Setup
+        //Syntax Analysis
         parser p = new parser(new Scanner(new FileReader(args[0])));
         p.parse();
 
-        // Contextual Analyzer
+        // Contextual Analysis
         SymbolTable global = new SymbolTable(null);
         Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,global);
     }

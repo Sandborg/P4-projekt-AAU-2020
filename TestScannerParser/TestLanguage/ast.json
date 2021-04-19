@@ -1,1 +1,30 @@
-[{"type":"Program","Body":[{"Init":{"type":"Literal","value":3},"Identifier":{"id":"lol","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}]}]
+[
+  {
+    "type": "Program",
+    "Body": [
+      {
+        "Init": {
+          "left": {
+            "type": "Decimal",
+            "value": 5.5
+          },
+          "right": {
+            "type": "Literal",
+            "value": 3
+          },
+          "type": "BinaryExpression",
+          "operator": "+"
+        },
+        "Identifier": {
+          "id": "g",
+          "type": "Identifier"
+        },
+        "VariableType": {
+          "dataType": "decimal",
+          "type": "Type"
+        },
+        "type": "VariableDeclaration"
+      }
+    ]
+  }
+]
