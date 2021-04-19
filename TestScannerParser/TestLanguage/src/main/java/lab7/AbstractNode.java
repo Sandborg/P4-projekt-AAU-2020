@@ -1,11 +1,12 @@
 package lab7;
 
-import java_cup.runtime.*;
+import AST.Visitor.Visitor;
+
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import org.json.simple.JSONArray;
+
 import org.json.simple.JSONObject;
 /** All AST nodes are subclasses of this node.  This node knows how to
   * link itself with other siblings and adopt children.
@@ -168,4 +169,6 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    public void walkTree(Visitable v) {
       internWalk(0, v);
    }
+
+   public abstract void accept(Visitor analyzer);
 }

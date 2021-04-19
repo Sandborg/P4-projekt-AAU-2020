@@ -1,5 +1,6 @@
 import java_cup.runtime.*;
 import lab7.*;
+import AST.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.json.simple.JSONArray;
@@ -11,6 +12,7 @@ action code {:
    public JSONArray allNodesUnderProg = new JSONArray();
    public JSONArray expressions = new JSONArray();
 
+   public AbstractNode prog;
       public AbstractNode addAllNodesToJSON (AbstractNode n, boolean addToList) {
                      if(n.getChild() != null) {
                          n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
@@ -33,101 +35,6 @@ action code {:
                      }
                      return array;
                  }
-   class BinaryOPNode extends AbstractNode {
-         AbstractNode number1;
-         AbstractNode number2;
-         String operator;
-
-         public BinaryOPNode (AbstractNode number1, AbstractNode number2, String operator) {
-            this.number1 = number1;
-            this.number2 = number2;
-            this.operator = operator;
-
-
-            node.put("left", number1.node);
-            node.put("right", number2.node);
-            node.put("type", "BinaryExpression");
-            node.put("operator", operator);
-
-         }
-         public String getName() {return number1 + " " + operator + " " + number2;}
-   }
-
-   class VariableDeclarationNode extends AbstractNode {
-        AbstractNode type;
-        AbstractNode id;
-        AbstractNode body;
-
-        public VariableDeclarationNode (AbstractNode type, AbstractNode id, AbstractNode body) {
-            this.type = type;
-            this.id = id;
-            this.body = body;
-
-            node.put("type", "VariableDeclaration");
-            node.put("Identifier", id.node);
-            node.put("VariableType", type.node);
-            if(body != null) {
-                node.put("Init", body.node);
-            }
-        }
-   }
-
-   class IdentifierNode extends AbstractNode {
-        String id;
-
-        public IdentifierNode (String id) {
-            this.id = id;
-            node.put("type", "Identifier");
-            node.put("id", id);
-        }
-        public String getValue() {return id;}
-   }
-
-   class TypeNode extends AbstractNode {
-        String type;
-
-        public TypeNode (String type) {
-            this.type = type;
-            node.put("type", "Type");
-            node.put("dataType", type);
-        }
-
-        public String getValue() {return type;}
-   }
-
-   class IntegerNode extends AbstractNode {
-        int value;
-        public IntegerNode(int value) {
-            this.value = value;
-            node.put("type", "Literal");
-            node.put("value", value);
-
-        }
-
-        public int getValue() {return value;}
-   }
-
-      class FloatNode extends AbstractNode {
-           float value;
-           public FloatNode(float value) {
-               this.value = value;
-               node.put("type", "Decimal");
-               node.put("value", value);
-
-           }
-
-           public float getValue() {return value;}
-      }
-
-   class SingleNode extends AbstractNode {
-         String name;
-
-
-         public SingleNode(String name) {
-            this.name = name;
-         }
-         public String getName() {return name;}
-   }
 
    public AbstractNode makeNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
    public AbstractNode makeNode(int value) {return new IntegerNode(value);}
@@ -161,9 +68,7 @@ start with CompilationUnit;
 
 CompilationUnit ::= TypeDeclarations:td
 {:
-
-    AbstractNode prog = makeNode("prog");
-    System.out.println(td);
+    prog = new ProgramNode(td);
     prog.node.put("type", "Program");
 
     prog.adoptChildren(td);
