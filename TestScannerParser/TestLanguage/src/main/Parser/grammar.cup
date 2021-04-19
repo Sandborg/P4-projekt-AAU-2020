@@ -54,8 +54,7 @@ terminal String     IDENTIFIER;
 terminal            INT_TYPE, DECIMAL_TYPE;
 
 non terminal AbstractNode CompilationUnit;
-non terminal AbstractNode expr_list;
-non terminal AbstractNode expr;      // used to store evaluated subexpressions
+non terminal AbstractNode ListExpr;
 non terminal AbstractNode TypeDeclarations;
 non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode TypeName;
@@ -65,13 +64,19 @@ non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
 non terminal AbstractNode Assignments;
 non terminal AbstractNode Assignment;
-/* Precedences */
+non terminal AbstractNode AdditiveExpr;
+non terminal AbstractNode MultiplicativeExpr;
+non terminal AbstractNode UnaryExpr;
+non terminal AbstractNode Literal;
+non terminal AbstractNode Decimal;
 
+/* Precedences */
 precedence left INT_TYPE, DECIMAL_TYPE;
 precedence left IDENTIFIER;
 precedence left INTEGER, DECIMAL;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
+
 /* The grammar rules */
 
 start with CompilationUnit;
@@ -95,9 +100,9 @@ CompilationUnit ::= Body:b
      }
 :};
 
-Body ::= FieldDeclarations:fds
-                 {: RESULT = fds; :}
-                 ;
+Body              ::= FieldDeclarations:fds
+                  {: RESULT = fds; :}
+                  ;
 
 
 FieldDeclarations ::= FieldDeclaration:fd
@@ -108,66 +113,96 @@ FieldDeclarations ::= FieldDeclaration:fd
 
 
 FieldDeclaration ::= TypeDeclarations:tds
-                 {:RESULT = tds; :}
-                 |   expr_list:el
-                 {:RESULT = el;:}
+                 {: RESULT = tds;:}
+                 |   ListExpr:el
+                 {: RESULT = el; :}
                  | Assignments:as
                  {: RESULT = as; :}
                  ;
 
 
 TypeDeclarations ::= TypeDeclaration: td
-                 {:  RESULT = td; :}
-                 |   TypeDeclarations:tds TypeDeclaration:td
-                 {:  RESULT = tds.makeSibling(td); :}
+                 {: RESULT = td; :}
+                 |  TypeDeclarations:tds TypeDeclaration:td
+                 {: RESULT = tds.makeSibling(td); :}
                  ;
 
-TypeDeclaration ::= TypeName:tn Identifier:id SEMI
-                {: RESULT = makeNode(tn,id,makeNode("lol")); :}
-                |   TypeName:tn Identifier:id EQUALS expr:el SEMI
-                {: RESULT = makeNode(tn,id,el); :}
+
+TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
+                 {: RESULT = makeNode(tn,id,makeNode("lol")); :}
+                 |   TypeName:tn Identifier:id EQUALS AdditiveExpr:el SEMI
+                 {: RESULT = makeNode(tn,id,el); :}
+                 ;
+
+
+Assignments     ::= Assignment:a
+                {: RESULT = a; :}
+                |  Assignments:as Assignment:a
+                {: RESULT = as.makeSibling(a); :}
                 ;
 
-Assignments ::= Assignment:a
-             {: RESULT = a; :}
-             |  Assignments:as Assignment:a
-             {: RESULT = as.makeSibling(a); :}
-             ;
 
-Assignment ::= Identifier:id EQUALS expr:e SEMI
-            {: RESULT = makeAssignmentNode(id,e); :}
-            ;
-expr_list ::= expr_list:el expr:e SEMI {: RESULT = el.makeSibling(e); :}
-            | expr:e SEMI              {: RESULT = e; :}
-	    	;
-	    
-expr      ::= expr:e1 PLUS  expr:e2
-            {: RESULT = makeNode(e1, e2, "+"); :}
-	    	| expr:e1 MINUS expr:e2
-	    	{: RESULT = makeNode(e1, e2, "-"); :}
-	    	| expr:e1 TIMES expr:e2
-	    	{: RESULT = makeNode(e1, e2, "*"); :}
-	    	| expr:e1 DIVIDE expr:e2
-            {: RESULT = makeNode(e1, e2, "/"); :}
-            | expr:e1 MOD expr:e2
-            {: RESULT = makeNode(e1, e2, "%"); :}
-	    	| INTEGER:n
-	    	{: RESULT = makeNode(n); :}
-	    	| DECIMAL:n
-	    	{: RESULT = makeNode(n); :}
-	    	| MINUS expr:e
-	    	| Identifier:id
-	    	{: RESULT = id; :}
-            ;
+Assignment      ::= Identifier:id EQUALS AdditiveExpr:e SEMI
+                {: RESULT = makeAssignmentNode(id,e); :}
+                ;
 
-Identifier  ::= IDENTIFIER:id
-            {: RESULT = makeIdentifierNode(id); :}
-            ;
 
-TypeName    ::= INT_TYPE:type
-            {: RESULT = makeTypeNode("int"); :}
-            |  DECIMAL_TYPE:type
-            {: RESULT = makeTypeNode("decimal"); :}
-            ;
+ListExpr       ::= ListExpr:el AdditiveExpr:e SEMI
+                {: RESULT = el.makeSibling(e); :}
+                | AdditiveExpr:e SEMI
+                {: RESULT = e; :}
+	    	    ;
+
+
+AdditiveExpr    ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
+                {: RESULT = makeNode(e1, e2, "+"); :}
+                |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
+                {: RESULT = makeNode(e1, e2, "-"); :}
+                |   MultiplicativeExpr:e2
+                {: RESULT = e2; :}
+                ;
+
+
+MultiplicativeExpr ::= MultiplicativeExpr:e1 TIMES UnaryExpr:e2
+                {: RESULT = makeNode(e1, e2, "*"); :}
+                |   MultiplicativeExpr:e1 DIVIDE UnaryExpr:e2
+                {: RESULT = makeNode(e1, e2, "/"); :}
+                |   MultiplicativeExpr:e1 MOD UnaryExpr:e2
+                {: RESULT = makeNode(e1, e2, "%"); :}
+                |   UnaryExpr:e2
+                {: RESULT = e2; :}
+                ;
+
+
+UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror vi kan tilføje den igen her. */
+                {: RESULT = n; :}
+                | Decimal:n
+                {: RESULT = n; :}
+                | Identifier:id
+                {: RESULT = id; :}
+                ;
+
+
+Identifier      ::= IDENTIFIER:id
+                {: RESULT = makeIdentifierNode(id); :}
+                ;
+
+
+TypeName        ::= INT_TYPE:type
+                {: RESULT = makeTypeNode("int"); :}
+                |  DECIMAL_TYPE:type
+                {: RESULT = makeTypeNode("decimal"); :}
+                ;
+
+
+Literal         ::= INTEGER:n
+                {: RESULT = makeNode(n); :}
+                ;
+
+
+Decimal         ::= DECIMAL:n
+                {: RESULT = makeNode(n); :}
+                ;
+
 
 /* Et hus fuld af muuuuuuuuuuuuuuuuuuuuuuuuuus */
