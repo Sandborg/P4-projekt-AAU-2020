@@ -47,6 +47,8 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       return(ans);
    }
 
+
+
    /** Adopt the supplied node and all of its siblings under this node */
    public AbstractNode adoptChildren(AbstractNode n) {
       if (n != null) {
@@ -68,7 +70,7 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       return this;
    }
 
-   private void setParent(AbstractNode p) {
+   public void setParent(AbstractNode p) {
       this.parent = p;
    }
 

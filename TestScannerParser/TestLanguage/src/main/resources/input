@@ -1,7 +1,1 @@
-int hej;
-decimal dig;
-int a = 3 + 3;
-decimal b = 6.4 + 4;
-b = a + b;
-decimal de= 20+32+23+43+03.23;
-
+int hej = 5.5 + 3 + 3;

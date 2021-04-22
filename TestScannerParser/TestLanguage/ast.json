@@ -1,1 +1,38 @@
-[{"type":"Program","Body":[{"Init":{},"Identifier":{"id":"hej","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{},"Identifier":{"id":"dig","type":"Identifier"},"VariableType":{"dataType":"decimal","type":"Type"},"type":"VariableDeclaration"},{"Init":{"left":{"type":"Literal","value":3},"right":{"type":"Literal","value":3},"type":"BinaryExpression","operator":"+"},"Identifier":{"id":"a","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{"left":{"type":"Decimal","value":6.4},"right":{"type":"Literal","value":4},"type":"BinaryExpression","operator":"+"},"Identifier":{"id":"b","type":"Identifier"},"VariableType":{"dataType":"decimal","type":"Type"},"type":"VariableDeclaration"},{"left":{"id":"b","type":"Identifier"},"right":{"left":{"id":"a","type":"Identifier"},"right":{"id":"b","type":"Identifier"},"type":"BinaryExpression","operator":"+"},"type":"AssignmentExpression"},{"Init":{"left":{"left":{"left":{"left":{"type":"Literal","value":20},"right":{"type":"Literal","value":32},"type":"BinaryExpression","operator":"+"},"right":{"type":"Literal","value":23},"type":"BinaryExpression","operator":"+"},"right":{"type":"Literal","value":43},"type":"BinaryExpression","operator":"+"},"right":{"type":"Decimal","value":3.23},"type":"BinaryExpression","operator":"+"},"Identifier":{"id":"de","type":"Identifier"},"VariableType":{"dataType":"decimal","type":"Type"},"type":"VariableDeclaration"}]}]
+[
+  {
+    "type": "Program",
+    "Body": [
+      {
+        "Init": {
+          "left": {
+            "left": {
+              "type": "Decimal",
+              "value": 5.5
+            },
+            "right": {
+              "type": "int",
+              "value": 3
+            },
+            "type": "BinaryExpression",
+            "operator": "+"
+          },
+          "right": {
+            "type": "int",
+            "value": 3
+          },
+          "type": "BinaryExpression",
+          "operator": "+"
+        },
+        "Identifier": {
+          "id": "hej",
+          "type": "Identifier"
+        },
+        "VariableType": {
+          "dataType": "int",
+          "type": "Type"
+        },
+        "type": "VariableDeclaration"
+      }
+    ]
+  }
+]

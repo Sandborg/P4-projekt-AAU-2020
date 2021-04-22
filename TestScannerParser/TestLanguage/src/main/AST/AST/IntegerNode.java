@@ -6,11 +6,11 @@ public class IntegerNode extends AbstractNode {
     int value;
     public IntegerNode(int value) {
         this.value = value;
-        node.put("type", "Literal");
+        node.put("type", "int");
         node.put("value", value);
 
     }
-    public String getName() {return "Literal";}
+    public String getName() {return "int";}
     public int getValue() {return value;}
     public void accept(Visitor v) {
         v.visit(this);

@@ -131,7 +131,7 @@ TypeDeclarations ::= TypeDeclaration: td
 TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
                  {: RESULT = makeNode(tn,id,makeNode("lol")); :}
                  |   TypeName:tn Identifier:id EQUALS AdditiveExpr:el SEMI
-                 {: RESULT = makeNode(tn,id,el); :}
+                 {: AbstractNode n = makeNode(tn,id,el); el.parent = n; RESULT = n; :}
                  ;
 
 

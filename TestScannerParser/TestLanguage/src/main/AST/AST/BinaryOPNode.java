@@ -4,7 +4,6 @@ import lab7.*;
 public class BinaryOPNode extends AbstractNode {
     public AbstractNode number1;
     public AbstractNode number2;
-
     String operator;
 
     public BinaryOPNode (AbstractNode number1, AbstractNode number2, String operator) {
@@ -21,7 +20,7 @@ public class BinaryOPNode extends AbstractNode {
     }
     public String getNumber1Type() {return number1.getName();}
     public String getNumber2Type() {return number2.getName();}
-    public String getName() {return number1 + " " + operator + " " + number2;}
+    public String getName() {return number1 + " esbjerg " + operator + " " + number2;}
     public void accept(Visitor v) {
         v.visit(this);
     }
