@@ -21,9 +21,25 @@ public class VariableDeclarationNode extends AbstractNode {
         }
     }
 
+    public VariableDeclarationNode (AbstractNode type, AbstractNode id) {
+        this.type = type;
+        this.id = id;
+
+
+        node.put("type", "VariableDeclaration");
+        node.put("Identifier", id.node);
+        node.put("VariableType", type.node);
+        if(body != null) {
+            node.put("Init", body.node);
+        }
+    }
+
     public String getName() {return type.getName();};
     public void accept(Visitor v) {
         v.visit(this);
+    }
+    public void accept(Visitor v, AbstractNode parent) {
+        v.visit(this, parent);
     }
 
 }

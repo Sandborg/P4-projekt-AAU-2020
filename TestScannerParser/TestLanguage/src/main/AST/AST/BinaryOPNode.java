@@ -24,4 +24,8 @@ public class BinaryOPNode extends AbstractNode {
     public void accept(Visitor v) {
         v.visit(this);
     }
+    public void accept(Visitor v, AbstractNode parent) {
+        v.visit(this, parent);
+    }
+
 }

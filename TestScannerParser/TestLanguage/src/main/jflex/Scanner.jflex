@@ -34,9 +34,10 @@ Decimal = [0-9]*\.[0-9]+
 
 %%
 /* keywords */
-<YYINITIAL> ";" 		{ return symbol(sym.SEMI); }
 <YYINITIAL> "int"       { return symbol(sym.INT_TYPE);}
 <YYINITIAL> "decimal"   { return symbol(sym.DECIMAL_TYPE);}
+<YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);}
+
 <YYINITIAL> {
 /* identifiers */
 {Identifier}               { return symbol(sym.IDENTIFIER, yytext()); }
@@ -54,6 +55,13 @@ Decimal = [0-9]*\.[0-9]+
 "%"             { return symbol(sym.MOD);}
 "="             { return symbol(sym.EQUALS);}
 
+/* reserved symbols */
+"("         { return symbol(sym.LEFT_PAREN);}
+")"         { return symbol(sym.RIGHT_PAREN);}
+"{"         { return symbol(sym.LEFT_CURLY);}
+"}"         { return symbol(sym.RIGHT_CURLY);}
+","         {return symbol(sym.COMMA);}
+";" 		{ return symbol(sym.SEMI); }
 /* comments */
 
 

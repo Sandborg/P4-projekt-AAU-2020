@@ -173,4 +173,5 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    }
 
    public abstract void accept(Visitor analyzer);
+   public abstract void accept(Visitor analyzer, AbstractNode parent);
 }

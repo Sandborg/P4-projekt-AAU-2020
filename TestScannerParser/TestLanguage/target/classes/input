@@ -1,1 +1,3 @@
-int hej = 5.5 + 3 + 3;
+prototype int lol(int hej, int lol);
+
+int hej = 5;
