@@ -22,10 +22,10 @@ public class BinaryOPNode extends AbstractNode {
     public String getNumber2Type() {return number2.getName();}
     public String getName() {return number1 + " esbjerg " + operator + " " + number2;}
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitBinaryOP(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitBinaryOP(this, parent);
     }
 
 }

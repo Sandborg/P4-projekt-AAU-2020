@@ -43,11 +43,10 @@ Decimal = [0-9]*\.[0-9]+
 {Identifier}               { return symbol(sym.IDENTIFIER, yytext()); }
 
 /* literals */
-{Int}            { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
-{Decimal}                       {return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));}
+{Int}                           { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
+{Decimal}                       { return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));    }
 
 /* operators */
-
 "+"				{ return symbol(sym.PLUS); }
 "-"				{ return symbol(sym.MINUS); }
 "*"				{ return symbol(sym.TIMES); }
@@ -62,6 +61,7 @@ Decimal = [0-9]*\.[0-9]+
 "}"         { return symbol(sym.RIGHT_CURLY);}
 ","         {return symbol(sym.COMMA);}
 ";" 		{ return symbol(sym.SEMI); }
+
 /* comments */
 
 

@@ -15,10 +15,10 @@ public class TypeNode extends AbstractNode {
     public String getValue() {return type;}
     public String getName() {return type;}
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitType(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitType(this, parent);
     }
 
 }

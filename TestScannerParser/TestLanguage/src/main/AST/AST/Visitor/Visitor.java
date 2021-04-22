@@ -4,25 +4,23 @@ import AST.*;
 import lab7.AbstractNode;
 
 public interface Visitor {
-    public void visit(VariableDeclarationNode n);
-    public void visit(VariableDeclarationNode n, AbstractNode parent);
-    public void visit(IdentifierNode n);
-    public void visit(IdentifierNode n, AbstractNode parent);
-    public void visit(ProgramNode n);
-    public void visit(ProgramNode n, AbstractNode parent);
-    public void visit(BinaryOPNode n);
-    public void visit(BinaryOPNode n, AbstractNode parent);
-    public void visit(TypeNode n);
-    public void visit(TypeNode n, AbstractNode parent);
-    public void visit(SingleNode n);
-    public void visit(SingleNode n, AbstractNode parent);
-    public void visit(IntegerNode n);
-    public void visit(IntegerNode n, AbstractNode parent);
-    public void visit(FloatNode n);
-    public void visit(FloatNode n, AbstractNode parent);
-    public void visit(AssignmentNode n);
-    public void visit(AssignmentNode n, AbstractNode parent);
-    public void visit(FunctionDecNode n);
-    public void visit(FunctionDecNode n, AbstractNode parent);
+    public void visitVarDec(VariableDeclarationNode n);
+    public void visitVarDec(VariableDeclarationNode n, AbstractNode parent);
+    public void visitId(IdentifierNode n);
+    public void visitId(IdentifierNode n, AbstractNode parent);
+    public void visitProg(ProgramNode n);
+    public void visitProg(ProgramNode n, AbstractNode parent);
+    public void visitBinaryOP(BinaryOPNode n);
+    public void visitBinaryOP(BinaryOPNode n, AbstractNode parent);
+    public void visitType(TypeNode n);
+    public void visitType(TypeNode n, AbstractNode parent);
+    public void visitInt(IntegerNode n);
+    public void visitInt(IntegerNode n, AbstractNode parent);
+    public void visitFloat(FloatNode n);
+    public void visitFloat(FloatNode n, AbstractNode parent);
+    public void visitAssign(AssignmentNode n);
+    public void visitAssign(AssignmentNode n, AbstractNode parent);
+    public void visitFuncDec(FunctionDecNode n);
+    public void visitFuncDec(FunctionDecNode n, AbstractNode parent);
 
 }

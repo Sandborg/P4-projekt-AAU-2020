@@ -15,10 +15,10 @@ public class AssignmentNode extends AbstractNode {
         node.put("right", to.node);
     }
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitAssign(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitAssign(this, parent);
     }
 
 }

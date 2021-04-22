@@ -16,140 +16,153 @@ public class Analyzer implements Visitor {
     }
 
     @Override
-    public void visit(VariableDeclarationNode n) {
+    public void visitVarDec(VariableDeclarationNode n) {
+        //Insert the variable into the symboltable
         top.put(n.id.getName(),n);
+
+        //If the variable has a body, accept it
         if(n.body != null) {
             n.body.accept(this, n);
         }
+
+        //Accept it's id
         n.id.accept(this);
+
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(VariableDeclarationNode n, AbstractNode parent) {
+    public void visitVarDec(VariableDeclarationNode n, AbstractNode parent) {
 
     }
 
     @Override
-    public void visit(IdentifierNode n) {
-
+    public void visitId(IdentifierNode n) {
+        //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(IdentifierNode n, AbstractNode parent) {
-
+    public void visitId(IdentifierNode n, AbstractNode parent) {
+        //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
+        //Check if the identifiers type is compatible with the parent:
         if(!CheckType(n,parent)) System.out.println("type error identifier");
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this, parent);
     }
 
     @Override
-    public void visit(ProgramNode n) {
+    public void visitProg(ProgramNode n) {
+        //Continue with the first sibling
         n.decls.getFirst().accept(this);
     }
 
     @Override
-    public void visit(ProgramNode n, AbstractNode parent) {
+    public void visitProg(ProgramNode n, AbstractNode parent) {
 
     }
 
     @Override
-    public void visit(BinaryOPNode n) {
+    public void visitBinaryOP(BinaryOPNode n) {
+        //A binarayOP node has two numbers. Accept them:
         n.number1.accept(this);
         n.number2.accept(this);
-            //Make sure that number1 and number2 is correct type :i
-            if(!(n.number1 instanceof BinaryOPNode) && !(n.number2 instanceof BinaryOPNode)) {
-                if(!CheckType(n.number2,n.number1)) System.out.println("Type Error at binopnode number 1");
-            }
+
+        //Continue with the next sibling
         if(n.getSib() != null)
             n.getSib().accept(this);
     }
 
-    public void visit(BinaryOPNode n,AbstractNode parent) {
+    public void visitBinaryOP(BinaryOPNode n,AbstractNode parent) {
+        //A binarayOP node has two numbers. Accept them:
         n.number1.accept(this,parent);
         n.number2.accept(this,parent);
 
+        //Continue with the next sibling
         if(n.getSib() != null)
             n.getSib().accept(this,parent);
     }
 
     @Override
-    public void visit(TypeNode n) {
+    public void visitType(TypeNode n) {
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(TypeNode n, AbstractNode parent) {
+    public void visitType(TypeNode n, AbstractNode parent) {
 
     }
 
     @Override
-    public void visit(SingleNode n) {
-        if(n.getSib() != null) n.getSib().accept(this);
-
-    }
-
-    @Override
-    public void visit(SingleNode n, AbstractNode parent) {
-
-    }
-
-    @Override
-    public void visit(IntegerNode n) {
+    public void visitInt(IntegerNode n) {
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
     @Override
-    public void visit(IntegerNode n, AbstractNode parent) {
+    public void visitInt(IntegerNode n, AbstractNode parent) {
+        //Check if the integer is compatible with its parent.
         if(!CheckType(n,parent)) System.out.println("Type error Integer");
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(FloatNode n) {
+    public void visitFloat(FloatNode n) {
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(FloatNode n, AbstractNode parent) {
+    public void visitFloat(FloatNode n, AbstractNode parent) {
+        //Check if the float is compatible with its parent.
         if(!CheckType(n,parent)) System.out.println("Type error decimal");
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
     @Override
-    public void visit(AssignmentNode n) {
+    public void visitAssign(AssignmentNode n) {
         n.to.accept(this, n.set);
 
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(AssignmentNode n, AbstractNode parent) {
+    public void visitAssign(AssignmentNode n, AbstractNode parent) {
 
     }
 
     @Override
-    public void visit(FunctionDecNode n) {
+    public void visitFuncDec(FunctionDecNode n) {
+        //Put the function name into the global scope.
         top.put(n.id.getName(),n);
+        //Check if there already exist a function with that name in the global scope.
         n.id.accept(this);
-
+        //Create a new scope for the new function
         SymbolTable thisScope = new SymbolTable(top);
-
+        //Insert the new scope, into the list of all scopes.
         top.put(n.id.getName(), thisScope);
+        //Insert the paremeters into the new scope.
         Analyzer ana = new Analyzer((VariableDeclarationNode)n.params.getFirst(), thisScope);
-        //n.params.accept(this);
+        //Continue with next sibling.
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visit(FunctionDecNode n, AbstractNode parent) {
+    public void visitFuncDec(FunctionDecNode n, AbstractNode parent) {
 
     }
 
+    //This function checks if two type are compatable with each other.
+    //Returns true if yes, false if not.
     public boolean CheckType (AbstractNode n1, AbstractNode n2) {
         String n1Type = "1";
         String n2Type = "2";
 
+        //Get the type of n1 and n2:
         if(n1 instanceof VariableDeclarationNode) n1Type = n1.getName();
         if(n2 instanceof VariableDeclarationNode) n2Type = n2.getName();
         if(n1 instanceof IdentifierNode) n1Type = top.get(n1.getName()).getName();
@@ -157,8 +170,7 @@ public class Analyzer implements Visitor {
         if(n1 instanceof IntegerNode || n1 instanceof FloatNode) n1Type = n1.getName();
         if(n2 instanceof IntegerNode || n2 instanceof FloatNode) n2Type = n2.getName();
 
-        //System.out.println(n1Type + " " + n2Type);
-
+        //Check if the types are equal
         if(n1Type == n2Type) return true;
         else return false;
     }

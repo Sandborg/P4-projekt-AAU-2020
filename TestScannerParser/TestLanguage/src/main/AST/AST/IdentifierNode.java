@@ -14,10 +14,10 @@ public class IdentifierNode extends AbstractNode {
     public String getName() {return id;}
 
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitId(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitId(this, parent);
     }
 
 }

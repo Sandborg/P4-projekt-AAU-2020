@@ -13,10 +13,10 @@ public class IntegerNode extends AbstractNode {
     public String getName() {return "int";}
     public int getValue() {return value;}
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitInt(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitInt(this, parent);
     }
 
 }

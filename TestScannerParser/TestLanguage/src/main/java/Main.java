@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileReader;
 
 import AST.ProgramNode;
-import AST.SingleNode;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ScannerBuffer;
 import java_cup.runtime.XMLElement;

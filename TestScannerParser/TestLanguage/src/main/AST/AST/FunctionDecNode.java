@@ -28,11 +28,11 @@ public class FunctionDecNode extends AbstractNode{
 
     @Override
     public void accept(Visitor analyzer) {
-        analyzer.visit(this);
+        analyzer.visitFuncDec(this);
     }
 
     @Override
     public void accept(Visitor analyzer, AbstractNode parent) {
-        analyzer.visit(this,parent);
+        analyzer.visitFuncDec(this,parent);
     }
 }

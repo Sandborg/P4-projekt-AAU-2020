@@ -36,10 +36,10 @@ public class VariableDeclarationNode extends AbstractNode {
 
     public String getName() {return type.getName();};
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitVarDec(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitVarDec(this, parent);
     }
 
 }

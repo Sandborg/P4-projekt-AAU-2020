@@ -231,7 +231,6 @@ class CUP$parser$actions {
    public AbstractNode makeNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
    public AbstractNode makeNode(int value) {return new IntegerNode(value);}
    public AbstractNode makeNode(float value) {return new FloatNode(value);}
-   public AbstractNode makeNode(String name) {return new SingleNode(name);}
    public AbstractNode makeNode(AbstractNode type, AbstractNode id, AbstractNode body) {return new VariableDeclarationNode(type,id, body);}
 
    public AbstractNode makeVariableDeclarationNoBody(AbstractNode type, AbstractNode id) {return new VariableDeclarationNode(type,id);}

@@ -14,10 +14,10 @@ public class FloatNode extends AbstractNode {
     public String getName() {return "decimal";}
     public float getValue() {return value;}
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitFloat(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitFloat(this, parent);
     }
 
 }

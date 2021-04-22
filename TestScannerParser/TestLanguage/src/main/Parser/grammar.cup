@@ -39,7 +39,6 @@ action code {:
    public AbstractNode makeNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
    public AbstractNode makeNode(int value) {return new IntegerNode(value);}
    public AbstractNode makeNode(float value) {return new FloatNode(value);}
-   public AbstractNode makeNode(String name) {return new SingleNode(name);}
    public AbstractNode makeNode(AbstractNode type, AbstractNode id, AbstractNode body) {return new VariableDeclarationNode(type,id, body);}
 
    public AbstractNode makeVariableDeclarationNoBody(AbstractNode type, AbstractNode id) {return new VariableDeclarationNode(type,id);}
@@ -58,23 +57,23 @@ terminal String     IDENTIFIER;
 terminal            INT_TYPE, DECIMAL_TYPE;
 
 non terminal AbstractNode CompilationUnit;
-non terminal AbstractNode ListExpr;
-non terminal AbstractNode TypeDeclarations;
-non terminal AbstractNode TypeDeclaration;
-non terminal AbstractNode TypeName;
-non terminal AbstractNode Identifier;
-non terminal AbstractNode Body;
 non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
 non terminal AbstractNode FunctionDeclarations;
 non terminal AbstractNode FunctionDeclaration;
 non terminal AbstractNode Params;
 non terminal AbstractNode Param;
+non terminal AbstractNode TypeDeclarations;
+non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode Assignments;
 non terminal AbstractNode Assignment;
+non terminal AbstractNode ListExpr;
+non terminal AbstractNode Body;
 non terminal AbstractNode AdditiveExpr;
 non terminal AbstractNode MultiplicativeExpr;
 non terminal AbstractNode UnaryExpr;
+non terminal AbstractNode TypeName;
+non terminal AbstractNode Identifier;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 
@@ -113,31 +112,32 @@ CompilationUnit ::= Body:b
      }
 :};
 
-Body              ::= FieldDeclarations:fds
-                  {: RESULT = fds; :}
-                  |   FunctionDeclarations:fds FieldDeclarations:fd
-                  {: RESULT = fds.makeSibling(fd); :}
-                  ;
+Body                ::= FieldDeclarations:fds
+                    {: RESULT = fds; :}
+                    |   FunctionDeclarations:fds FieldDeclarations:fd
+                    {: RESULT = fds.makeSibling(fd); :}
+                    ;
 
 FunctionDeclarations ::= FunctionDeclaration:fd
-                      {: RESULT = fd; :}
-                      | FunctionDeclarations:fds FunctionDeclaration:fd
-                      {: RESULT = fds.makeSibling(fd); :}
-                      ;
+                    {: RESULT = fd; :}
+                    | FunctionDeclarations:fds FunctionDeclaration:fd
+                    {: RESULT = fds.makeSibling(fd); :}
+                    ;
 
 FunctionDeclaration ::= PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                    {:  RESULT = makeFunctionDecNode(t,id,pas); :}
                    ;
 
-Params             ::= Param:pa
-                    {: RESULT = pa;:}
-                    | Params:pas COMMA Param:pa
-                    {: RESULT = pas.makeSibling(pa); :}
-                    ;
+Params            ::= Param:pa
+                   {: RESULT = pa;:}
+                   | Params:pas COMMA Param:pa
+                   {: RESULT = pas.makeSibling(pa); :}
+                   ;
 
-Param              ::= TypeName:t Identifier:id
-                    {: RESULT = makeVariableDeclarationNoBody(t, id);:}
-                    ;
+Param             ::= TypeName:t Identifier:id
+                   {: RESULT = makeVariableDeclarationNoBody(t, id);:}
+                   ;
+
 
 FieldDeclarations ::= FieldDeclaration:fd
                   {: RESULT = fd; :}

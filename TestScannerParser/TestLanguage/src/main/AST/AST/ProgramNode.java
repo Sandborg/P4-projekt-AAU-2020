@@ -11,10 +11,10 @@ public class ProgramNode extends AbstractNode {
     }
 
     public void accept(Visitor v) {
-        v.visit(this);
+        v.visitProg(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visit(this, parent);
+        v.visitProg(this, parent);
     }
 
 }
