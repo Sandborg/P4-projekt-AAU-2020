@@ -15,6 +15,15 @@ public class Analyzer implements Visitor {
         program.accept(this);
     }
 
+    public Analyzer (AbstractNode start, SymbolTable table) {
+        top = table;
+        start.getFirst().accept(this);
+    }
+    public Analyzer (AbstractNode start, SymbolTable table, AbstractNode parent) {
+        top = table;
+        start.getFirst().accept(this,parent);
+    }
+
     @Override
     public void visitVarDec(VariableDeclarationNode n) {
         //Insert the variable into the symboltable
@@ -34,7 +43,19 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitVarDec(VariableDeclarationNode n, AbstractNode parent) {
+        //Insert the variable into the symboltable
+        top.put(n.id.getName(),n);
 
+        //If the variable has a body, accept it
+        if(n.body != null) {
+            n.body.accept(this, n);
+        }
+
+        //Accept it's id
+        n.id.accept(this);
+
+        //Continue with the next sibling
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -156,6 +177,75 @@ public class Analyzer implements Visitor {
 
     }
 
+    @Override
+    public void visitFuncDef(FunctionDefNode n) {
+        n.id.accept(this);
+
+        if(!CheckType(n, top.get(n.id.getName()))) System.out.println("Type error func def");
+        if(n.body != null) {
+            SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
+
+            if(!CheckParams((VariableDeclarationNode)n.params.getFirst(),thisSymbolTable,GetNumberOfSiblings(n.params.getFirst(),1)))
+                System.out.println("Wrong params");
+
+            Analyzer analyzer = new Analyzer(n.body.getFirst(), thisSymbolTable,n);
+        }
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitFuncDef(FunctionDefNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatementNode n) {
+
+        if(n.getSib() != null) n.getSib().accept(this);
+
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent) {
+        if(!CheckType(n.argument,parent)) System.out.println("Wrong return type");
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitFunctionCall(FunctionCallNode n) {
+        n.id.accept(this);
+        SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitFunctionCall(FunctionCallNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    public boolean CheckParams(VariableDeclarationNode n, SymbolTable s, int numberOfSiblings) {
+
+        //Check if there is the correct number of parameters
+        if(s.table.size() != numberOfSiblings) {
+            return false;
+        }
+
+        //Check if the provided parmams exist in the prototype :)
+        if(s.get(n.id.getName()) != null) {
+            //Check if correct type
+            if(!CheckType(n,s.get(n.id.getName()))) return false;
+            if(n.getSib() != null) return CheckParams((VariableDeclarationNode)n.getSib(),s,numberOfSiblings);
+        }else return false;
+
+        return true;
+    }
+
+
+
+    public int GetNumberOfSiblings(AbstractNode n, int number) {
+        if(n.getSib() != null) return GetNumberOfSiblings(n.getSib(), number + 1);
+        else return number;
+    }
     //This function checks if two type are compatable with each other.
     //Returns true if yes, false if not.
     public boolean CheckType (AbstractNode n1, AbstractNode n2) {
@@ -169,6 +259,8 @@ public class Analyzer implements Visitor {
         if(n2 instanceof IdentifierNode) n2Type = top.get(n2.getName()).getName();
         if(n1 instanceof IntegerNode || n1 instanceof FloatNode) n1Type = n1.getName();
         if(n2 instanceof IntegerNode || n2 instanceof FloatNode) n2Type = n2.getName();
+        if(n1 instanceof FunctionDecNode || n1 instanceof FunctionDefNode) n1Type = n1.getType();
+        if(n2 instanceof FunctionDecNode || n2 instanceof FunctionDefNode) n2Type = n2.getType();
 
         //Check if the types are equal
         if(n1Type == n2Type) return true;

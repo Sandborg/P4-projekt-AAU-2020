@@ -46,10 +46,16 @@ action code {:
    public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
    public AbstractNode makeAssignmentNode(AbstractNode set, AbstractNode to) {return new AssignmentNode(set,to);}
    public AbstractNode makeFunctionDecNode(AbstractNode type, AbstractNode id, AbstractNode parems) {return new FunctionDecNode(type,id,parems);}
+   public AbstractNode makeFunctionDefNode(AbstractNode type, AbstractNode id, AbstractNode params, AbstractNode body) {return new FunctionDefNode(type,id,params,body);}
+   public AbstractNode makeFunctionDefNodeNoBody(AbstractNode type, AbstractNode id, AbstractNode params) {return new FunctionDefNode(type,id,params);}
+   public AbstractNode makeReturnStatement(AbstractNode argument) {return new ReturnStatementNode(argument);}
+   public AbstractNode makeFunctionCall(AbstractNode id, AbstractNode params) {return new FunctionCallNode(id, params);}
+   public AbstractNode makeFunctionCallNoParams(AbstractNode id) {return new FunctionCallNode(id);}
 :};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
 terminal            LEFT_PAREN, RIGHT_PAREN, LEFT_CURLY, RIGHT_CURLY, COMMA;
+terminal            RETURN;
 terminal            PROTOTYPE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
@@ -61,8 +67,12 @@ non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
 non terminal AbstractNode FunctionDeclarations;
 non terminal AbstractNode FunctionDeclaration;
+non terminal AbstractNode FunctionBodyDeclarations;
+non terminal AbstractNode FunctionBodyDeclaration;
 non terminal AbstractNode Params;
 non terminal AbstractNode Param;
+non terminal AbstractNode CallParams;
+non terminal AbstractNode CallParam;
 non terminal AbstractNode TypeDeclarations;
 non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode Assignments;
@@ -76,9 +86,11 @@ non terminal AbstractNode TypeName;
 non terminal AbstractNode Identifier;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
-
+non terminal AbstractNode ReturnStmt;
+non terminal AbstractNode FunctionCalls;
+non terminal AbstractNode FunctionCall;
 /* Precedences */
-
+precedence left RETURN;
 precedence left INT_TYPE, DECIMAL_TYPE;
 precedence left IDENTIFIER;
 precedence left INTEGER, DECIMAL;
@@ -114,7 +126,7 @@ CompilationUnit ::= Body:b
 
 Body                ::= FieldDeclarations:fds
                     {: RESULT = fds; :}
-                    |   FunctionDeclarations:fds FieldDeclarations:fd
+                    |  FunctionDeclarations:fds FieldDeclarations:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
@@ -138,6 +150,15 @@ Param             ::= TypeName:t Identifier:id
                    {: RESULT = makeVariableDeclarationNoBody(t, id);:}
                    ;
 
+CallParams        ::= CallParam:cp
+                   {: RESULT = cp;:}
+                   | CallParams:cps COMMA CallParam:cp
+                   {: RESULT = cps.makeSibling(cp); :}
+                   ;
+
+CallParam         ::= AdditiveExpr:ae
+                   {: RESULT = ae; :}
+                   ;
 
 FieldDeclarations ::= FieldDeclaration:fd
                   {: RESULT = fd; :}
@@ -152,8 +173,38 @@ FieldDeclaration ::= TypeDeclarations:tds
                  {: RESULT = el; :}
                  | Assignments:as
                  {: RESULT = as; :}
+                 | FunctionCalls:fcs
+                 {: RESULT = fcs;  :}
                  ;
 
+FunctionCalls    ::= FunctionCall:fc
+                 {: RESULT = fc;  :}
+                 |   FunctionCalls:fcs FunctionCall:fc
+                 {: RESULT = fcs.makeSibling(fc); :}
+                 ;
+
+FunctionCall     ::= Identifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
+                 {:  RESULT = makeFunctionCall(id,cps);:}
+                 |   Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                 {:  RESULT = makeFunctionCallNoParams(id);:}
+                 ;
+
+FunctionBodyDeclarations ::= FunctionBodyDeclaration:fd
+                  {: RESULT = fd; :}
+                  |   FunctionBodyDeclarations:fds FunctionBodyDeclaration:fd
+                  {: RESULT = fds.makeSibling(fd); :}
+                  ;
+
+
+FunctionBodyDeclaration ::= TypeDeclarations:tds
+                 {: RESULT = tds;:}
+                 |   ListExpr:el
+                 {: RESULT = el; :}
+                 | Assignments:as
+                 {: RESULT = as; :}
+                 | ReturnStmt:rs
+                 {: RESULT = rs; :}
+                 ;
 
 TypeDeclarations ::= TypeDeclaration: td
                  {: RESULT = td; :}
@@ -166,6 +217,10 @@ TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
                  {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
                  |   TypeName:tn Identifier:id EQUALS AdditiveExpr:e SEMI
                  {: RESULT = makeNode(tn,id,e); :}
+                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
+                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
+                 {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
                  ;
 
 
@@ -236,6 +291,10 @@ Literal         ::= INTEGER:n
 
 Decimal         ::= DECIMAL:n
                 {: RESULT = makeNode(n); :}
+                ;
+
+ReturnStmt      ::= RETURN AdditiveExpr:ae SEMI
+                {:  RESULT = makeReturnStatement(ae); :}
                 ;
 
 

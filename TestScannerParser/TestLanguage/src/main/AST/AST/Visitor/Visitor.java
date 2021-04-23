@@ -22,5 +22,11 @@ public interface Visitor {
     public void visitAssign(AssignmentNode n, AbstractNode parent);
     public void visitFuncDec(FunctionDecNode n);
     public void visitFuncDec(FunctionDecNode n, AbstractNode parent);
+    public void visitFuncDef(FunctionDefNode n);
+    public void visitFuncDef(FunctionDefNode n, AbstractNode parent);
+    public void visitReturnStatement(ReturnStatementNode n);
+    public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent);
+    public void visitFunctionCall(FunctionCallNode n);
+    public void visitFunctionCall(FunctionCallNode n, AbstractNode parent);
 
 }
