@@ -167,7 +167,9 @@ public class Analyzer implements Visitor {
         //Insert the new scope, into the list of all scopes.
         top.put(n.id.getName(), thisScope);
         //Insert the paremeters into the new scope.
-        Analyzer ana = new Analyzer((VariableDeclarationNode)n.params.getFirst(), thisScope);
+        if(n.params != null) {
+            Analyzer ana = new Analyzer((VariableDeclarationNode) n.params.getFirst(), thisScope);
+        }
         //Continue with next sibling.
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -181,13 +183,14 @@ public class Analyzer implements Visitor {
     public void visitFuncDef(FunctionDefNode n) {
         n.id.accept(this);
 
+        SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
+
         if(!CheckType(n, top.get(n.id.getName()))) System.out.println("Type error func def");
-        if(n.body != null) {
-            SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
-
-            if(!CheckParams((VariableDeclarationNode)n.params.getFirst(),thisSymbolTable,GetNumberOfSiblings(n.params.getFirst(),1)))
+        if(n.params != null) {
+            if (!CheckParams((VariableDeclarationNode) n.params.getFirst(), thisSymbolTable, GetNumberOfSiblings(n.params.getFirst(), 1)))
                 System.out.println("Wrong params");
-
+        }
+        if(n.body != null) {
             Analyzer analyzer = new Analyzer(n.body.getFirst(), thisSymbolTable,n);
         }
         if(n.getSib() != null) n.getSib().accept(this);
@@ -215,12 +218,35 @@ public class Analyzer implements Visitor {
     public void visitFunctionCall(FunctionCallNode n) {
         n.id.accept(this);
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
+
+        //Find prototype node
+        FunctionDecNode functionDecNode = (FunctionDecNode)top.get(n.id.getName());
+        if(n.params != null) {
+            if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
+                System.out.println("Wrong call parameters");
+        }
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
     public void visitFunctionCall(FunctionCallNode n, AbstractNode parent) {
         if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    public boolean CheckCallParams(AbstractNode callNode, VariableDeclarationNode decNode, SymbolTable s) {
+        //Check if the call has correct number of parameters.
+        if(GetNumberOfSiblings(callNode,1) != GetNumberOfSiblings(decNode, 1)) return false;
+
+        //If curr param is identifier, check if it exists
+        if(callNode.getType() == "Identifier" && s.get(callNode.getName()) == null) return false;
+
+        //Check if correct type
+        if(!CheckType(callNode,decNode)) return false;
+
+        //Check for next param
+        if(callNode.getSib() != null) return CheckCallParams(callNode.getSib(), (VariableDeclarationNode) decNode.getSib(), s);
+
+        return true;
     }
 
     public boolean CheckParams(VariableDeclarationNode n, SymbolTable s, int numberOfSiblings) {
@@ -261,6 +287,7 @@ public class Analyzer implements Visitor {
         if(n2 instanceof IntegerNode || n2 instanceof FloatNode) n2Type = n2.getName();
         if(n1 instanceof FunctionDecNode || n1 instanceof FunctionDefNode) n1Type = n1.getType();
         if(n2 instanceof FunctionDecNode || n2 instanceof FunctionDefNode) n2Type = n2.getType();
+
 
         //Check if the types are equal
         if(n1Type == n2Type) return true;

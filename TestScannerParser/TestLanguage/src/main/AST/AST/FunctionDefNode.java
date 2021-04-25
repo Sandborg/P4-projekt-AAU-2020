@@ -33,12 +33,25 @@ public class FunctionDefNode extends AbstractNode {
         this.id = id;
         this.type = type;
         this.params = params;
+        if(params instanceof VariableDeclarationNode) this.params = params;
+        else this.body = params;
         node.put("Type", "FunctionDefinition");
         node.put("type", type.node);
         node.put("id", id.node);
         node.put("params", paramList);
         addParamsToList(params.getFirst());
     }
+
+    public FunctionDefNode(AbstractNode type, AbstractNode id) {
+        this.id = id;
+        this.type = type;
+        this.params = params;
+        node.put("Type", "FunctionDefinition");
+        node.put("type", type.node);
+        node.put("id", id.node);
+    }
+
+
 
     public String getType() {return type.getName();}
 

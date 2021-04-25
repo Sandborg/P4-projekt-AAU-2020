@@ -46,8 +46,10 @@ action code {:
    public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
    public AbstractNode makeAssignmentNode(AbstractNode set, AbstractNode to) {return new AssignmentNode(set,to);}
    public AbstractNode makeFunctionDecNode(AbstractNode type, AbstractNode id, AbstractNode parems) {return new FunctionDecNode(type,id,parems);}
+   public AbstractNode makeFunctionDecNodeNoParams(AbstractNode type, AbstractNode id) {return new FunctionDecNode(type,id);}
    public AbstractNode makeFunctionDefNode(AbstractNode type, AbstractNode id, AbstractNode params, AbstractNode body) {return new FunctionDefNode(type,id,params,body);}
    public AbstractNode makeFunctionDefNodeNoBody(AbstractNode type, AbstractNode id, AbstractNode params) {return new FunctionDefNode(type,id,params);}
+   public AbstractNode makeFunctionDefNodeNoBodyNoParams(AbstractNode type, AbstractNode id) {return new FunctionDefNode(type,id);}
    public AbstractNode makeReturnStatement(AbstractNode argument) {return new ReturnStatementNode(argument);}
    public AbstractNode makeFunctionCall(AbstractNode id, AbstractNode params) {return new FunctionCallNode(id, params);}
    public AbstractNode makeFunctionCallNoParams(AbstractNode id) {return new FunctionCallNode(id);}
@@ -137,7 +139,9 @@ FunctionDeclarations ::= FunctionDeclaration:fd
                     ;
 
 FunctionDeclaration ::= PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
-                   {:  RESULT = makeFunctionDecNode(t,id,pas); :}
+                    {:  RESULT = makeFunctionDecNode(t,id,pas); :}
+                    |   PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
                    ;
 
 Params            ::= Param:pa
@@ -221,6 +225,10 @@ TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
                  {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
                  |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
+                 |   TypeName:t Identifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
+                 |   TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                 {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;
 
 

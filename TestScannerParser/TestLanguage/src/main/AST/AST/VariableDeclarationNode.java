@@ -34,6 +34,7 @@ public class VariableDeclarationNode extends AbstractNode {
         }
     }
 
+    public String getType() {return type.getName();};
     public String getName() {return type.getName();};
     public void accept(Visitor v) {
         v.visitVarDec(this);

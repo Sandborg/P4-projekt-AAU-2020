@@ -22,6 +22,16 @@ public class FunctionDecNode extends AbstractNode{
         node.put("Params", paramList);
 
     }
+
+    public FunctionDecNode (AbstractNode type, AbstractNode id) {
+        this.type = type;
+        this.id = id;
+
+        node.put("Type", "FunctionDeclaration");
+        node.put("Id", id.node);
+        node.put("FuncType", type.node);
+
+    }
     public  void addParamsToList (AbstractNode n) {
         paramList.add(n.node);
         if(n.getSib() != null) addParamsToList(n.getSib());

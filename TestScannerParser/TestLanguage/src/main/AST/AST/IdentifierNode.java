@@ -12,7 +12,7 @@ public class IdentifierNode extends AbstractNode {
         node.put("id", id);
     }
     public String getName() {return id;}
-
+    public String getType() {return "Identifier";}
     public void accept(Visitor v) {
         v.visitId(this);
     }

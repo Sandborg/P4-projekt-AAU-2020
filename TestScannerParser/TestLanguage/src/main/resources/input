@@ -1,10 +1,10 @@
-prototype int SwapNumbers(int a, int b);
+prototype int SwapNumbers();
 
-int a = 5;
-int b = 10;
-int c = 7;
-SwapNumbers(a,b, c);
-int SwapNumbers(int a, int b) {
+int a = 7;
+int b = 2;
+decimal lol = 3.3;
+SwapNumbers();
+int SwapNumbers() {
 
 }
 
