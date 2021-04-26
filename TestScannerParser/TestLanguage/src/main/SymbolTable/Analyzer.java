@@ -224,6 +224,10 @@ public class Analyzer implements Visitor {
         if(n.params != null) {
             if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
                 System.out.println("Wrong call parameters");
+        }else {
+            if(n.params == null && functionDecNode.params != null) {
+                System.out.println("Wrong call parameters");
+            }
         }
         if(n.getSib() != null) n.getSib().accept(this);
     }
