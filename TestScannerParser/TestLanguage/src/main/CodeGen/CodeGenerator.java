@@ -3,12 +3,16 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 public class CodeGenerator {
 
     public CodeGenerator () throws IOException, ParseException {
         //Create the file:
-        FileWriter program = new FileWriter("src/main/resources/program.c");
+        FileWriter program = new FileWriter("src/main/CCompiler/tcc/program.c");
         //Write the file
         ReadTree(program);
         //Close input stream
