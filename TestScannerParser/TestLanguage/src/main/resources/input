@@ -4,9 +4,8 @@ int a = 7;
 int b = 2;
 decimal lol = 3.3;
 
-SwapNumbers(a);
+SwapNumbers(3 + lol);
 
 int SwapNumbers(int a) {
 
 }
-
