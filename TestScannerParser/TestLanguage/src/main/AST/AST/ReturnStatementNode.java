@@ -8,7 +8,7 @@ public class ReturnStatementNode extends AbstractNode{
 
     public ReturnStatementNode(AbstractNode argument) {
         this.argument = argument;
-        node.put("Type", "ReturnStatement");
+        node.put("type", "ReturnStatement");
         node.put("Argument", argument.node);
     }
 

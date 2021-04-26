@@ -116,7 +116,7 @@ CompilationUnit ::= Body:b
     addAllNodesToJSON(prog,true);
 
 
-     try (FileWriter file = new FileWriter("ast.json")) {
+     try (FileWriter file = new FileWriter("src/main/resources/ast.json")) {
                 //We can write any JSONArray or JSONObject instance to the file
                 file.write(allNodes.toJSONString());
                 file.flush();

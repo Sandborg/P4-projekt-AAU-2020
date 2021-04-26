@@ -14,7 +14,7 @@ public class FunctionCallNode extends AbstractNode {
         this.id = id;
         this.params = params;
 
-        node.put("Type", "FunctionCall");
+        node.put("type", "FunctionCall");
         node.put("id", id.node);
         node.put("params", paramList);
         addParamsToList(params.getFirst());
@@ -23,7 +23,7 @@ public class FunctionCallNode extends AbstractNode {
     public  FunctionCallNode(AbstractNode id) {
         this.id = id;
 
-        node.put("Type", "FunctionCall");
+        node.put("type", "FunctionCall");
         node.put("id", id.node);
     }
 

@@ -15,7 +15,7 @@ public class FunctionDecNode extends AbstractNode{
         this.id = id;
         this.params = params;
 
-        node.put("Type", "FunctionDeclaration");
+        node.put("type", "FunctionDeclaration");
         node.put("Id", id.node);
         node.put("FuncType", type.node);
         addParamsToList(params.getFirst());
@@ -27,7 +27,7 @@ public class FunctionDecNode extends AbstractNode{
         this.type = type;
         this.id = id;
 
-        node.put("Type", "FunctionDeclaration");
+        node.put("type", "FunctionDeclaration");
         node.put("Id", id.node);
         node.put("FuncType", type.node);
 

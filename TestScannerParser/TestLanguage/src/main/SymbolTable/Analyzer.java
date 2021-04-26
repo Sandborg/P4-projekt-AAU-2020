@@ -291,8 +291,9 @@ public class Analyzer implements Visitor {
         if(n2 instanceof IntegerNode || n2 instanceof FloatNode) n2Type = n2.getName();
         if(n1 instanceof FunctionDecNode || n1 instanceof FunctionDefNode) n1Type = n1.getType();
         if(n2 instanceof FunctionDecNode || n2 instanceof FunctionDefNode) n2Type = n2.getType();
+
         if(n1 instanceof BinaryOPNode) {
-            boolean test1 = CheckType(((BinaryOPNode)n1).number1,n2);
+            boolean test1 = CheckType(((BinaryOPNode) n1).number1,n2);
             boolean test2 = CheckType(((BinaryOPNode) n1).number2,n2);
             return (test1 && test2);
         }

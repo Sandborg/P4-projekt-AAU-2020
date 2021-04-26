@@ -24,6 +24,9 @@ public class Main {
         // Contextual Analysis
         SymbolTable global = new SymbolTable(null);
         Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,global);
+
+        //Code Gen
+        CodeGenerator codeGenerator = new CodeGenerator();
     }
 
 }
