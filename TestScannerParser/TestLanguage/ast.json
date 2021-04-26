@@ -1,1 +1,0 @@
-[{"type":"Program","Body":[{"left":{"type":"Literal","value":3},"right":{"type":"Literal","value":3},"type":"BinaryExpression","operator":"+"},{"Init":{"type":"Literal","value":3},"Identifier":{"id":"Topper5162ErSej5","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}]}]

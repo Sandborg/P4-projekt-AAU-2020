@@ -1,11 +1,12 @@
 package lab7;
 
-import java_cup.runtime.*;
+import AST.Visitor.Visitor;
+
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import org.json.simple.JSONArray;
+
 import org.json.simple.JSONObject;
 /** All AST nodes are subclasses of this node.  This node knows how to
   * link itself with other siblings and adopt children.
@@ -46,6 +47,8 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       return(ans);
    }
 
+
+
    /** Adopt the supplied node and all of its siblings under this node */
    public AbstractNode adoptChildren(AbstractNode n) {
       if (n != null) {
@@ -67,7 +70,7 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       return this;
    }
 
-   private void setParent(AbstractNode p) {
+   public void setParent(AbstractNode p) {
       this.parent = p;
    }
 
@@ -91,7 +94,7 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    public void setNodeType(Type type) { this.type = type; }
 
    public String getName() { return ""; }
-   
+   public String getType() { return ""; }
    public String toString() {
       return("" + getName());
    }
@@ -168,4 +171,7 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    public void walkTree(Visitable v) {
       internWalk(0, v);
    }
+
+   public abstract void accept(Visitor analyzer);
+   public abstract void accept(Visitor analyzer, AbstractNode parent);
 }

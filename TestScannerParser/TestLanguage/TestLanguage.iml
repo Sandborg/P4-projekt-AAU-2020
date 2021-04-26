@@ -9,6 +9,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/Parser/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/jflex/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/AST" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/SymbolTable" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/CodeGen" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

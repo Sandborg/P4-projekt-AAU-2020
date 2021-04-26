@@ -1,2 +1,15 @@
-3+3;
-int Topper5162ErSej5 = 3;
+prototype int SwapNumbers(int a, int b);
+
+int a = 5;
+int b = 10;
+SwapNumbers(a,b);
+
+
+
+int SwapNumbers(int a, int b) {
+	int temp = a;
+	a = b;
+	b = temp;
+
+	return 0;
+}
