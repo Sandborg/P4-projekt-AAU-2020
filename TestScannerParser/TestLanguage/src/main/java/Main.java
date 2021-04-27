@@ -27,6 +27,6 @@ public class Main {
 
         //Code Gen
         CodeGenerator codeGenerator = new CodeGenerator();
-        Process process = Runtime.getRuntime().exec("cmd /c start compile_code.bat",null,new File("src/main/CCompiler/tcc/"));
+        CompileCommand compileCommand = new CompileCommand();
     }
 }
