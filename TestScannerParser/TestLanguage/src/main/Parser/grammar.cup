@@ -43,7 +43,7 @@ action code {:
 
    public AbstractNode makeVariableDeclarationNoBody(AbstractNode type, AbstractNode id) {return new VariableDeclarationNode(type,id);}
    public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
-   public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
+   public AbstractNode makeIdentifierNode(String id, String idType) {return new IdentifierNode(id, idType);}
    public AbstractNode makeAssignmentNode(AbstractNode set, AbstractNode to) {return new AssignmentNode(set,to);}
    public AbstractNode makeFunctionDecNode(AbstractNode type, AbstractNode id, AbstractNode parems) {return new FunctionDecNode(type,id,parems);}
    public AbstractNode makeFunctionDecNodeNoParams(AbstractNode type, AbstractNode id) {return new FunctionDecNode(type,id);}
@@ -61,7 +61,7 @@ terminal            RETURN;
 terminal            PROTOTYPE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
-terminal String     IDENTIFIER;
+terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
 terminal            INT_TYPE, DECIMAL_TYPE;
 
 non terminal AbstractNode CompilationUnit;
@@ -75,26 +75,23 @@ non terminal AbstractNode Params;
 non terminal AbstractNode Param;
 non terminal AbstractNode CallParams;
 non terminal AbstractNode CallParam;
-non terminal AbstractNode TypeDeclarations;
 non terminal AbstractNode TypeDeclaration;
-non terminal AbstractNode Assignments;
 non terminal AbstractNode Assignment;
-non terminal AbstractNode ListExpr;
 non terminal AbstractNode Body;
 non terminal AbstractNode AdditiveExpr;
 non terminal AbstractNode MultiplicativeExpr;
 non terminal AbstractNode UnaryExpr;
 non terminal AbstractNode TypeName;
 non terminal AbstractNode Identifier;
+non terminal AbstractNode OnlyIdentifier;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
-non terminal AbstractNode FunctionCalls;
 non terminal AbstractNode FunctionCall;
 /* Precedences */
 precedence left RETURN;
 precedence left INT_TYPE, DECIMAL_TYPE;
-precedence left IDENTIFIER;
+precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
 precedence left INTEGER, DECIMAL;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
@@ -138,9 +135,9 @@ FunctionDeclarations ::= FunctionDeclaration:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
-FunctionDeclaration ::= PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
+FunctionDeclaration ::= PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
-                    |   PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    |   PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
                    ;
 
@@ -150,7 +147,7 @@ Params            ::= Param:pa
                    {: RESULT = pas.makeSibling(pa); :}
                    ;
 
-Param             ::= TypeName:t Identifier:id
+Param             ::= TypeName:t OnlyIdentifier:id
                    {: RESULT = makeVariableDeclarationNoBody(t, id);:}
                    ;
 
@@ -171,25 +168,22 @@ FieldDeclarations ::= FieldDeclaration:fd
                   ;
 
 
-FieldDeclaration ::= TypeDeclarations:tds
+FieldDeclaration ::= TypeDeclaration:tds
                  {: RESULT = tds;:}
-                 |   ListExpr:el
-                 {: RESULT = el; :}
-                 | Assignments:as
+                 |   AdditiveExpr:ae SEMI
+                 {: RESULT = ae; :}
+                 | Assignment:as
                  {: RESULT = as; :}
-                 | FunctionCalls:fcs
+                 | FunctionCall:fcs
                  {: RESULT = fcs;  :}
                  ;
 
-FunctionCalls    ::= FunctionCall:fc
-                 {: RESULT = fc;  :}
-                 |   FunctionCalls:fcs FunctionCall:fc
-                 {: RESULT = fcs.makeSibling(fc); :}
-                 ;
 
-FunctionCall     ::= Identifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
+
+
+FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
                  {:  RESULT = makeFunctionCall(id,cps);:}
-                 |   Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                 |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                  {:  RESULT = makeFunctionCallNoParams(id);:}
                  ;
 
@@ -200,55 +194,37 @@ FunctionBodyDeclarations ::= FunctionBodyDeclaration:fd
                   ;
 
 
-FunctionBodyDeclaration ::= TypeDeclarations:tds
-                 {: RESULT = tds;:}
-                 |   ListExpr:el
-                 {: RESULT = el; :}
-                 | Assignments:as
+FunctionBodyDeclaration ::= TypeDeclaration:td
+                 {: RESULT = td;:}
+                 |  AdditiveExpr:ae
+                 {: RESULT = ae; :}
+                 | Assignment:as
                  {: RESULT = as; :}
                  | ReturnStmt:rs
                  {: RESULT = rs; :}
                  ;
 
-TypeDeclarations ::= TypeDeclaration: td
-                 {: RESULT = td; :}
-                 |  TypeDeclarations:tds TypeDeclaration:td
-                 {: RESULT = tds.makeSibling(td); :}
-                 ;
-
-
-TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
+TypeDeclaration  ::= TypeName:tn OnlyIdentifier:id SEMI
                  {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
-                 |   TypeName:tn Identifier:id EQUALS AdditiveExpr:e SEMI
+                 |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
                  {: RESULT = makeNode(tn,id,e); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
+                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;
 
 
-Assignments     ::= Assignment:a
-                {: RESULT = a; :}
-                |  Assignments:as Assignment:a
-                {: RESULT = as.makeSibling(a); :}
-                ;
 
 
 Assignment      ::= Identifier:id EQUALS AdditiveExpr:e SEMI
                 {: RESULT = makeAssignmentNode(id,e); :}
                 ;
 
-
-ListExpr       ::= ListExpr:el AdditiveExpr:e SEMI
-                {: RESULT = el.makeSibling(e); :}
-                | AdditiveExpr:e SEMI
-                {: RESULT = e; :}
-	    	    ;
 
 
 AdditiveExpr    ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
@@ -279,9 +255,14 @@ UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror 
                 {: RESULT = id; :}
                 ;
 
+OnlyIdentifier  ::=IDENTIFIER:id
+                {: RESULT = makeIdentifierNode(id,""); :}
+                ;
 
-Identifier      ::= IDENTIFIER:id
-                {: RESULT = makeIdentifierNode(id); :}
+Identifier      ::= IDENTIFIERADR:id
+                {: RESULT = makeIdentifierNode(id, "adr"); :}
+                | IDENTIFIERVAL:id
+                {: RESULT = makeIdentifierNode(id, "val"); :}
                 ;
 
 

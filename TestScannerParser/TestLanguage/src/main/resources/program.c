@@ -14,7 +14,7 @@ int main() {
 int a = 5;
 int b = 10;
 SwapNumbers(a,b); 
-a = null+3+null;
+a = b+3+a;
 
 return 0; 
 }

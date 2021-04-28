@@ -17,7 +17,7 @@ public class CompileCommand {
         Runtime.getRuntime().exec("cmd /c start compile_code.bat",null,new File("src/main/CCompiler/tcc/"));
 
         //Needs 0.25 seconds to compile before the .exe file can be moved.
-        Thread.sleep(250);
+        Thread.sleep(1000);
 
         //Move both files to the resources folder.
         Files.move(C_file, C_file_Destination, REPLACE_EXISTING);

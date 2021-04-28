@@ -31,6 +31,9 @@ public class Analyzer implements Visitor {
 
         //If the variable has a body, accept it
         if(n.body != null) {
+            if(n.body instanceof IdentifierNode && n.body.getName().equals(n.id.getName())) {
+                System.out.println("Cant declare a variable to itself");
+            }
             n.body.accept(this, n);
         }
 
@@ -48,6 +51,9 @@ public class Analyzer implements Visitor {
 
         //If the variable has a body, accept it
         if(n.body != null) {
+            if(n.body instanceof IdentifierNode && n.body.getName() == n.id.getName()) {
+                System.out.println("Cant declare a variable to itself");
+            }
             n.body.accept(this, n);
         }
 
@@ -146,6 +152,16 @@ public class Analyzer implements Visitor {
     }
     @Override
     public void visitAssign(AssignmentNode n) {
+        if(n.set.getIdType() == "adr" ) {
+            if(n.to instanceof IdentifierNode) {
+                if(n.to.getIdType() != "adr") {
+                    System.out.println("adr must be set to another adr");
+                }
+            }else{
+                System.out.println("adr must be set to another adr");
+            }
+        }
+        n.set.accept(this);
         n.to.accept(this, n.set);
 
         if(n.getSib() != null) n.getSib().accept(this);

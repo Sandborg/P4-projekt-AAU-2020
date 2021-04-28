@@ -73,7 +73,7 @@ public class CodeGenerator {
                     expr+=(GetReturnStatement(thisObject, "") + "; \n");
                 }
             }
-            System.out.println(o);
+            //System.out.println(o);
         }
         return expr;
     }
@@ -192,12 +192,17 @@ public class CodeGenerator {
 
         if(left.get("type").equals("BinaryExpression")) {
             expr+=GetBinaryOperator(left,"");
+        }else if(left.get("type").equals("Identifier")) {
+            expr+=left.get("id");
         }else{
             expr+=left.get("value");
         }
         expr+=o.get("operator");
+
         if(right.get("type").equals("BinaryExpression")) {
             expr+=GetBinaryOperator(right,"");
+        }else if(right.get("type").equals("Identifier")) {
+            expr+=right.get("id");
         }else{
             expr+=right.get("value");
         }

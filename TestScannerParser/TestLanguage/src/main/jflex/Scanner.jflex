@@ -28,6 +28,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 //Comment = {EndOfLineComment}
 
 Identifier = [:jletter:] [:jletterdigit:]*
+IdentifierVal = [:jletter:] [:jletterdigit:]*\.val
+IdentifierAdr =  [:jletter:] [:jletterdigit:]*\.adr
 
 Int = 0 | [1-9][0-9]*
 Decimal = [0-9]*\.[0-9]+
@@ -39,10 +41,12 @@ Decimal = [0-9]*\.[0-9]+
 <YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);     }
 <YYINITIAL> "return"    { return symbol(sym.RETURN);     }
 
+
 <YYINITIAL> {
 /* identifiers */
 {Identifier}    { return symbol(sym.IDENTIFIER, yytext());                             }
-
+{IdentifierVal} { return symbol(sym.IDENTIFIERVAL, yytext());                           }
+{IdentifierAdr} { return symbol(sym.IDENTIFIERADR, yytext());                           }
 /* literals */
 {Int}           { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
 {Decimal}       { return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));   }
