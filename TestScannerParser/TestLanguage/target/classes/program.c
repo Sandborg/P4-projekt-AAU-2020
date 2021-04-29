@@ -1,20 +1,25 @@
 #include <stdio.h>
-int SwapNumbers (int a,int b);
-int SwapNumbers (int a,int b){
-int temp = a;
-a = b;
-b = temp;
-int lol = 9;
-lol = a;
-return 0; 
+void hansi (int lol,int hej,int tommy);
+void hansi (int lol,int hej,int tommy){
+int *lolp = &lol;
+int *hejp = &hej;
+int *tommyp = &tommy;
+*lolp =9;
+**lol = **tommy;
+*tommyp =56;
+*hejp =*tommyp;
 
 }
 
 int main() { 
-int a = 5;
-int b = 10;
-SwapNumbers(a,b); 
-a = null+3+null;
+int hej = 6;
+int *hejp = &hej;
+int abe = 8;
+int *abep = &abe;
+int peter = 13;
+int *peterp = &peter;
+*peterp =*abep;
+hansi(*abep,*hejp,*peterp); 
 
 return 0; 
 }

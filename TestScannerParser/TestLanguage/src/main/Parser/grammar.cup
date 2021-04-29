@@ -62,7 +62,7 @@ terminal            PROTOTYPE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
 terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
-terminal            INT_TYPE, DECIMAL_TYPE;
+terminal            INT_TYPE, DECIMAL_TYPE, VOID_TYPE;
 
 non terminal AbstractNode CompilationUnit;
 non terminal AbstractNode FieldDeclarations;
@@ -87,10 +87,11 @@ non terminal AbstractNode OnlyIdentifier;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
+non terminal AbstractNode ReturnType;
 non terminal AbstractNode FunctionCall;
 /* Precedences */
 precedence left RETURN;
-precedence left INT_TYPE, DECIMAL_TYPE;
+precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE;
 precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
 precedence left INTEGER, DECIMAL;
 precedence left PLUS, MINUS;
@@ -135,9 +136,9 @@ FunctionDeclarations ::= FunctionDeclaration:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
-FunctionDeclaration ::= PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
+FunctionDeclaration ::= PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
-                    |   PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    |   PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
                    ;
 
@@ -147,7 +148,7 @@ Params            ::= Param:pa
                    {: RESULT = pas.makeSibling(pa); :}
                    ;
 
-Param             ::= TypeName:t OnlyIdentifier:id
+Param             ::= TypeName:t Identifier:id
                    {: RESULT = makeVariableDeclarationNoBody(t, id);:}
                    ;
 
@@ -204,17 +205,17 @@ FunctionBodyDeclaration ::= TypeDeclaration:td
                  {: RESULT = rs; :}
                  ;
 
-TypeDeclaration  ::= TypeName:tn OnlyIdentifier:id SEMI
+TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
                  {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
-                 |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
+                 |   ReturnType:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
                  {: RESULT = makeNode(tn,id,e); :}
-                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
-                 |   TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;
 
@@ -270,6 +271,14 @@ TypeName        ::= INT_TYPE:type
                 {: RESULT = makeTypeNode("int"); :}
                 |  DECIMAL_TYPE:type
                 {: RESULT = makeTypeNode("decimal"); :}
+                ;
+
+ReturnType      ::= INT_TYPE:type
+                {: RESULT = makeTypeNode("int");:}
+                | DECIMAL_TYPE:type
+                {: RESULT = makeTypeNode("decimal");:}
+                | VOID_TYPE:type
+                {: RESULT = makeTypeNode("void");:}
                 ;
 
 

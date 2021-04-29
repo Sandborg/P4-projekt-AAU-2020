@@ -1,0 +1,16 @@
+prototype void hansi (int lol.val, int hej.val, int tommy.val);
+
+int hej = 6;
+int abe = 8;
+int peter = 13;
+
+peter.val = abe.val;
+
+hansi(abe.val,hej.val,peter.val);
+
+void hansi(int lol.val, int hej.val, int tommy.val) {
+    lol.val = 9;
+    lol.adr = tommy.adr;
+    tommy.val = 56;
+    hej.val = tommy.val;
+}

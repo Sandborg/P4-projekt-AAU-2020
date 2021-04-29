@@ -23,7 +23,7 @@ public class CompileCommand {
         Files.move(C_file, C_file_Destination, REPLACE_EXISTING);
         Files.move(Executable, Exe_Destination,REPLACE_EXISTING);
 
-        //Run program.exe if necessary
-        //Runtime.getRuntime().exec("cmd /c start program.exe",null,new File("src/main/resources/"));
+        //Run program.pil.exe if necessary
+        //Runtime.getRuntime().exec("cmd /c start program.pil.exe",null,new File("src/main/resources/"));
     }
 }

@@ -38,6 +38,7 @@ Decimal = [0-9]*\.[0-9]+
 /* keywords */
 <YYINITIAL> "int"       { return symbol(sym.INT_TYPE);      }
 <YYINITIAL> "decimal"   { return symbol(sym.DECIMAL_TYPE);  }
+<YYINITIAL> "void"      { return symbol(sym.VOID_TYPE); }
 <YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);     }
 <YYINITIAL> "return"    { return symbol(sym.RETURN);     }
 
