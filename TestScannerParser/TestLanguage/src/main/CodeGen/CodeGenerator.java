@@ -190,14 +190,20 @@ public class CodeGenerator {
         JSONObject left = (JSONObject)o.get("left");
         JSONObject right = (JSONObject)o.get("right");
 
+        //First we make left side of the assignment:
+        //Check if the assignment is inside a function
         if(insideFunction) {
+            //Check if the left identifier is from the parameters
             if(CheckParam(params,left)) {
+                //Check if the parameter identifier is adr
                 if(GetParamIdType(params,left).equals("adr")) {
+                    //Check if the current identifier is adr
                     if(left.get("idType").equals("adr")) {
                         expr += "*" + left.get("id") + " =";
                     }else{
                         expr += "**" + left.get("id") + " =";
                     }
+                    //If the left parameter identifier is of type "val"
                 }else {
                     if(left.get("idType").equals("adr")) {
                         expr += left.get("id") + "p = ";
@@ -205,6 +211,7 @@ public class CodeGenerator {
                         expr += "*" + left.get("id") + "p = ";
                     }
                 }
+                //If the left parameter isn't from parameters:
             }else {
                 if(left.get("idType").equals("adr")) {
                     expr += left.get("id") + "p = ";
@@ -212,6 +219,7 @@ public class CodeGenerator {
                     expr += "*" + left.get("id") + "p = ";
                 }
             }
+            //If the assignment isn't inside a function
         }else{
             if(left.get("idType").equals("adr")) {
                 expr += left.get("id") + "p = ";
@@ -220,17 +228,23 @@ public class CodeGenerator {
             }
         }
 
+        //Make right side of assignment
         if(right.get("type").equals("BinaryExpression")) {
             expr+= GetBinaryOperator(right, "");
         }else if(right.get("type").equals("Identifier")){
+            //If the assignment is inside a function
             if(insideFunction) {
+                //If the right identifier comes from the parameters
                 if(CheckParam(params,right)) {
+                    //If the parameter identifier is of type "adr"
                     if(GetParamIdType(params,right).equals("adr")) {
+                        //If the current identifier is of type "adr"
                         if(right.get("idType").equals("adr")) {
                             expr += "*" + right.get("id") + "";
                         }else{
                             expr += "**" + right.get("id") + "";
                         }
+                        //If the parameter identifier is of type "val"
                     }else {
                         if(right.get("idType").equals("adr")) {
                             expr += right.get("id") + "p";
@@ -238,6 +252,7 @@ public class CodeGenerator {
                             expr += "*" + right.get("id") + "p";
                         }
                     }
+                    //If the right identifier doesn't come from parameters
                 }else {
                     if(right.get("idType").equals("adr")) {
                         expr += right.get("id") + "p";
@@ -245,6 +260,7 @@ public class CodeGenerator {
                         expr += "*" + right.get("id") + "p ";
                     }
                 }
+                //If we are not inside a function
             }else{
                 if(right.get("idType").equals("adr")) {
                     expr += right.get("id") + "p";
