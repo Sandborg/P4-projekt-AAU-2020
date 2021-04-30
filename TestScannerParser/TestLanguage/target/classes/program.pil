@@ -1,16 +1,20 @@
-prototype void hansi (int lol.val, int hej.val, int tommy.val);
+prototype int GetYourMom(int hej.adr, int med.val, int dig.val, int lol.adr);
 
-int hej = 6;
-int abe = 8;
-int peter = 13;
 
-peter.val = abe.val;
+int i = 3;
+int j = 8;
+int k = 9;
+int b = 5;
 
-hansi(abe.val,hej.val,peter.val);
+GetYourMom(i.adr,j.val,k.val,b.adr);
 
-void hansi(int lol.val, int hej.val, int tommy.val) {
-    lol.val = 9;
-    lol.adr = tommy.adr;
-    tommy.val = 56;
-    hej.val = tommy.val;
+
+int GetYourMom(int hej.adr, int med.val, int dig.val, int lol.adr) {
+    int hugo = 8;
+    hugo.val = med.val;
+    med.val = hej.val;
+    med.adr = hej.adr;
+    lol.val = dig.val;
+    hej.adr = dig.adr;
 }
+

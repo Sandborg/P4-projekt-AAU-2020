@@ -1,25 +1,28 @@
 #include <stdio.h>
-void hansi (int lol,int hej,int tommy);
-void hansi (int lol,int hej,int tommy){
-int *lolp = &lol;
-int *hejp = &hej;
-int *tommyp = &tommy;
-*lolp =9;
-**lol = **tommy;
-*tommyp =56;
-*hejp =*tommyp;
+int GetYourMom (int **hej,int med,int dig,int **lol);
+int GetYourMom (int **hej,int med,int dig,int **lol){
+int *medp = &med;
+int *digp = &dig;
+int hugo = 8;
+int *hugop = &hugo;
+*hugop = *medp;
+*medp = **hej;
+medp = *hej;
+**lol =*digp;
+*hej =digp;
 
 }
 
 int main() { 
-int hej = 6;
-int *hejp = &hej;
-int abe = 8;
-int *abep = &abe;
-int peter = 13;
-int *peterp = &peter;
-*peterp =*abep;
-hansi(*abep,*hejp,*peterp); 
+int i = 3;
+int *ip = &i;
+int j = 8;
+int *jp = &j;
+int k = 9;
+int *kp = &k;
+int b = 5;
+int *bp = &b;
+GetYourMom(&ip,*jp,*kp,&bp); 
 
 return 0; 
 }

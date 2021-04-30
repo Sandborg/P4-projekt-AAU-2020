@@ -190,36 +190,66 @@ public class CodeGenerator {
         JSONObject left = (JSONObject)o.get("left");
         JSONObject right = (JSONObject)o.get("right");
 
-        if(left.get("idType").equals("adr")) {
-            if(insideFunction) {
-                expr+=  "**" + left.get("id") + " = ";
+        if(insideFunction) {
+            if(CheckParam(params,left)) {
+                if(GetParamIdType(params,left).equals("adr")) {
+                    if(left.get("idType").equals("adr")) {
+                        expr += "*" + left.get("id") + " =";
+                    }else{
+                        expr += "**" + left.get("id") + " =";
+                    }
+                }else {
+                    if(left.get("idType").equals("adr")) {
+                        expr += left.get("id") + "p = ";
+                    }else{
+                        expr += "*" + left.get("id") + "p = ";
+                    }
+                }
             }else {
-                expr += left.get("id") + "p = ";
+                if(left.get("idType").equals("adr")) {
+                    expr += left.get("id") + "p = ";
+                }else{
+                    expr += "*" + left.get("id") + "p = ";
+                }
             }
         }else{
-            if(insideFunction && CheckParam(params, left)) {
-                expr+= "**" + left.get("id") + " = ";
+            if(left.get("idType").equals("adr")) {
+                expr += left.get("id") + "p = ";
             }else{
-
-                    expr+= "*" + left.get("id") + "p =";
-
+                expr += "*" + left.get("id") + "p = ";
             }
         }
 
         if(right.get("type").equals("BinaryExpression")) {
             expr+= GetBinaryOperator(right, "");
         }else if(right.get("type").equals("Identifier")){
-            if(right.get("idType").equals("adr")) {
-                if(insideFunction) {
-                    expr+= "**" + right.get("id");
+            if(insideFunction) {
+                if(CheckParam(params,right)) {
+                    if(GetParamIdType(params,right).equals("adr")) {
+                        if(right.get("idType").equals("adr")) {
+                            expr += "*" + right.get("id") + "";
+                        }else{
+                            expr += "**" + right.get("id") + "";
+                        }
+                    }else {
+                        if(right.get("idType").equals("adr")) {
+                            expr += right.get("id") + "p";
+                        }else{
+                            expr += "*" + right.get("id") + "p";
+                        }
+                    }
                 }else {
-                    expr+=right.get("id") + "p";
+                    if(right.get("idType").equals("adr")) {
+                        expr += right.get("id") + "p";
+                    }else{
+                        expr += "*" + right.get("id") + "p ";
+                    }
                 }
             }else{
-                if(insideFunction && CheckParam(params, right)) {
-                    expr+= "**" + right.get("id");
+                if(right.get("idType").equals("adr")) {
+                    expr += right.get("id") + "p";
                 }else{
-                    expr+= "*" + right.get("id") + "p";
+                    expr += "*" + right.get("id") + "p";
                 }
             }
         }else{
@@ -286,6 +316,19 @@ public class CodeGenerator {
         return expr;
     }
 
+    public String GetParamIdType(JSONArray o, JSONObject n) {
+        for(Object obj : o) {
+            JSONObject thisObject = (JSONObject)obj;
+            JSONObject id = (JSONObject)thisObject.get("Identifier");
+
+            if(id.get("id").equals(n.get("id"))) {
+                return (String)id.get("idType");
+            }
+        }
+
+        return "";
+    }
+
     public Boolean CheckParam(JSONArray o, JSONObject n){
         // go through each object in parameter list.
         for (Object obj : o){
@@ -296,9 +339,7 @@ public class CodeGenerator {
             // If match is found, return true/false, for whether or not the variable is from another scope
             // than the function definition.
            if(id.get("id").equals(n.get("id"))){
-               if(!id.get("idType").equals("adr")) {
-                   return false;
-               }
+
                return true;
            }
         }
