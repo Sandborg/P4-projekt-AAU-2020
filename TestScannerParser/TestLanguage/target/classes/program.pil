@@ -1,20 +1,7 @@
-prototype int GetYourMom(int hej.adr, int med.val, int dig.val, int lol.adr);
-
-
-int i = 3;
-int j = 8;
-int k = 9;
-int b = 5;
-
-GetYourMom(i.adr,j.val,k.val,b.adr);
-
-
-int GetYourMom(int hej.adr, int med.val, int dig.val, int lol.adr) {
-    int hugo = 8;
-    hugo.val = med.val;
-    med.val = hej.val;
-    med.adr = hej.adr;
-    lol.val = dig.val;
-    hej.adr = dig.adr;
+int a = 3;
+if(a.val > 2) {
+int lol = 3;
+}else{
+int h = 2;
 }
 

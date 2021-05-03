@@ -278,7 +278,11 @@ public class CodeGenerator {
         JSONObject init = (JSONObject)o.get("Init");
         JSONObject id = (JSONObject)o.get("Identifier");
         JSONObject varType = (JSONObject)o.get("VariableType");
-        expr+=varType.get("dataType") + " " + id.get("id");
+        if(varType.get("dataType").equals("decimal")) {
+            expr+="float " + id.get("id");
+        }else{
+            expr+=varType.get("dataType") + " " + id.get("id");
+        }
         if(init != null) {
             if(init.get("type").equals("BinaryExpression")) {
                 expr+= " = " + GetBinaryOperator(init,"");
@@ -296,7 +300,11 @@ public class CodeGenerator {
             else expr+= " = " + init.get("value") +";";
         }
         if(createPointer) {
-            expr += "\n" + varType.get("dataType") + " *" + id.get("id") + "p = " + "&" + id.get("id");
+            if(varType.get("dataType").equals("decimal")) {
+                expr += "float *" + id.get("id") + "p = " + "&" + id.get("id");
+            }else{
+                expr += "\n" + varType.get("dataType") + " *" + id.get("id") + "p = " + "&" + id.get("id");
+            }
         }
         return expr;
     }
@@ -355,7 +363,6 @@ public class CodeGenerator {
             // If match is found, return true/false, for whether or not the variable is from another scope
             // than the function definition.
            if(id.get("id").equals(n.get("id"))){
-
                return true;
            }
         }

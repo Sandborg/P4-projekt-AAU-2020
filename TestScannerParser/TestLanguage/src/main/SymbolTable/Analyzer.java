@@ -253,6 +253,26 @@ public class Analyzer implements Visitor {
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
+    @Override
+    public void visitIfStatement(IfStatementNode n) {
+
+    }
+
+    @Override
+    public void visitIfStatement(IfStatementNode n, AbstractNode parent) {
+
+    }
+
+    @Override
+    public void visitConditionNode(ConditionNode n) {
+
+    }
+
+    @Override
+    public void visitConditionNode(ConditionNode n, AbstractNode parent) {
+
+    }
+
     public boolean CheckCallParams(AbstractNode callNode, VariableDeclarationNode decNode, SymbolTable s) {
         //Check if the call has correct number of parameters.
         if(GetNumberOfSiblings(callNode,1) != GetNumberOfSiblings(decNode, 1)) return false;

@@ -28,5 +28,8 @@ public interface Visitor {
     public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent);
     public void visitFunctionCall(FunctionCallNode n);
     public void visitFunctionCall(FunctionCallNode n, AbstractNode parent);
-
+    public void visitIfStatement(IfStatementNode n);
+    public void visitIfStatement(IfStatementNode n, AbstractNode parent);
+    public void visitConditionNode(ConditionNode n);
+    public  void visitConditionNode(ConditionNode n, AbstractNode parent);
 }

@@ -53,12 +53,16 @@ action code {:
    public AbstractNode makeReturnStatement(AbstractNode argument) {return new ReturnStatementNode(argument);}
    public AbstractNode makeFunctionCall(AbstractNode id, AbstractNode params) {return new FunctionCallNode(id, params);}
    public AbstractNode makeFunctionCallNoParams(AbstractNode id) {return new FunctionCallNode(id);}
+   public AbstractNode makeIfStatementNode(AbstractNode test) {return new IfStatementNode(test);}
+   public AbstractNode makeConditionNode (String operator, AbstractNode left, AbstractNode right) {return new ConditionNode(operator,left,right);}
 :};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
 terminal            LEFT_PAREN, RIGHT_PAREN, LEFT_CURLY, RIGHT_CURLY, COMMA;
 terminal            RETURN;
+terminal            IS, NOT, OR, AND, GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 terminal            PROTOTYPE;
+terminal            IF,ELSE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
 terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
@@ -77,6 +81,8 @@ non terminal AbstractNode CallParams;
 non terminal AbstractNode CallParam;
 non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode Assignment;
+non terminal AbstractNode SelectiveStmt;
+non terminal AbstractNode LogicalStmt;
 non terminal AbstractNode Body;
 non terminal AbstractNode AdditiveExpr;
 non terminal AbstractNode MultiplicativeExpr;
@@ -94,9 +100,13 @@ precedence left RETURN;
 precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE;
 precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
 precedence left INTEGER, DECIMAL;
+precedence left AND, OR;
+precedence left IS, NOT;
+precedence left GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 precedence left LEFT_PAREN, RIGHT_PAREN;
+precedence left IF, ELSE;
 precedence left LEFT_CURLY, RIGHT_CURLY;
 precedence left PROTOTYPE;
 precedence left COMMA;
@@ -177,9 +187,26 @@ FieldDeclaration ::= TypeDeclaration:tds
                  {: RESULT = as; :}
                  | FunctionCall:fcs
                  {: RESULT = fcs;  :}
+                 | SelectiveStmt:ss
+                 {: RESULT = ss; :}
                  ;
 
+SelectiveStmt   ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FieldDeclarations:fds RIGHT_CURLY
+                  {: RESULT = makeIfStatementNode(ls); :}
+                  | ELSE IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FieldDeclarations:fds RIGHT_CURLY
+                  {: RESULT = makeIfStatementNode(ls);:}
+                  | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FieldDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FieldDeclarations:fds2 RIGHT_CURLY
+                  {:  :}
+                   ;
 
+
+LogicalStmt     ::= LogicalStmt:s1 AND AdditiveExpr:a1
+                    {: RESULT = makeConditionNode("AND", a1, s1); :}
+                  | LogicalStmt:s1 OR AdditiveExpr:a1
+                    {: RESULT = makeConditionNode("OR", a1, s1); :}
+                  | AdditiveExpr:a1
+                    {: RESULT = a1; :}
+                    ;
 
 
 FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
@@ -211,7 +238,7 @@ TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
                  {: RESULT = makeNode(tn,id,e); :}
                  |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
                  |   ReturnType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
@@ -232,6 +259,18 @@ AdditiveExpr    ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
                 {: RESULT = makeNode(e1, e2, "+"); :}
                 |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
                 {: RESULT = makeNode(e1, e2, "-"); :}
+                | AdditiveExpr:s1 LESSER MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "LESSER");:}
+                | AdditiveExpr:s1 LESSER_EQUALS MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "LESSER_EQUALS"); :}
+                | AdditiveExpr:s1 GREATER MultiplicativeExpr:a1
+                {: RESULT = makeNode(s1,a1, "GREATER"); :}
+                | AdditiveExpr:s1 GREATER_EQUALS MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1, a1, "GREATER_EQUALS"); :}
+                | AdditiveExpr:s1 IS NOT MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "IS_NOT");:}
+                | AdditiveExpr:s1 IS MultiplicativeExpr:a1
+                {: RESULT = makeNode(s1, a1,"IS");:}
                 |   MultiplicativeExpr:e2
                 {: RESULT = e2; :}
                 ;

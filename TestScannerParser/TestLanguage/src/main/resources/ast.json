@@ -1,1 +1,89 @@
-[{"type":"Program","Body":[{"FuncType":{"dataType":"int","type":"Type"},"Params":[{"Identifier":{"idType":"adr","id":"hej","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"val","id":"med","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"val","id":"dig","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"adr","id":"lol","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}],"Id":{"idType":"","id":"GetYourMom","type":"Identifier"},"type":"FunctionDeclaration"},{"Init":{"type":"int","value":3},"Identifier":{"idType":"","id":"i","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{"type":"int","value":8},"Identifier":{"idType":"","id":"j","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{"type":"int","value":9},"Identifier":{"idType":"","id":"k","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{"type":"int","value":5},"Identifier":{"idType":"","id":"b","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"id":{"idType":"","id":"GetYourMom","type":"Identifier"},"type":"FunctionCall","params":[{"idType":"adr","id":"i","type":"Identifier"},{"idType":"val","id":"j","type":"Identifier"},{"idType":"val","id":"k","type":"Identifier"},{"idType":"adr","id":"b","type":"Identifier"}]},{"dataType":{"dataType":"int","type":"Type"},"id":{"idType":"","id":"GetYourMom","type":"Identifier"},"type":"FunctionDefinition","params":[{"Identifier":{"idType":"adr","id":"hej","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"val","id":"med","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"val","id":"dig","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"idType":"adr","id":"lol","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}],"body":[{"Init":{"type":"int","value":8},"Identifier":{"idType":"","id":"hugo","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"left":{"idType":"val","id":"hugo","type":"Identifier"},"right":{"idType":"val","id":"med","type":"Identifier"},"type":"AssignmentExpression"},{"left":{"idType":"val","id":"med","type":"Identifier"},"right":{"idType":"val","id":"hej","type":"Identifier"},"type":"AssignmentExpression"},{"left":{"idType":"adr","id":"med","type":"Identifier"},"right":{"idType":"adr","id":"hej","type":"Identifier"},"type":"AssignmentExpression"},{"left":{"idType":"val","id":"lol","type":"Identifier"},"right":{"idType":"val","id":"dig","type":"Identifier"},"type":"AssignmentExpression"},{"left":{"idType":"adr","id":"hej","type":"Identifier"},"right":{"idType":"adr","id":"dig","type":"Identifier"},"type":"AssignmentExpression"}]}]}]
+[
+  {
+    "type": "Program",
+    "Body": [
+      {
+        "Init": {
+          "type": "int",
+          "value": 3
+        },
+        "Identifier": {
+          "idType": "",
+          "id": "a",
+          "type": "Identifier"
+        },
+        "VariableType": {
+          "dataType": "int",
+          "type": "Type"
+        },
+        "type": "VariableDeclaration"
+      },
+      {
+        "test": {
+          "left": {
+            "left": {
+              "idType": "val",
+              "id": "a",
+              "type": "Identifier"
+            },
+            "right": {
+              "type": "int",
+              "value": 9
+            },
+            "type": "BinaryExpression",
+            "operator": "IS_NOT"
+          },
+          "right": {
+            "left": {
+              "left": {
+                "idType": "val",
+                "id": "a",
+                "type": "Identifier"
+              },
+              "right": {
+                "type": "int",
+                "value": 7
+              },
+              "type": "BinaryExpression",
+              "operator": "LESSER"
+            },
+            "right": {
+              "left": {
+                "idType": "val",
+                "id": "a",
+                "type": "Identifier"
+              },
+              "right": {
+                "type": "int",
+                "value": 2
+              },
+              "type": "BinaryExpression",
+              "operator": "GREATER"
+            },
+            "type": "LogicalExpression",
+            "operator": "AND"
+          },
+          "type": "LogicalExpression",
+          "operator": "OR"
+        },
+        "type": "IfStatement"
+      },
+      {
+        "test": {
+          "left": {
+            "idType": "val",
+            "id": "a",
+            "type": "Identifier"
+          },
+          "right": {
+            "type": "int",
+            "value": 3
+          },
+          "type": "BinaryExpression",
+          "operator": "LESSER"
+        },
+        "type": "IfStatement"
+      }
+    ]
+  }
+]

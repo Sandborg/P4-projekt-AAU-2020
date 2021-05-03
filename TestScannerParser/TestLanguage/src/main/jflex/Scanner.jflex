@@ -38,14 +38,20 @@ Decimal = [0-9]*\.[0-9]+
 /* keywords */
 <YYINITIAL> "int"       { return symbol(sym.INT_TYPE);      }
 <YYINITIAL> "decimal"   { return symbol(sym.DECIMAL_TYPE);  }
-<YYINITIAL> "void"      { return symbol(sym.VOID_TYPE); }
+<YYINITIAL> "void"      { return symbol(sym.VOID_TYPE);     }
 <YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);     }
-<YYINITIAL> "return"    { return symbol(sym.RETURN);     }
+<YYINITIAL> "return"    { return symbol(sym.RETURN);        }
+<YYINITIAL> "if"        { return symbol(sym.IF);            }
+<YYINITIAL> "else"      { return symbol(sym.ELSE);          }
 
+<YYINITIAL> "IS"        { return symbol(sym.IS);            }
+<YYINITIAL> "NOT"       { return symbol(sym.NOT);           }
+<YYINITIAL> "OR"        { return symbol(sym.OR);            }
+<YYINITIAL> "AND"       { return symbol(sym.AND);           }
 
 <YYINITIAL> {
 /* identifiers */
-{Identifier}    { return symbol(sym.IDENTIFIER, yytext());                             }
+{Identifier}    { return symbol(sym.IDENTIFIER, yytext());                              }
 {IdentifierVal} { return symbol(sym.IDENTIFIERVAL, yytext());                           }
 {IdentifierAdr} { return symbol(sym.IDENTIFIERADR, yytext());                           }
 /* literals */
@@ -59,6 +65,13 @@ Decimal = [0-9]*\.[0-9]+
 "/"             { return symbol(sym.DIVIDE);        }
 "%"             { return symbol(sym.MOD);           }
 "="             { return symbol(sym.EQUALS);        }
+
+/* logical operators */
+">"             { return symbol(sym.GREATER);       }
+"<"             { return symbol(sym.LESSER);        }
+">="            { return symbol(sym.GREATER_EQUALS); }
+"<="            { return symbol(sym.LESSER_EQUALS);  }
+
 
 /* reserved symbols */
 "("             { return symbol(sym.LEFT_PAREN);    }
