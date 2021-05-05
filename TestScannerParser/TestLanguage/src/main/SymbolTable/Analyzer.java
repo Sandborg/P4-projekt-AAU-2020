@@ -38,7 +38,7 @@ public class Analyzer implements Visitor {
         }
 
         //Accept it's id
-        n.id.accept(this);
+        n.id.accept(this,n);
 
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
@@ -58,25 +58,29 @@ public class Analyzer implements Visitor {
         }
 
         //Accept it's id
-        n.id.accept(this);
+        n.id.accept(this,n);
 
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
-    public void visitId(IdentifierNode n) {
+    public void visitId(IdentifierNode n, AbstractNode type) {
+        n.AddDataType(type.getType());
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
+
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
-    public void visitId(IdentifierNode n, AbstractNode parent) {
+    public void visitId(IdentifierNode n, AbstractNode type, AbstractNode parent) {
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
         //Check if the identifiers type is compatible with the parent:
         if(!CheckType(n,parent)) System.out.println("type error identifier");
+        //Update AST
+        n.AddDataType(parent.getType());
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this, parent);
     }
@@ -161,7 +165,7 @@ public class Analyzer implements Visitor {
                 System.out.println("adr must be set to another adr");
             }
         }
-        n.set.accept(this);
+        n.set.accept(this, n);
         n.to.accept(this, n.set);
 
         if(n.getSib() != null) n.getSib().accept(this);
@@ -169,7 +173,19 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitAssign(AssignmentNode n, AbstractNode parent) {
+        if(n.set.getIdType() == "adr" ) {
+            if(n.to instanceof IdentifierNode) {
+                if(n.to.getIdType() != "adr") {
+                    System.out.println("adr must be set to another adr");
+                }
+            }else{
+                System.out.println("adr must be set to another adr");
+            }
+        }
+        n.set.accept(this, n);
+        n.to.accept(this, n.set);
 
+        if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
@@ -177,7 +193,7 @@ public class Analyzer implements Visitor {
         //Put the function name into the global scope.
         top.put(n.id.getName(),n);
         //Check if there already exist a function with that name in the global scope.
-        n.id.accept(this);
+        n.id.accept(this,n);
         //Create a new scope for the new function
         SymbolTable thisScope = new SymbolTable(top);
         //Insert the new scope, into the list of all scopes.
@@ -197,7 +213,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFuncDef(FunctionDefNode n) {
-        n.id.accept(this);
+        n.id.accept(this,n);
 
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
 
@@ -232,7 +248,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFunctionCall(FunctionCallNode n) {
-        n.id.accept(this);
+        n.id.accept(this,n);
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
 
         //Find prototype node
@@ -255,21 +271,37 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitIfStatement(IfStatementNode n) {
+        if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitIfStatement(IfStatementNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitConditionNode(ConditionNode n) {
+        if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitConditionNode(ConditionNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
+
+    }
+
+    @Override
+    public void visitStringNode(StringNode n) {
+        if(n.getSib() != null) n.getSib().accept(this);
+
+    }
+
+    @Override
+    public void visitStringNode(StringNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
 
     }
 

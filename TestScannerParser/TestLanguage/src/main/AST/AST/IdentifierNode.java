@@ -6,6 +6,7 @@ import lab7.*;
 public class IdentifierNode extends AbstractNode {
     public String id;
     public String idType;
+
     public IdentifierNode (String id, String idType) {
         if(id.contains(".")) {
             this.id = id.split("[.]")[0];
@@ -17,14 +18,24 @@ public class IdentifierNode extends AbstractNode {
         node.put("id", this.id);
         node.put("idType", idType);
     }
+
+    public void AddDataType (String t) {
+        node.put("dataType", t);
+    }
     public String getName() {return id;}
     public String getType() {return "Identifier";}
     public String getIdType() {return idType;}
-    public void accept(Visitor v) {
-        v.visitId(this);
+
+    @Override
+    public void accept(Visitor analyzer) {
+
     }
-    public void accept(Visitor v, AbstractNode parent) {
-        v.visitId(this, parent);
+
+    public void accept(Visitor v, AbstractNode type) {
+        v.visitId(this, type);
+    }
+    public void accept(Visitor v, AbstractNode type, AbstractNode parent) {
+        v.visitId(this, type, parent);
     }
 
 }

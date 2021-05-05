@@ -3,86 +3,141 @@
     "type": "Program",
     "Body": [
       {
+        "FuncType": {
+          "dataType": "int",
+          "type": "Type"
+        },
+        "Params": [
+          {
+            "Identifier": {
+              "idType": "val",
+              "dataType": "string",
+              "id": "haha",
+              "type": "Identifier"
+            },
+            "VariableType": {
+              "dataType": "string",
+              "type": "Type"
+            },
+            "type": "VariableDeclaration"
+          }
+        ],
+        "Id": {
+          "idType": "",
+          "dataType": "int",
+          "id": "lol",
+          "type": "Identifier"
+        },
+        "type": "FunctionDeclaration"
+      },
+      {
         "Init": {
-          "type": "int",
-          "value": 3
+          "type": "string",
+          "value": "\"3.3\""
         },
         "Identifier": {
           "idType": "",
-          "id": "a",
+          "dataType": "string",
+          "id": "hej",
           "type": "Identifier"
         },
         "VariableType": {
-          "dataType": "int",
+          "dataType": "string",
           "type": "Type"
         },
         "type": "VariableDeclaration"
       },
       {
-        "test": {
-          "left": {
+        "Init": {
+          "type": "string",
+          "value": "\"lol\""
+        },
+        "Identifier": {
+          "idType": "",
+          "dataType": "string",
+          "id": "med",
+          "type": "Identifier"
+        },
+        "VariableType": {
+          "dataType": "string",
+          "type": "Type"
+        },
+        "type": "VariableDeclaration"
+      },
+      {
+        "id": {
+          "idType": "",
+          "dataType": "",
+          "id": "lol",
+          "type": "Identifier"
+        },
+        "type": "FunctionCall",
+        "params": [
+          {
+            "idType": "val",
+            "id": "hej",
+            "type": "Identifier"
+          }
+        ]
+      },
+      {
+        "dataType": {
+          "dataType": "int",
+          "type": "Type"
+        },
+        "id": {
+          "idType": "",
+          "dataType": "int",
+          "id": "lol",
+          "type": "Identifier"
+        },
+        "type": "FunctionDefinition",
+        "params": [
+          {
+            "Identifier": {
+              "idType": "val",
+              "id": "haha",
+              "type": "Identifier"
+            },
+            "VariableType": {
+              "dataType": "string",
+              "type": "Type"
+            },
+            "type": "VariableDeclaration"
+          }
+        ],
+        "body": [
+          {
+            "Init": {
+              "type": "string",
+              "value": "\"hsdf\""
+            },
+            "Identifier": {
+              "idType": "",
+              "dataType": "string",
+              "id": "goddag",
+              "type": "Identifier"
+            },
+            "VariableType": {
+              "dataType": "string",
+              "type": "Type"
+            },
+            "type": "VariableDeclaration"
+          },
+          {
             "left": {
               "idType": "val",
-              "id": "a",
+              "dataType": "",
+              "id": "goddag",
               "type": "Identifier"
             },
             "right": {
-              "type": "int",
-              "value": 9
+              "type": "string",
+              "value": "\"basd\""
             },
-            "type": "BinaryExpression",
-            "operator": "IS_NOT"
-          },
-          "right": {
-            "left": {
-              "left": {
-                "idType": "val",
-                "id": "a",
-                "type": "Identifier"
-              },
-              "right": {
-                "type": "int",
-                "value": 7
-              },
-              "type": "BinaryExpression",
-              "operator": "LESSER"
-            },
-            "right": {
-              "left": {
-                "idType": "val",
-                "id": "a",
-                "type": "Identifier"
-              },
-              "right": {
-                "type": "int",
-                "value": 2
-              },
-              "type": "BinaryExpression",
-              "operator": "GREATER"
-            },
-            "type": "LogicalExpression",
-            "operator": "AND"
-          },
-          "type": "LogicalExpression",
-          "operator": "OR"
-        },
-        "type": "IfStatement"
-      },
-      {
-        "test": {
-          "left": {
-            "idType": "val",
-            "id": "a",
-            "type": "Identifier"
-          },
-          "right": {
-            "type": "int",
-            "value": 3
-          },
-          "type": "BinaryExpression",
-          "operator": "LESSER"
-        },
-        "type": "IfStatement"
+            "type": "AssignmentExpression"
+          }
+        ]
       }
     ]
   }

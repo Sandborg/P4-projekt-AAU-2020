@@ -55,6 +55,18 @@ action code {:
    public AbstractNode makeFunctionCallNoParams(AbstractNode id) {return new FunctionCallNode(id);}
    public AbstractNode makeIfStatementNode(AbstractNode test) {return new IfStatementNode(test);}
    public AbstractNode makeConditionNode (String operator, AbstractNode left, AbstractNode right) {return new ConditionNode(operator,left,right);}
+   public AbstractNode makeStringNode(String value) {return new StringNode(value);}
+
+   public void WriteAST () {
+    try (FileWriter file = new FileWriter("src/main/resources/ast.json")) {
+                   //We can write any JSONArray or JSONObject instance to the file
+                   file.write(allNodes.toJSONString());
+                   file.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      }
 :};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
@@ -66,7 +78,8 @@ terminal            IF,ELSE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
 terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
-terminal            INT_TYPE, DECIMAL_TYPE, VOID_TYPE;
+terminal String     STRING_LITERAL;
+terminal            INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
 
 non terminal AbstractNode CompilationUnit;
 non terminal AbstractNode FieldDeclarations;
@@ -90,6 +103,7 @@ non terminal AbstractNode UnaryExpr;
 non terminal AbstractNode TypeName;
 non terminal AbstractNode Identifier;
 non terminal AbstractNode OnlyIdentifier;
+non terminal AbstractNode String;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
@@ -97,8 +111,9 @@ non terminal AbstractNode ReturnType;
 non terminal AbstractNode FunctionCall;
 /* Precedences */
 precedence left RETURN;
-precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE;
+precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
 precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
+precedence left STRING_LITERAL;
 precedence left INTEGER, DECIMAL;
 precedence left AND, OR;
 precedence left IS, NOT;
@@ -293,6 +308,8 @@ UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror 
                 {: RESULT = n; :}
                 | Identifier:id
                 {: RESULT = id; :}
+                | String:s
+                {: RESULT = s;:}
                 ;
 
 OnlyIdentifier  ::=IDENTIFIER:id
@@ -310,6 +327,8 @@ TypeName        ::= INT_TYPE:type
                 {: RESULT = makeTypeNode("int"); :}
                 |  DECIMAL_TYPE:type
                 {: RESULT = makeTypeNode("decimal"); :}
+                |  STRING_TYPE:type
+                {: RESULT = makeTypeNode("string");:}
                 ;
 
 ReturnType      ::= INT_TYPE:type
@@ -318,6 +337,8 @@ ReturnType      ::= INT_TYPE:type
                 {: RESULT = makeTypeNode("decimal");:}
                 | VOID_TYPE:type
                 {: RESULT = makeTypeNode("void");:}
+                | STRING_TYPE:type
+                {: RESULT = makeTypeNode("string");:}
                 ;
 
 
@@ -328,6 +349,10 @@ Literal         ::= INTEGER:n
 
 Decimal         ::= DECIMAL:n
                 {: RESULT = makeNode(n); :}
+                ;
+
+String          ::= STRING_LITERAL:sl
+                {: RESULT = makeStringNode(sl);:}
                 ;
 
 ReturnStmt      ::= RETURN AdditiveExpr:ae SEMI

@@ -1,7 +1,12 @@
-int a = 3;
-if(a.val > 2) {
-int lol = 3;
-}else{
-int h = 2;
-}
+prototype int lol(string haha.val);
 
+string hej = "3.3";
+string med = "lol";
+
+
+lol(hej.val);
+
+int lol(string haha.val) {
+   string goddag = "hsdf";
+   goddag.val = "basd";
+}

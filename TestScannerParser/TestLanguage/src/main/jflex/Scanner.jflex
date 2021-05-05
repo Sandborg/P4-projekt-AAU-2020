@@ -5,6 +5,7 @@ import java_cup.runtime.*;
 %class Scanner
 %cup
 %line
+%unicode
 %column
 %char
 
@@ -34,10 +35,13 @@ IdentifierAdr =  [:jletter:] [:jletterdigit:]*\.adr
 Int = 0 | [1-9][0-9]*
 Decimal = [0-9]*\.[0-9]+
 
+%state STRING
+
 %%
 /* keywords */
 <YYINITIAL> "int"       { return symbol(sym.INT_TYPE);      }
 <YYINITIAL> "decimal"   { return symbol(sym.DECIMAL_TYPE);  }
+<YYINITIAL> "string"    { return symbol(sym.STRING_TYPE);   }
 <YYINITIAL> "void"      { return symbol(sym.VOID_TYPE);     }
 <YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);     }
 <YYINITIAL> "return"    { return symbol(sym.RETURN);        }
@@ -57,6 +61,7 @@ Decimal = [0-9]*\.[0-9]+
 /* literals */
 {Int}           { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
 {Decimal}       { return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));   }
+\"              { string.setLength(0); yybegin(STRING); }
 
 /* operators */
 "+"				{ return symbol(sym.PLUS);          }
@@ -83,10 +88,22 @@ Decimal = [0-9]*\.[0-9]+
 
 /* comments */
 
-
 /* whitespace */
 {WhiteSpace}                   { /* ignore */ }
 }
+
+    <STRING> {
+      \"                             { yybegin(YYINITIAL);
+                                       return symbol(sym.STRING_LITERAL,
+                                       string.toString()); }
+      [^\n\r\"\\]+                   { string.append( yytext() ); }
+      \\t                            { string.append('\t'); }
+      \\n                            { string.append('\n'); }
+
+      \\r                            { string.append('\r'); }
+      \\\"                           { string.append('\"'); }
+      \\                             { string.append('\\'); }
+    }
 
 
 

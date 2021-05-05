@@ -25,6 +25,9 @@ public class Main {
         SymbolTable global = new SymbolTable(null);
         Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,global);
 
+        //Update AST
+        p.action_obj.WriteAST();
+
         //Code Gen
         CodeGenerator codeGenerator = new CodeGenerator();
         CompileCommand compileCommand = new CompileCommand();
