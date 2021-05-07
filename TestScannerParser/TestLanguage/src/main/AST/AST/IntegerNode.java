@@ -15,6 +15,7 @@ public class IntegerNode extends AbstractNode {
     public String getValueString() {
         return String.valueOf(value);
     }
+
     public void accept(Visitor v) {
         v.visitInt(this);
     }

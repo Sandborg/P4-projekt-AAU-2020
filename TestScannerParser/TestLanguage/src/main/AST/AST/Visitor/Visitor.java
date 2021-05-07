@@ -34,4 +34,6 @@ public interface Visitor {
     public  void visitConditionNode(ConditionNode n, AbstractNode parent);
     public void visitStringNode(StringNode n);
     public void visitStringNode(StringNode n, AbstractNode parent);
+    public void visitImportNode(ImportNode n);
+    public  void visitImportNode(ImportNode n, AbstractNode parent);
 }

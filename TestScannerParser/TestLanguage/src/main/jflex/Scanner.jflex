@@ -45,6 +45,7 @@ Decimal = [0-9]*\.[0-9]+
 <YYINITIAL> "void"      { return symbol(sym.VOID_TYPE);     }
 <YYINITIAL> "prototype" { return symbol(sym.PROTOTYPE);     }
 <YYINITIAL> "return"    { return symbol(sym.RETURN);        }
+<YYINITIAL> "import"    { return symbol(sym.IMPORT);        }
 <YYINITIAL> "if"        { return symbol(sym.IF);            }
 <YYINITIAL> "else"      { return symbol(sym.ELSE);          }
 

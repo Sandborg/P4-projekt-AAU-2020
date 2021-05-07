@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 public class AssignmentNode extends AbstractNode {
     public AbstractNode set;
     public AbstractNode to;
-
+    public String varType;
     public AssignmentNode(AbstractNode set, AbstractNode to) {
         this.set = set;
         this.to = to;
@@ -18,6 +18,7 @@ public class AssignmentNode extends AbstractNode {
 
     public void UpdateRightNode (String s) {
         JSONObject right = new JSONObject();
+        varType = s;
         right.put("value", "\"" + s + "\"");
         right.put("type","string");
         node.put("right", right);

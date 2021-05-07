@@ -3,6 +3,8 @@ import AST.Visitor.Visitor;
 import lab7.AbstractNode;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
+import java.io.FileReader;
+
 public class Analyzer implements Visitor {
     private SymbolTable top;
 
@@ -317,6 +319,19 @@ public class Analyzer implements Visitor {
 
     }
 
+    @Override
+    public void visitImportNode(ImportNode n) {
+        String filename = n.name.getValueString();
+        parser p = new parser(new Scanner(new FileReader("src/main/resources/Libraries/" + filename)));
+        p.parse();
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitImportNode(ImportNode n, AbstractNode parent) {
+        if(n.getSib() != null) n.getSib().accept(this);
+    }
+
     public boolean CheckCallParams(AbstractNode callNode, VariableDeclarationNode decNode, SymbolTable s) {
         //Check if the call has correct number of parameters.
         if(GetNumberOfSiblings(callNode,1) != GetNumberOfSiblings(decNode, 1)) return false;
@@ -391,17 +406,38 @@ public class Analyzer implements Visitor {
     public String CreateStringFromBinaryOpNode (AbstractNode n, String s) {
         if(n instanceof BinaryOPNode) {
             BinaryOPNode bn = (BinaryOPNode)n;
-            s+= CreateStringFromBinaryOpNode(bn.number1, "");
-            s+= CreateStringFromBinaryOpNode(bn.number2, "");
+                s+= CreateStringFromBinaryOpNode(bn.number1, "");
+                s+= CreateStringFromBinaryOpNode(bn.number2, "");
 
             return s;
         }else {
             if(n instanceof IdentifierNode) {
                 VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.getName());
                 if(vd.lastAssign != null) {
+                    if(vd.lastAssign.to instanceof BinaryOPNode) {
+                        BinaryOPNode bn = (BinaryOPNode)vd.lastAssign.to;
+                        if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
+                            if(vd.getType().equals("int")) {
+                                return String.valueOf((int)(bn.result));
+                            }else {
+                                return String.valueOf(bn.result);
+                            }
+                        }
+                    }
                     return CreateStringFromBinaryOpNode(vd.lastAssign.to,"");
                 }else{
-                    return vd.body.getValueString();
+                    if(vd.body instanceof BinaryOPNode) {
+                        BinaryOPNode bn = (BinaryOPNode)vd.body;
+                        if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
+                            if(vd.getType().equals("int")) {
+                                return String.valueOf((int)(bn.result));
+                            }else {
+                                return String.valueOf(bn.result);
+                            }
+                        }
+                    }
+                    return CreateStringFromBinaryOpNode(vd.body,"");
+                    //return vd.body.getValueString();
                 }
             }
             return n.getValueString();

@@ -56,7 +56,7 @@ action code {:
    public AbstractNode makeIfStatementNode(AbstractNode test) {return new IfStatementNode(test);}
    public AbstractNode makeConditionNode (String operator, AbstractNode left, AbstractNode right) {return new ConditionNode(operator,left,right);}
    public AbstractNode makeStringNode(String value) {return new StringNode(value);}
-
+   public AbstractNode makeImportNode(AbstractNode name) {return new ImportNode(name);}
    public void WriteAST () {
     try (FileWriter file = new FileWriter("src/main/resources/ast.json")) {
                    //We can write any JSONArray or JSONObject instance to the file
@@ -74,6 +74,7 @@ terminal            LEFT_PAREN, RIGHT_PAREN, LEFT_CURLY, RIGHT_CURLY, COMMA;
 terminal            RETURN;
 terminal            IS, NOT, OR, AND, GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 terminal            PROTOTYPE;
+terminal            IMPORT;
 terminal            IF,ELSE;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
@@ -86,6 +87,8 @@ non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
 non terminal AbstractNode FunctionDeclarations;
 non terminal AbstractNode FunctionDeclaration;
+non terminal AbstractNode Imports;
+non terminal AbstractNode Import;
 non terminal AbstractNode FunctionBodyDeclarations;
 non terminal AbstractNode FunctionBodyDeclaration;
 non terminal AbstractNode Params;
@@ -151,8 +154,22 @@ CompilationUnit ::= Body:b
 
 Body                ::= FieldDeclarations:fds
                     {: RESULT = fds; :}
+                    | Imports:ims FieldDeclarations:fds
+                    {: RESULT = ims.makeSibling(fds); :}
+                    | Imports:ims FunctionDeclarations:fdss FieldDeclarations:fds
+                    {: RESULT = ims.makeSibling(fdss).makeSibling(fds); :}
                     |  FunctionDeclarations:fds FieldDeclarations:fd
                     {: RESULT = fds.makeSibling(fd); :}
+                    ;
+
+Imports             ::= Import:im
+                    {: RESULT = im; :}
+                    | Imports:ims Import:im
+                    {:RESULT = ims.makeSibling(im);:}
+                    ;
+
+Import              ::= IMPORT String:st SEMI
+                    {:RESULT = makeImportNode(st); :}
                     ;
 
 FunctionDeclarations ::= FunctionDeclaration:fd

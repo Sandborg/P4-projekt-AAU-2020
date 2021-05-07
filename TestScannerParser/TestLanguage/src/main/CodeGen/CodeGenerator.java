@@ -345,11 +345,11 @@ public class CodeGenerator {
         JSONObject varType = (JSONObject) o.get("VariableType");
 
         if (varType.get("dataType").equals("decimal")) {
-            expr += "float " + id.get("id");
+            expr += "float " + id.get("id") + (init == null ? ";" : " ");
         } else if (varType.get("dataType").equals("string")) {
             expr += "char *" + id.get("id") + " = malloc(sizeof(char) * (1000)); \n";
         } else {
-            expr += varType.get("dataType") + " " + id.get("id") + ";";
+            expr += varType.get("dataType") + " " + id.get("id") + (init == null ? ";" : " ");
         }
 
         if (init != null) {
