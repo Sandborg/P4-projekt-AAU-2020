@@ -1,13 +1,15 @@
 import java.io.*;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.util.Iterator;
+
 public class CodeGenerator {
 
-    public CodeGenerator () throws IOException, ParseException {
+    public CodeGenerator() throws IOException, ParseException {
         //Create the file:
         FileWriter program = new FileWriter("src/main/CCompiler/tcc/program.c");
         //Write the file
@@ -21,18 +23,19 @@ public class CodeGenerator {
         FileReader ast = new FileReader("src/main/resources/ast.json");
         JSONArray obj = (JSONArray) parser.parse(ast);
         JSONArray body = new JSONArray();
-        for(Object o: obj){
+        for (Object o : obj) {
             JSONObject object = (JSONObject) o;
-            body = (JSONArray)object.get("Body");
+            body = (JSONArray) object.get("Body");
         }
         //Always include the stdio.h libary
         program.write("#include <stdio.h>\n");
         program.write("#include <string.h>\n");
+        program.write("#include <stdlib.h>\n");
 
         //Then add prototypes
-        for(Object o: body) {
-            JSONObject thisObject = (JSONObject)o;
-            if(thisObject.get("type") != null) {
+        for (Object o : body) {
+            JSONObject thisObject = (JSONObject) o;
+            if (thisObject.get("type") != null) {
                 if (thisObject.get("type").equals("FunctionDeclaration")) {
                     program.append(GetFunctionDec(thisObject, "") + ";\n");
                 }
@@ -40,9 +43,9 @@ public class CodeGenerator {
         }
 
         //Then add function definitions
-        for(Object o: body) {
-            JSONObject thisObject = (JSONObject)o;
-            if(thisObject.get("type") != null) {
+        for (Object o : body) {
+            JSONObject thisObject = (JSONObject) o;
+            if (thisObject.get("type") != null) {
                 if (thisObject.get("type").equals("FunctionDefinition")) {
                     program.append(GetFunctionDef(thisObject, "") + "\n");
                 }
@@ -55,22 +58,22 @@ public class CodeGenerator {
         program.append("\nreturn 0; \n}");
     }
 
-    public String GetBody (JSONArray body, String expr, Boolean insideFunction, JSONArray params) {
-        for(Object o: body) {
-            JSONObject thisObject = (JSONObject)o;
-            if(thisObject.get("type") != null) {
+    public String GetBody(JSONArray body, String expr, Boolean insideFunction, JSONArray params) {
+        for (Object o : body) {
+            JSONObject thisObject = (JSONObject) o;
+            if (thisObject.get("type") != null) {
                 if (thisObject.get("type").equals("BinaryExpression")) {
-                    expr+=GetBinaryOperator(thisObject, "") + ";\n";
+                    expr += GetBinaryOperator(thisObject, "") + ";\n";
                 } else if (thisObject.get("type").equals("int") || thisObject.get("type").equals("decimal")) {
-                    expr+=(thisObject.get("value") + ";\n");
+                    expr += (thisObject.get("value") + ";\n");
                 } else if (thisObject.get("type").equals("VariableDeclaration")) {
-                    expr+=(GetVariableDeclaration(thisObject, "", true, insideFunction) + ";\n");
+                    expr += (GetVariableDeclaration(thisObject, "", true, insideFunction) + ";\n");
                 } else if (thisObject.get("type").equals("AssignmentExpression")) {
-                    expr+=(GetAssignmentExpression(thisObject, "", insideFunction, params) + ";\n");
-                } else if(thisObject.get("type").equals("FunctionCall")) {
-                    expr+=(GetFunctionCall(thisObject, "") + "; \n");
-                }else if(thisObject.get("type").equals("ReturnStatement")) {
-                    expr+=(GetReturnStatement(thisObject, "") + "; \n");
+                    expr += (GetAssignmentExpression(thisObject, "", insideFunction, params) + ";\n");
+                } else if (thisObject.get("type").equals("FunctionCall")) {
+                    expr += (GetFunctionCall(thisObject, "") + "; \n");
+                } else if (thisObject.get("type").equals("ReturnStatement")) {
+                    expr += (GetReturnStatement(thisObject, "") + "; \n");
                 }
             }
             //System.out.println(o);
@@ -79,62 +82,61 @@ public class CodeGenerator {
     }
 
     public String GetReturnStatement(JSONObject o, String expr) {
-        JSONObject argument = (JSONObject)o.get("Argument");
-        expr+= "return ";
-        if(argument.get("type").equals("BinaryExpression")) {
-            expr+=GetBinaryOperator(argument,"");
-        }else if(argument.get("type").equals("Identifier")) {
-            expr+=argument.get("id");
-        }
-        else {
-            expr+=argument.get("value");
+        JSONObject argument = (JSONObject) o.get("Argument");
+        expr += "return ";
+        if (argument.get("type").equals("BinaryExpression")) {
+            expr += GetBinaryOperator(argument, "");
+        } else if (argument.get("type").equals("Identifier")) {
+            expr += argument.get("id");
+        } else {
+            expr += argument.get("value");
         }
         return expr;
     }
 
     public String GetFunctionCall(JSONObject o, String expr) {
-        JSONObject id = (JSONObject)o.get("id");
-        JSONArray params = (JSONArray)o.get("params");
+        JSONObject id = (JSONObject) o.get("id");
+        JSONArray params = (JSONArray) o.get("params");
 
-        expr+=id.get("id") + "(";
-        if(params != null) {
-            expr+= GetParameters(params, "") + ")";
-        }else expr+=")";
+        expr += id.get("id") + "(";
+        if (params != null) {
+            expr += GetParameters(params, "") + ")";
+        } else expr += ")";
         return expr;
     }
 
     public String GetFunctionDef(JSONObject o, String expr) {
-        JSONObject type = (JSONObject)o.get("dataType");
-        JSONObject id = (JSONObject)o.get("id");
-        JSONArray params = (JSONArray)o.get("params");
-        JSONArray body = (JSONArray)o.get("body");
+        JSONObject type = (JSONObject) o.get("dataType");
+        JSONObject id = (JSONObject) o.get("id");
+        JSONArray params = (JSONArray) o.get("params");
+        JSONArray body = (JSONArray) o.get("body");
 
-        expr+=  type.get("dataType") + " " + id.get("id") + " (";
-        if(params != null) {
-            expr+= GetParameters(params, "") + "){\n";
-        }else expr+= "){\n";
+        expr += type.get("dataType") + " " + id.get("id") + " (";
+        if (params != null) {
+            expr += GetParameters(params, "") + "){\n";
+        } else expr += "){\n";
 
-        expr  += GetBodyParams(params, "");
-        if(body != null) {
-            expr  += GetBody(body, "", true, params) + "\n}\n";
-        }else expr+="\n}\n";
+        expr += GetBodyParams(params, "");
+        if (body != null) {
+            expr += GetBody(body, "", true, params) + "\n}\n";
+        } else expr += "\n}\n";
 
         return expr;
     }
 
-    public String GetBodyParams (JSONArray o, String expr) {
-        for(Object obj: o) {
-            JSONObject thisObject = (JSONObject)obj;
+    public String GetBodyParams(JSONArray o, String expr) {
+        for (Object obj : o) {
+            JSONObject thisObject = (JSONObject) obj;
 
-            JSONObject id = (JSONObject)thisObject.get("Identifier");
-            JSONObject varType = (JSONObject)thisObject.get("VariableType");
-            if(!id.get("idType").equals("adr")) {
-                switch((String)varType.get("dataType")) {
-                    case"decimal":
+            JSONObject id = (JSONObject) thisObject.get("Identifier");
+            JSONObject varType = (JSONObject) thisObject.get("VariableType");
+            if (!id.get("idType").equals("adr")) {
+                switch ((String) varType.get("dataType")) {
+                    case "decimal":
                         expr += "float *" + id.get("id") + "p = &" + id.get("id") + ";\n";
                         break;
-                    case"string":
-                        expr+=  "char **" + id.get("id") + "p = &" + id.get("id") + ";\n";
+                    case "string":
+                        expr += "char **" + id.get("id") + "p = &" + id.get("id") + ";\n";
                         break;
                     default:
                         expr += varType.get("dataType") + " *" + id.get("id") + "p = &" + id.get("id") + ";\n";
@@ -147,71 +149,69 @@ public class CodeGenerator {
     }
 
     public String GetFunctionDec(JSONObject o, String expr) {
-        JSONObject funcType = (JSONObject)o.get("FuncType");
-        JSONObject id = (JSONObject)o.get("Id");
-        JSONArray params = (JSONArray)o.get("Params");
-        expr +=funcType.get("dataType") + " " + id.get("id") + " (";
-        if(params != null){
-            expr+=GetParameters((JSONArray)o.get("Params"), "") + ")";
-        }
-        else{
-            expr+= ")";
+        JSONObject funcType = (JSONObject) o.get("FuncType");
+        JSONObject id = (JSONObject) o.get("Id");
+        JSONArray params = (JSONArray) o.get("Params");
+        expr += funcType.get("dataType") + " " + id.get("id") + " (";
+        if (params != null) {
+            expr += GetParameters((JSONArray) o.get("Params"), "") + ")";
+        } else {
+            expr += ")";
         }
         return expr;
     }
 
     public String GetParameters(JSONArray o, String expr) {
-        for(Object obj: o) {
-            JSONObject thisObject = (JSONObject)obj;
-            if(thisObject.get("type").equals("VariableDeclaration")) {
-                expr+=GetVariableDeclarationParameter(thisObject, "" );
-            }else if(thisObject.get("type").equals("BinaryExpression")) {
-                expr+=GetBinaryOperator(thisObject,"");
-            }else if(thisObject.get("type").equals("Identifier")) {
-                if(thisObject.get("idType").equals("adr")) {
-                    expr+= "&" + thisObject.get("id") + "p";
-                }else{
-                    expr+= "*" + thisObject.get("id") + "p";
+        for (Object obj : o) {
+            JSONObject thisObject = (JSONObject) obj;
+            if (thisObject.get("type").equals("VariableDeclaration")) {
+                expr += GetVariableDeclarationParameter(thisObject, "");
+            } else if (thisObject.get("type").equals("BinaryExpression")) {
+                expr += GetBinaryOperator(thisObject, "");
+            } else if (thisObject.get("type").equals("Identifier")) {
+                if (thisObject.get("idType").equals("adr")) {
+                    expr += "&" + thisObject.get("id") + "p";
+                } else {
+                    expr += "*" + thisObject.get("id") + "p";
                 }
+            } else {
+                expr += thisObject.get("value");
             }
-            else {
-                expr+=thisObject.get("value");
-            }
-            if(o.indexOf(thisObject) != o.size() - 1) {
-                expr+=",";
+            if (o.indexOf(thisObject) != o.size() - 1) {
+                expr += ",";
             }
         }
         return expr;
     }
 
-    public String GetVariableDeclarationParameter (JSONObject o, String expr) {
-        JSONObject init = (JSONObject)o.get("Init");
-        JSONObject id = (JSONObject)o.get("Identifier");
-        JSONObject varType = (JSONObject)o.get("VariableType");
+    public String GetVariableDeclarationParameter(JSONObject o, String expr) {
+        JSONObject init = (JSONObject) o.get("Init");
+        JSONObject id = (JSONObject) o.get("Identifier");
+        JSONObject varType = (JSONObject) o.get("VariableType");
 
-        if(id.get("idType").equals("adr")) {
-            switch((String)varType.get("dataType")) {
-                case"decimal":
-                    expr+= "float **" + id.get("id");
+        if (id.get("idType").equals("adr")) {
+            switch ((String) varType.get("dataType")) {
+                case "decimal":
+                    expr += "float **" + id.get("id");
                     break;
                 case "string":
-                    expr+="char ***" + id.get("id");
+                    expr += "char ***" + id.get("id");
                     break;
                 default:
-                    expr+= varType.get("dataType") + " **" + id.get("id");
+                    expr += varType.get("dataType") + " **" + id.get("id");
                     break;
             }
 
-        }else {
-            switch((String)varType.get("dataType")) {
-                case"decimal":
-                    expr+= "float " + id.get("id");
+        } else {
+            switch ((String) varType.get("dataType")) {
+                case "decimal":
+                    expr += "float " + id.get("id");
                     break;
                 case "string":
-                    expr+="char *" + id.get("id");
+                    expr += "char *" + id.get("id");
                     break;
                 default:
-                    expr+= varType.get("dataType") + " " + id.get("id");
+                    expr += varType.get("dataType") + " " + id.get("id");
                     break;
             }
         }
@@ -219,17 +219,44 @@ public class CodeGenerator {
     }
 
     public String GetAssignmentExpression(JSONObject o, String expr, Boolean insideFunction, JSONArray params) {
-        JSONObject left = (JSONObject)o.get("left");
-        JSONObject right = (JSONObject)o.get("right");
+        JSONObject left = (JSONObject) o.get("left");
+        JSONObject right = (JSONObject) o.get("right");
 
         //First we make left side of the assignment:
         //Check if the assignment is inside a function
-        if(left.get("type").equals("string")) {
-            if(insideFunction) {
-
-                expr+="strcpy(*" + left.get("id") + "," + right.get("value") + ")";
+        if (left.get("dataType").equals("string")) {
+            if (insideFunction) {
+                if (CheckParam(params, left)) {
+                    if (GetParamIdType(params, left).equals("adr")) {
+                        expr += "strcpy(**" + left.get("id") + ",";
+                    } else {
+                        expr += "strcpy(*" + left.get("id") + "p" + ",";
+                    }
+                } else {
+                    expr += "strcpy(*" + left.get("id") + "p" + ",";
+                }
+            }else {
+                expr += "strcpy(*" + left.get("id") + "p" + ",";
             }
-        }else if (insideFunction) {
+            if (right.get("type").equals("string")) {
+                expr += right.get("value") + ")";
+            } else {
+                if (insideFunction) {
+                    if (CheckParam(params, right)) {
+                        if (GetParamIdType(params, right).equals("adr")) {
+                            expr += "**" + right.get("id") + ")";
+                        } else {
+                            expr += "*" + right.get("id") + "p" + ")";
+                        }
+                    } else {
+                        expr += "*" + right.get("id") + "p" + ")";
+                    }
+                }else{
+                    expr += "*" + right.get("id") + "p" + ")";
+                }
+            }
+        } else {
+            if (insideFunction) {
                 //Check if the left identifier is from the parameters
                 if (CheckParam(params, left)) {
                     //Check if the parameter identifier is adr
@@ -258,7 +285,7 @@ public class CodeGenerator {
                 }
                 //If the assignment isn't inside a function
             } else {
-                if (left.get("idType").equals("adr")) {
+               if (left.get("idType").equals("adr")) {
                     expr += left.get("id") + "p = ";
                 } else {
                     expr += "*" + left.get("id") + "p = ";
@@ -308,107 +335,125 @@ public class CodeGenerator {
             } else {
                 expr += right.get("value");
             }
+        }
         return expr;
     }
 
     public String GetVariableDeclaration(JSONObject o, String expr, Boolean createPointer, Boolean insideFunction) {
-        JSONObject init = (JSONObject)o.get("Init");
-        JSONObject id = (JSONObject)o.get("Identifier");
-        JSONObject varType = (JSONObject)o.get("VariableType");
-        if(varType.get("dataType").equals("decimal")) {
-            expr+="float " + id.get("id");
-        }else if(varType.get("dataType").equals("string")) {
-            expr+="char *" + id.get("id");
-        }
-        else{
-                expr+=varType.get("dataType") + " " + id.get("id");
+        JSONObject init = (JSONObject) o.get("Init");
+        JSONObject id = (JSONObject) o.get("Identifier");
+        JSONObject varType = (JSONObject) o.get("VariableType");
+
+        if (varType.get("dataType").equals("decimal")) {
+            expr += "float " + id.get("id");
+        } else if (varType.get("dataType").equals("string")) {
+            expr += "char *" + id.get("id") + " = malloc(sizeof(char) * (1000)); \n";
+        } else {
+            expr += varType.get("dataType") + " " + id.get("id") + ";";
         }
 
-        if(init != null) {
-            if(init.get("type").equals("BinaryExpression")) {
-                expr+= " = " + GetBinaryOperator(init,"");
-            }else if(init.get("type").equals("Identifier")) {
-                if(insideFunction && id.get("idType").equals("adr")) {
-                    expr+= " = **" + init.get("id") + ";";
-                }else{
-                    if(insideFunction) {
-                        expr+= " = *" + init.get("id") + "p;";
-                    }else {
-                        expr+= " = *" + init.get("id") + ";";
+        if (init != null) {
+            if (init.get("type").equals("BinaryExpression")) {
+                expr += " = " + GetBinaryOperator(init, "") + ";";
+            } else if (init.get("type").equals("Identifier")) {
+                if (insideFunction && id.get("idType").equals("adr")) {
+                    if (varType.get("dataType").equals("string")) {
+                        expr += "strcpy(" + id.get("id") + ", **" + init.get("id") + ");";
+                    } else {
+                        expr += " = **" + init.get("id") + ";";
+                    }
+                } else {
+                    if (insideFunction) {
+                        if (varType.get("dataType").equals("string")) {
+                            expr += "strcpy(" + id.get("id") + ", *" + init.get("id") + "p); \n";
+                        } else {
+                            expr += " = *" + init.get("id") + "p;";
+                        }
+                    } else {
+                        if (varType.get("dataType").equals("string")) {
+                            expr += "strcpy(" + id.get("id") + ", *" + init.get("id") + "); \n";
+                        } else {
+                            expr += " = *" + init.get("id") + ";";
+                        }
                     }
                 }
+            } else {
+                if(varType.get("dataType").equals("string")) {
+                    expr += "strcpy(" + id.get("id") + "," + init.get("value") + "); \n";
+                }else {
+                    expr+= " = " + init.get("value") +";";
+                }
             }
-            else expr+= " = " + init.get("value") +";";
         }
-        if(createPointer) {
-            if(varType.get("dataType").equals("decimal")) {
+
+        if (createPointer) {
+            if (varType.get("dataType").equals("decimal")) {
                 expr += "float *" + id.get("id") + "p = " + "&" + id.get("id");
-            }else if(varType.get("dataType").equals("string")) {
+            } else if (varType.get("dataType").equals("string")) {
                 expr += "char **" + id.get("id") + "p = " + "&" + id.get("id");
-            }
-            else{
+            } else {
                 expr += "\n" + varType.get("dataType") + "*" + id.get("id") + "p = " + "&" + id.get("id");
             }
         }
         return expr;
     }
 
-    public String GetBinaryOperator (JSONObject o, String expr) {
-        JSONObject left = (JSONObject)o.get("left");
-        JSONObject right = (JSONObject)o.get("right");
+    public String GetBinaryOperator(JSONObject o, String expr) {
+        JSONObject left = (JSONObject) o.get("left");
+        JSONObject right = (JSONObject) o.get("right");
 
-        if(left.get("type").equals("BinaryExpression")) {
-            expr+=GetBinaryOperator(left,"");
-        }else if(left.get("type").equals("Identifier")) {
-            if(left.get("idType") == "adr") {
-                expr+= "&" + left.get("id") + "p";
-            }else{
-                expr+= "*" + left.get("id") + "p";
+        if (left.get("type").equals("BinaryExpression")) {
+            expr += GetBinaryOperator(left, "");
+        } else if (left.get("type").equals("Identifier")) {
+            if (left.get("idType") == "adr") {
+                expr += "&" + left.get("id") + "p";
+            } else {
+                expr += "*" + left.get("id") + "p";
             }
-        }else{
-            expr+=left.get("value");
+        } else {
+            expr += left.get("value");
         }
-        expr+=o.get("operator");
+        expr += o.get("operator");
 
-        if(right.get("type").equals("BinaryExpression")) {
-            expr+=GetBinaryOperator(right,"");
-        }else if(right.get("type").equals("Identifier")) {
-            if(right.get("idType") == "adr") {
-                expr+= "&" + right.get("id") + "p";
-            }else{
-                expr+= "*" + right.get("id") + "p";
+        if (right.get("type").equals("BinaryExpression")) {
+            expr += GetBinaryOperator(right, "");
+        } else if (right.get("type").equals("Identifier")) {
+            if (right.get("idType") == "adr") {
+                expr += "&" + right.get("id") + "p";
+            } else {
+                expr += "*" + right.get("id") + "p";
             }
-        }else{
-            expr+=right.get("value");
+        } else {
+            expr += right.get("value");
         }
         return expr;
     }
 
     public String GetParamIdType(JSONArray o, JSONObject n) {
-        for(Object obj : o) {
-            JSONObject thisObject = (JSONObject)obj;
-            JSONObject id = (JSONObject)thisObject.get("Identifier");
+        for (Object obj : o) {
+            JSONObject thisObject = (JSONObject) obj;
+            JSONObject id = (JSONObject) thisObject.get("Identifier");
 
-            if(id.get("id").equals(n.get("id"))) {
-                return (String)id.get("idType");
+            if (id.get("id").equals(n.get("id"))) {
+                return (String) id.get("idType");
             }
         }
 
         return "";
     }
 
-    public Boolean CheckParam(JSONArray o, JSONObject n){
+    public Boolean CheckParam(JSONArray o, JSONObject n) {
         // go through each object in parameter list.
-        for (Object obj : o){
+        for (Object obj : o) {
             // Cast to JSONObject, so that we can get the parameter id.
-            JSONObject thisObject = (JSONObject)obj;
-            JSONObject id = (JSONObject)thisObject.get("Identifier");
+            JSONObject thisObject = (JSONObject) obj;
+            JSONObject id = (JSONObject) thisObject.get("Identifier");
             // Check if the correct Id from assignment matches any of the id's in the parameter list.
             // If match is found, return true/false, for whether or not the variable is from another scope
             // than the function definition.
-           if(id.get("id").equals(n.get("id"))){
-               return true;
-           }
+            if (id.get("id").equals(n.get("id"))) {
+                return true;
+            }
         }
         return false;
     }

@@ -26,16 +26,13 @@ public class IdentifierNode extends AbstractNode {
     public String getType() {return "Identifier";}
     public String getIdType() {return idType;}
 
-    @Override
-    public void accept(Visitor analyzer) {
 
-    }
 
-    public void accept(Visitor v, AbstractNode type) {
-        v.visitId(this, type);
+    public void accept(Visitor v) {
+        v.visitId(this);
     }
-    public void accept(Visitor v, AbstractNode type, AbstractNode parent) {
-        v.visitId(this, type, parent);
+    public void accept(Visitor v, AbstractNode parent) {
+        v.visitId(this, parent);
     }
 
 }

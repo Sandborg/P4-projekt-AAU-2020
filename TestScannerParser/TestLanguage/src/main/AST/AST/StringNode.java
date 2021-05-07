@@ -14,6 +14,7 @@ public class StringNode  extends AbstractNode {
 
     public String getName() {return "string";}
     public String getValue() {return value;}
+    public String getValueString() {return value;}
 
     public void accept(Visitor v) {
         v.visitStringNode(this);

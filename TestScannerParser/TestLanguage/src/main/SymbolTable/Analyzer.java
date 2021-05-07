@@ -1,7 +1,8 @@
 import AST.*;
 import AST.Visitor.Visitor;
 import lab7.AbstractNode;
-
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
 public class Analyzer implements Visitor {
     private SymbolTable top;
 
@@ -38,8 +39,10 @@ public class Analyzer implements Visitor {
         }
 
         //Accept it's id
-        n.id.accept(this,n);
-
+        n.id.accept(this);
+        if(n.body instanceof BinaryOPNode && n.getName().equals("string")) {
+            n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,""));
+        }
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -54,19 +57,24 @@ public class Analyzer implements Visitor {
             if(n.body instanceof IdentifierNode && n.body.getName() == n.id.getName()) {
                 System.out.println("Cant declare a variable to itself");
             }
+
+            if(n.body instanceof BinaryOPNode && n.getName().equals("string")) {
+                n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,""));
+            }
+
             n.body.accept(this, n);
         }
 
         //Accept it's id
-        n.id.accept(this,n);
+        n.id.accept(this);
 
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
-    public void visitId(IdentifierNode n, AbstractNode type) {
-        n.AddDataType(type.getType());
+    public void visitId(IdentifierNode n) {
+        n.AddDataType(top.get(n.getName()).getName());
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
 
@@ -74,13 +82,13 @@ public class Analyzer implements Visitor {
     }
 
     @Override
-    public void visitId(IdentifierNode n, AbstractNode type, AbstractNode parent) {
+    public void visitId(IdentifierNode n, AbstractNode parent) {
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
         //Check if the identifiers type is compatible with the parent:
         if(!CheckType(n,parent)) System.out.println("type error identifier");
         //Update AST
-        n.AddDataType(parent.getType());
+        n.AddDataType(top.get(n.getName()).getName());
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this, parent);
     }
@@ -101,7 +109,6 @@ public class Analyzer implements Visitor {
         //A binarayOP node has two numbers. Accept them:
         n.number1.accept(this);
         n.number2.accept(this);
-
         //Continue with the next sibling
         if(n.getSib() != null)
             n.getSib().accept(this);
@@ -165,7 +172,13 @@ public class Analyzer implements Visitor {
                 System.out.println("adr must be set to another adr");
             }
         }
-        n.set.accept(this, n);
+        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
+        vd.lastAssign = n;
+        if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
+            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,""));
+        }
+
+        n.set.accept(this);
         n.to.accept(this, n.set);
 
         if(n.getSib() != null) n.getSib().accept(this);
@@ -173,18 +186,15 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitAssign(AssignmentNode n, AbstractNode parent) {
-        if(n.set.getIdType() == "adr" ) {
-            if(n.to instanceof IdentifierNode) {
-                if(n.to.getIdType() != "adr") {
-                    System.out.println("adr must be set to another adr");
-                }
-            }else{
-                System.out.println("adr must be set to another adr");
-            }
-        }
-        n.set.accept(this, n);
+        n.set.accept(this);
         n.to.accept(this, n.set);
 
+        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
+        vd.lastAssign = n;
+
+        if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
+            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,""));
+        }
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
@@ -193,7 +203,7 @@ public class Analyzer implements Visitor {
         //Put the function name into the global scope.
         top.put(n.id.getName(),n);
         //Check if there already exist a function with that name in the global scope.
-        n.id.accept(this,n);
+        n.id.accept(this);
         //Create a new scope for the new function
         SymbolTable thisScope = new SymbolTable(top);
         //Insert the new scope, into the list of all scopes.
@@ -208,12 +218,13 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFuncDec(FunctionDecNode n, AbstractNode parent) {
-
+        //This is never used
+        System.out.println("weird");
     }
 
     @Override
     public void visitFuncDef(FunctionDefNode n) {
-        n.id.accept(this,n);
+        n.id.accept(this);
 
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
 
@@ -230,6 +241,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFuncDef(FunctionDefNode n, AbstractNode parent) {
+        //This is for functions inside functions
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
@@ -248,7 +260,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFunctionCall(FunctionCallNode n) {
-        n.id.accept(this,n);
+        n.id.accept(this);
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
 
         //Find prototype node
@@ -374,5 +386,25 @@ public class Analyzer implements Visitor {
         //Check if the types are equal
         if(n1Type == n2Type) return true;
         else return false;
+    }
+
+    public String CreateStringFromBinaryOpNode (AbstractNode n, String s) {
+        if(n instanceof BinaryOPNode) {
+            BinaryOPNode bn = (BinaryOPNode)n;
+            s+= CreateStringFromBinaryOpNode(bn.number1, "");
+            s+= CreateStringFromBinaryOpNode(bn.number2, "");
+
+            return s;
+        }else {
+            if(n instanceof IdentifierNode) {
+                VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.getName());
+                if(vd.lastAssign != null) {
+                    return CreateStringFromBinaryOpNode(vd.lastAssign.to,"");
+                }else{
+                    return vd.body.getValueString();
+                }
+            }
+            return n.getValueString();
+        }
     }
 }

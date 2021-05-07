@@ -6,8 +6,8 @@ import lab7.AbstractNode;
 public interface Visitor {
     public void visitVarDec(VariableDeclarationNode n);
     public void visitVarDec(VariableDeclarationNode n, AbstractNode parent);
-    public void visitId(IdentifierNode n, AbstractNode type);
-    public void visitId(IdentifierNode n, AbstractNode type, AbstractNode parent);
+    public void visitId(IdentifierNode n);
+    public void visitId(IdentifierNode n, AbstractNode parent);
     public void visitProg(ProgramNode n);
     public void visitProg(ProgramNode n, AbstractNode parent);
     public void visitBinaryOP(BinaryOPNode n);

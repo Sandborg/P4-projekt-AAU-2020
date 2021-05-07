@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <string.h>
-int lol (char *haha);
-int lol (char *haha){
-char **hahap = &haha;
-char *goddag = "hsdf";char **goddagp = &goddag;
-*goddagp = "basd";
-
-}
-
+#include <stdlib.h>
 int main() { 
-char *hej = "3.3";char **hejp = &hej;
-char *med = "lol";char **medp = &med;
-lol(*hejp); 
+int h;
+int*hp = &h;
+*hp = 8+3*2;
+int k;
+int*kp = &k;
+*kp = 3+2+1;
+char *lol = malloc(sizeof(char) * (1000)); 
+strcpy(lol,"jeg er 321 år gammel321"); 
+char **lolp = &lol;
 
 return 0; 
 }
