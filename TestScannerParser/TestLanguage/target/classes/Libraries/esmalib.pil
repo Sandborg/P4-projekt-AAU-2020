@@ -1,5 +1,4 @@
 prototype void print(string s.val);
-
-void print(string s.val) {
+ void print(string s.val) {
 
 }

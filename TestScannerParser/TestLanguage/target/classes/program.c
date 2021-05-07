@@ -1,14 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-int lol (int h);
-int lol (int h){
-int *hp = &h;
-
-}
-
 int main() { 
-lol(3); 
+int a  = 3;
+int*ap = &a;
 
 return 0; 
 }

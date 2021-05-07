@@ -1,3 +1,10 @@
 import "esmalib.pil";
+int a = 3;
 
-print("hej");
+if(a.val IS 3 AND a.val IS NOT 7) {
+    print("if");
+}
+
+if(a.val IS 3) {
+    print("lol");
+}

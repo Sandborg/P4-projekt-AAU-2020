@@ -1,1 +1,94 @@
-[{"type":"Program","Body":[{"name":{"type":"string","value":"\"esmalib.pil\""},"type":"import"},{"id":{"idType":"","id":"print","type":"Identifier"},"type":"FunctionCall","params":[{"type":"string","value":"\"hej\""}]}]}]
+[
+  {
+    "type": "Program",
+    "Body": [
+      {
+        "name": {
+          "type": "string",
+          "value": "\"esmalib.pil\""
+        },
+        "type": "import"
+      },
+      {
+        "Init": {
+          "type": "int",
+          "value": 3
+        },
+        "Identifier": {
+          "idType": "",
+          "dataType": "int",
+          "id": "a",
+          "type": "Identifier"
+        },
+        "VariableType": {
+          "dataType": "int",
+          "type": "Type"
+        },
+        "type": "VariableDeclaration"
+      },
+      {
+        "test": {
+          "left": {
+            "result": 0.0,
+            "left": {
+              "idType": "val",
+              "id": "a",
+              "type": "Identifier"
+            },
+            "right": {
+              "type": "int",
+              "value": 7
+            },
+            "type": "BinaryExpression",
+            "operator": "IS_NOT"
+          },
+          "right": {
+            "result": 0.0,
+            "left": {
+              "idType": "val",
+              "id": "a",
+              "type": "Identifier"
+            },
+            "right": {
+              "type": "int",
+              "value": 3
+            },
+            "type": "BinaryExpression",
+            "operator": "IS"
+          },
+          "type": "LogicalExpression",
+          "operator": "AND"
+        },
+        "ifBody": {
+          "id": {
+            "idType": "",
+            "id": "print",
+            "type": "Identifier"
+          },
+          "type": "FunctionCall",
+          "params": [
+            {
+              "type": "string",
+              "value": "\"if\""
+            }
+          ]
+        },
+        "elseBody": {
+          "id": {
+            "idType": "",
+            "id": "print",
+            "type": "Identifier"
+          },
+          "type": "FunctionCall",
+          "params": [
+            {
+              "type": "string",
+              "value": "\"else\""
+            }
+          ]
+        },
+        "type": "IfStatement"
+      }
+    ]
+  }
+]

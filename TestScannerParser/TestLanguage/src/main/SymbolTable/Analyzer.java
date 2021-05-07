@@ -3,6 +3,7 @@ import AST.Visitor.Visitor;
 import lab7.AbstractNode;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class Analyzer implements Visitor {
@@ -322,8 +323,19 @@ public class Analyzer implements Visitor {
     @Override
     public void visitImportNode(ImportNode n) {
         String filename = n.name.getValueString();
-        parser p = new parser(new Scanner(new FileReader("src/main/resources/Libraries/" + filename)));
-        p.parse();
+        parser p = null;
+        try {
+            p = new parser(new Scanner(new FileReader("src/main/resources/Libraries/" + filename)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            p.parse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,top);
+
         if(n.getSib() != null) n.getSib().accept(this);
     }
 

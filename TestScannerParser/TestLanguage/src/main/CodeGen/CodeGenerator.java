@@ -98,10 +98,14 @@ public class CodeGenerator {
         JSONObject id = (JSONObject) o.get("id");
         JSONArray params = (JSONArray) o.get("params");
 
-        expr += id.get("id") + "(";
-        if (params != null) {
-            expr += GetParameters(params, "") + ")";
-        } else expr += ")";
+        if(id.get("id").equals("print")) {
+            expr+="printf(\"%s\"," + GetParameters(params,"")+ ")";
+        }else {
+            expr += id.get("id") + "(";
+            if (params != null) {
+                expr += GetParameters(params, "") + ")";
+            } else expr += ")";
+        }
         return expr;
     }
 
@@ -440,6 +444,23 @@ public class CodeGenerator {
         }
 
         return "";
+    }
+
+    public String GetIfStatement(JSONObject o, String s) {
+        JSONObject test = (JSONObject)o.get("test");
+        JSONObject left = new JSONObject();
+        JSONObject right = new JSONObject();
+        if(test.get("left") != null) {
+            left = (JSONObject)test.get("left");
+        }
+        if(test.get("right") != null) {
+            right = (JSONObject)test.get("right");
+        }
+        if(left.get("left") != null) s+= GetIfStatement(left, "");
+        if(right.get("left") != null) s+= GetIfStatement(right, "");
+        s+="if(";
+
+        return s;
     }
 
     public Boolean CheckParam(JSONArray o, JSONObject n) {
