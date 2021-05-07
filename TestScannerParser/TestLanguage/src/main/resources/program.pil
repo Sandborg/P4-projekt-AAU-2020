@@ -1,10 +1,17 @@
 import "esmalib.pil";
-int a = 3;
+prototype int func (int a.adr);
 
-if(a.val IS 3 AND a.val IS NOT 7) {
-    print("if");
+int x = 3;
+if(x.val IS 3) {
+    print("awesome");
 }
 
-if(a.val IS 3) {
-    print("lol");
+func(x.adr);
+
+int func(int a.adr) {
+int b = 2;
+a.val = 3;
+ if(a.val IS 3 AND b.val IS 2) {
+           print("awesome");
+  }
 }

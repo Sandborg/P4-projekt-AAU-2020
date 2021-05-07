@@ -1,6 +1,8 @@
 import AST.*;
 import AST.Visitor.Visitor;
 import lab7.AbstractNode;
+import org.json.simple.JSONObject;
+
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
 import java.io.FileNotFoundException;
@@ -77,9 +79,18 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitId(IdentifierNode n) {
+        VariableDeclarationNode vdn = null;
+        if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
+
         n.AddDataType(top.get(n.getName()).getName());
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
+        if(vdn != null && vdn.isParameter) {
+            JSONObject o = new JSONObject();
+            o.put("type", "parameterInfo");
+            o.put("parameterType", vdn.id.getIdType());
+            n.node.put("parameterInfo",o);
+        }
 
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -87,11 +98,19 @@ public class Analyzer implements Visitor {
     @Override
     public void visitId(IdentifierNode n, AbstractNode parent) {
         //Check if the identifer has been declared
-        if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
+        VariableDeclarationNode vdn = null;
+        if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
+        if(vdn == null) System.out.println(n.getName() + " is not declared");
         //Check if the identifiers type is compatible with the parent:
         if(!CheckType(n,parent)) System.out.println("type error identifier");
         //Update AST
         n.AddDataType(top.get(n.getName()).getName());
+        if(vdn != null && vdn.isParameter) {
+            JSONObject o = new JSONObject();
+            o.put("type", "parameterInfo");
+            o.put("parameterType", vdn.id.getIdType());
+            n.node.put("parameterInfo",o);
+        }
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this, parent);
     }
@@ -214,10 +233,17 @@ public class Analyzer implements Visitor {
         //Insert the paremeters into the new scope.
         if(n.params != null) {
             Analyzer ana = new Analyzer((VariableDeclarationNode) n.params.getFirst(), thisScope);
+            addParameterToVarDec((VariableDeclarationNode)n.params.getFirst());
         }
         //Continue with next sibling.
         if(n.getSib() != null) n.getSib().accept(this);
     }
+
+    public void addParameterToVarDec (VariableDeclarationNode n) {
+        n.isParameter = true;
+        if(n.getSib() != null) addParameterToVarDec((VariableDeclarationNode)n.getSib());
+    }
+
 
     @Override
     public void visitFuncDec(FunctionDecNode n, AbstractNode parent) {
@@ -286,24 +312,30 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitIfStatement(IfStatementNode n) {
+        n.test.getFirst().accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitIfStatement(IfStatementNode n, AbstractNode parent) {
+        n.test.getFirst().accept(this,parent);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitConditionNode(ConditionNode n) {
+        n.left.getFirst().accept(this);
+        n.right.getFirst().accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitConditionNode(ConditionNode n, AbstractNode parent) {
+        n.left.getFirst().accept(this, parent);
+        n.right.getFirst().accept(this, parent);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }

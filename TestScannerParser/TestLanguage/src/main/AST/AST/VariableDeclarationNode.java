@@ -10,6 +10,8 @@ public class VariableDeclarationNode extends AbstractNode {
     public AbstractNode body;
 
     public AssignmentNode lastAssign;
+    public Boolean isParameter = false;
+    public String dataType;
     public VariableDeclarationNode (AbstractNode type, AbstractNode id, AbstractNode body) {
         this.type = type;
         this.id = id;

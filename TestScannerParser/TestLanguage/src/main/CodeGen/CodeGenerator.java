@@ -74,6 +74,8 @@ public class CodeGenerator {
                     expr += (GetFunctionCall(thisObject, "") + "; \n");
                 } else if (thisObject.get("type").equals("ReturnStatement")) {
                     expr += (GetReturnStatement(thisObject, "") + "; \n");
+                }else if (thisObject.get("type").equals("IfStatement")) {
+                    expr += (GetIfStatement(thisObject,"", insideFunction)+ "\n");
                 }
             }
             //System.out.println(o);
@@ -446,21 +448,125 @@ public class CodeGenerator {
         return "";
     }
 
-    public String GetIfStatement(JSONObject o, String s) {
-        JSONObject test = (JSONObject)o.get("test");
+    public String GetIfStatement(JSONObject o, String s, Boolean insideFunction) {
+        s+= "if(" + GetIfStatementTestCase(o, "",insideFunction) + ") { \n";
+        s+= GetBody((JSONArray)o.get("ifBody"), "", insideFunction, null) + "\n}";
+        if(o.get("elseBody") != null) {
+            s+= "else { \n";
+            s+= GetBody((JSONArray)o.get("elseBody"), "", insideFunction, null) + "\n}";
+
+        }
+        return s;
+    }
+
+    public String GetIfStatementTestCase(JSONObject o, String s, Boolean insideFunction) {
+        JSONObject test = new JSONObject();
         JSONObject left = new JSONObject();
         JSONObject right = new JSONObject();
-        if(test.get("left") != null) {
-            left = (JSONObject)test.get("left");
-        }
-        if(test.get("right") != null) {
-            right = (JSONObject)test.get("right");
-        }
-        if(left.get("left") != null) s+= GetIfStatement(left, "");
-        if(right.get("left") != null) s+= GetIfStatement(right, "");
-        s+="if(";
 
+        if(o.get("test") != "{}") test = (JSONObject)o.get("test");
+        if(test != null) {
+            s+=GetLogicalExpression(test,"", insideFunction);
+        }else{
+            if(o.get("type").equals("Identifier")) {
+                s+=GetIdentifier(o,"",insideFunction);
+            }else if(o.get("type").equals("LogicalExpression")) {
+                s+=GetLogicalExpression(o, "", insideFunction);
+            }else{
+                s+=o.get("value");
+            }
+        }
         return s;
+    }
+
+    public String GetLogicalExpression(JSONObject o, String s, Boolean insideFunction) {
+        JSONObject left = new JSONObject();
+        JSONObject right = new JSONObject();
+
+        left = (JSONObject)o.get("left");
+        right = (JSONObject)o.get("right");
+
+        if(left != null && left.get("type").equals("BinaryExpression")) {
+            s+=GetIfStatementTestCase((JSONObject)left.get("left"), "",insideFunction);
+            s+=ConvertOperator((String)left.get("operator"));
+            s+=GetIfStatementTestCase((JSONObject)left.get("right"), "",insideFunction);
+        }else if(left != null && left.get("type").equals("Identifier")){
+            s+=GetIdentifier(left,"",insideFunction);
+        }else if(left != null && right.get("type").equals("LogicalExpression")) {
+            s+=GetIfStatementTestCase(right,"",insideFunction);
+        }else if(left != null){
+            s+=left.get("value");
+        }
+
+        s+=ConvertOperator((String)o.get("operator"));
+
+        if(right != null &&right.get("type").equals("BinaryExpression")) {
+            s+=GetIfStatementTestCase((JSONObject)right.get("left"), "", insideFunction);
+            s+=ConvertOperator((String)right.get("operator"));
+            s+=GetIfStatementTestCase((JSONObject)right.get("right"), "", insideFunction);
+        }else if(right != null && right.get("type").equals("Identifier")){
+            s+=GetIdentifier(right,"",insideFunction);
+        }else if(right != null && right.get("type").equals("LogicalExpression")) {
+            s+=GetIfStatementTestCase(right,"", insideFunction);
+        }else if(right != null){
+            s+=right.get("value");
+        }
+        return s;
+    }
+
+    public String GetIdentifier(JSONObject o, String expr, Boolean insideFunction) {
+        JSONObject isPram = (JSONObject)o.get("parameterInfo");
+        if (insideFunction) {
+            //Check if the left identifier is from the parameters
+            if (isPram != null) {
+                //Check if the parameter identifier is adr
+                if (isPram.get("parameterType").equals("adr")) {
+                    //Check if the current identifier is adr
+                    if (o.get("idType").equals("adr")) {
+                        expr += "*" + o.get("id");
+                    } else {
+                        expr += "**" + o.get("id");
+                    }
+                    //If the left parameter identifier is of type "val"
+                } else {
+                    if (o.get("idType").equals("adr")) {
+                        expr += o.get("id") + "p";
+                    } else {
+                        expr += "*" + o.get("id") + "p";
+                    }
+                }
+                //If the left parameter isn't from parameters:
+            } else {
+                if (o.get("idType").equals("adr")) {
+                    expr += o.get("id") + "p ";
+                } else {
+                    expr += "*" + o.get("id") + "p";
+                }
+            }
+            //If the assignment isn't inside a function
+        } else {
+            if (o.get("idType").equals("adr")) {
+                expr += o.get("id") + "p";
+            } else {
+                expr += "*" + o.get("id") + "p";
+            }
+        }
+        return expr;
+    }
+
+    public String ConvertOperator(String operator) {
+        switch (operator) {
+            case "IS":
+                return "==";
+            case "IS_NOT":
+                return "!=";
+            case "AND":
+                return "&&";
+            case "OR":
+                return "||";
+            default:
+                return "Unkown opreator";
+        }
     }
 
     public Boolean CheckParam(JSONArray o, JSONObject n) {

@@ -261,6 +261,8 @@ FunctionBodyDeclaration ::= TypeDeclaration:td
                  {: RESULT = as; :}
                  | ReturnStmt:rs
                  {: RESULT = rs; :}
+                 | SelectiveStmt:ss
+                 {: RESULT = ss; :}
                  ;
 
 TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
