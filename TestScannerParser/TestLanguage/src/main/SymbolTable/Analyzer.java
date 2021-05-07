@@ -83,6 +83,7 @@ public class Analyzer implements Visitor {
         if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
 
         n.AddDataType(top.get(n.getName()).getName());
+
         //Check if the identifer has been declared
         if(top.get(n.getName()) == null) System.out.println(n.getName() + " is not declared");
         if(vdn != null && vdn.isParameter) {
@@ -313,6 +314,8 @@ public class Analyzer implements Visitor {
     @Override
     public void visitIfStatement(IfStatementNode n) {
         n.test.getFirst().accept(this);
+        n.ifBody.getFirst().accept(this);
+        if(n.elseBody != null) n.elseBody.getFirst().accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }

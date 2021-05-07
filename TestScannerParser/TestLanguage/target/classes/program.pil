@@ -1,17 +1,13 @@
 import "esmalib.pil";
-prototype int func (int a.adr);
+int a = 3;
+int b = 5;
 
-int x = 3;
-if(x.val IS 3) {
-    print("awesome");
-}
+b.val = 3;
 
-func(x.adr);
-
-int func(int a.adr) {
-int b = 2;
-a.val = 3;
- if(a.val IS 3 AND b.val IS 2) {
-           print("awesome");
-  }
+if(a.val IS b.val) {
+    a.val = 3;
+    string lol = "jeg er " + a.val + " år gammel";
+    print(lol.val);
+}else{
+    print("Nederen");
 }

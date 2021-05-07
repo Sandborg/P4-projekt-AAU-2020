@@ -227,13 +227,14 @@ public class CodeGenerator {
     public String GetAssignmentExpression(JSONObject o, String expr, Boolean insideFunction, JSONArray params) {
         JSONObject left = (JSONObject) o.get("left");
         JSONObject right = (JSONObject) o.get("right");
-
+        JSONObject isPramLeft = (JSONObject)left.get("parameterInfo");
+        JSONObject isParamRight = (JSONObject) right.get("parameterInfo");
         //First we make left side of the assignment:
         //Check if the assignment is inside a function
         if (left.get("dataType").equals("string")) {
             if (insideFunction) {
-                if (CheckParam(params, left)) {
-                    if (GetParamIdType(params, left).equals("adr")) {
+                if (isPramLeft != null) {
+                    if (isPramLeft.get("parameterType").equals("adr")) {
                         expr += "strcpy(**" + left.get("id") + ",";
                     } else {
                         expr += "strcpy(*" + left.get("id") + "p" + ",";
@@ -248,8 +249,8 @@ public class CodeGenerator {
                 expr += right.get("value") + ")";
             } else {
                 if (insideFunction) {
-                    if (CheckParam(params, right)) {
-                        if (GetParamIdType(params, right).equals("adr")) {
+                    if (isParamRight != null) {
+                        if (isParamRight.get("parameterType").equals("adr")) {
                             expr += "**" + right.get("id") + ")";
                         } else {
                             expr += "*" + right.get("id") + "p" + ")";
@@ -264,9 +265,9 @@ public class CodeGenerator {
         } else {
             if (insideFunction) {
                 //Check if the left identifier is from the parameters
-                if (CheckParam(params, left)) {
+                if (isPramLeft != null) {
                     //Check if the parameter identifier is adr
-                    if (GetParamIdType(params, left).equals("adr")) {
+                    if (isPramLeft.get("parameterType").equals("adr")) {
                         //Check if the current identifier is adr
                         if (left.get("idType").equals("adr")) {
                             expr += "*" + left.get("id") + " =";
@@ -305,9 +306,9 @@ public class CodeGenerator {
                 //If the assignment is inside a function
                 if (insideFunction) {
                     //If the right identifier comes from the parameters
-                    if (CheckParam(params, right)) {
+                    if (isParamRight != null) {
                         //If the parameter identifier is of type "adr"
-                        if (GetParamIdType(params, right).equals("adr")) {
+                        if (isParamRight.get("parameterType").equals("adr")) {
                             //If the current identifier is of type "adr"
                             if (right.get("idType").equals("adr")) {
                                 expr += "*" + right.get("id") + "";

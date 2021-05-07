@@ -1,26 +1,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-int func (int **a);
-int func (int **a){
-int b  = 2;
-int*bp = &b;
-**a =3;
-if(*bp==2&&**a==3) { 
-printf("%s","awesome"); 
-
-}
-
-}
-
 int main() { 
-int x  = 3;
-int*xp = &x;
-if(*xp==3) { 
-printf("%s","awesome"); 
+int a  = 3;
+int*ap = &a;
+int b  = 5;
+int*bp = &b;
+*bp = 3;
+if(*ap==*bp) { 
+*ap = 3;
+char *lol = malloc(sizeof(char) * (1000)); 
+strcpy(lol,"jeg er 3 år gammel"); 
+char **lolp = &lol;
+printf("%s",*lolp); 
+
+}else { 
+printf("%s","Nederen"); 
 
 }
-func(&xp); 
 
 return 0; 
 }
