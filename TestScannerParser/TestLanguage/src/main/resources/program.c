@@ -1,23 +1,46 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+void megafedt (int yes);
+void megalort (int no);
+void megafedt (int yes){
+int *yesp = &yes;
+if(*yesp!=0) { 
+printf("%s","jaja, det lort virker sku!"); 
+
+}else { 
+megalort(*yesp); 
+
+}
+
+}
+
+void megalort (int no){
+int *nop = &no;
+if(*nop==0) { 
+printf("%s","nej det er sku lort"); 
+
+}else { 
+megafedt(*nop); 
+
+}
+
+}
+
 int main() { 
-int a  = 3;
+int a  = 67;
 int*ap = &a;
 int b  = 5;
 int*bp = &b;
 *bp = 3;
-if(*ap==*bp) { 
-*ap = 3;
-char *lol = malloc(sizeof(char) * (1000)); 
-strcpy(lol,"jeg er 3 år gammel"); 
-char **lolp = &lol;
-printf("%s",*lolp); 
+*ap = *bp;
+if(*ap>*bp) { 
+megafedt(*ap); 
 
 }else { 
-printf("%s","Nederen"); 
+megalort(*bp); 
 
 }
 
-return 0; 
+return 0;
 }

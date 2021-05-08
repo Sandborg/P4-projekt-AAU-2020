@@ -55,7 +55,7 @@ public class CodeGenerator {
         //Add main
         program.append("int main() { \n");
         program.append(GetBody(body, "", false, null));
-        program.append("\nreturn 0; \n}");
+        program.append("\nreturn 0;\n}");
     }
 
     public String GetBody(JSONArray body, String expr, Boolean insideFunction, JSONArray params) {
@@ -556,18 +556,17 @@ public class CodeGenerator {
     }
 
     public String ConvertOperator(String operator) {
-        switch (operator) {
-            case "IS":
-                return "==";
-            case "IS_NOT":
-                return "!=";
-            case "AND":
-                return "&&";
-            case "OR":
-                return "||";
-            default:
-                return "Unkown opreator";
-        }
+        return switch (operator) {
+            case "IS" -> "==";
+            case "IS_NOT" -> "!=";
+            case "AND" -> "&&";
+            case "OR" -> "||";
+            case "GREATER" -> ">";
+            case "GREATER_EQUAL" -> ">=";
+            case "LESSER" -> "<";
+            case "LESSER_EQUAL" -> "<=";
+            default -> "Unknown operator";
+        };
     }
 
     public Boolean CheckParam(JSONArray o, JSONObject n) {

@@ -1,13 +1,30 @@
 import "esmalib.pil";
-int a = 3;
+prototype void megafedt(int yes.val);
+prototype void megalort(int no.val);
+
+int a = 67;
 int b = 5;
-
 b.val = 3;
+a.val = b.val;
 
-if(a.val IS b.val) {
-    a.val = 3;
-    string lol = "jeg er " + a.val + " år gammel";
-    print(lol.val);
+if(a.val > b.val) {
+    megafedt(a.val);
 }else{
-    print("Nederen");
+    megalort(b.val);
+}
+
+void megafedt(int yes.val){
+    if(yes.val IS NOT 0){
+        print("jaja, det lort virker sku!");
+    }else{
+        megalort(yes.val);
+    }
+}
+
+void megalort(int no.val){
+    if(no.val IS 0){
+        print("nej det er sku lort");
+    }else{
+        megafedt(no.val);
+    }
 }
