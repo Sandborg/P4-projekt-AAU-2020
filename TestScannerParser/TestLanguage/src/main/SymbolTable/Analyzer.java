@@ -370,7 +370,7 @@ public class Analyzer implements Visitor {
             e.printStackTrace();
         }
         Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,top);
-
+        p.action_obj.WriteAST(n.name.getValueString() + ".json");
         if(n.getSib() != null) n.getSib().accept(this);
     }
 

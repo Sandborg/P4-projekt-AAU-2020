@@ -21,12 +21,22 @@ public class CodeGenerator {
     public void ReadTree(FileWriter program) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
         FileReader ast = new FileReader("src/main/resources/ast.json");
+        FileReader esmaLibAst = new FileReader("src/main/resources/esmalib.pil.json");
         JSONArray obj = (JSONArray) parser.parse(ast);
         JSONArray body = new JSONArray();
+
+        JSONArray esmaLib = (JSONArray) parser.parse(esmaLibAst);
+        JSONArray esmaLibBody = new JSONArray();
         for (Object o : obj) {
             JSONObject object = (JSONObject) o;
             body = (JSONArray) object.get("Body");
         }
+
+        for(Object o : esmaLib) {
+            JSONObject object = (JSONObject) o;
+            esmaLibBody = (JSONArray)object.get("Body");
+        }
+
         //Always include the stdio.h libary
         program.write("#include <stdio.h>\n");
         program.write("#include <string.h>\n");
@@ -42,8 +52,26 @@ public class CodeGenerator {
             }
         }
 
+        for(Object o : esmaLibBody) {
+            JSONObject thisObject = (JSONObject) o;
+            if(thisObject.get("type") != null) {
+                if(thisObject.get("type").equals("FunctionDeclaration")) {
+                    program.append(GetFunctionDec(thisObject, "") + ";\n");
+                }
+            }
+        }
+
         //Then add function definitions
         for (Object o : body) {
+            JSONObject thisObject = (JSONObject) o;
+            if (thisObject.get("type") != null) {
+                if (thisObject.get("type").equals("FunctionDefinition")) {
+                    program.append(GetFunctionDef(thisObject, "") + "\n");
+                }
+            }
+        }
+
+        for (Object o : esmaLibBody) {
             JSONObject thisObject = (JSONObject) o;
             if (thisObject.get("type") != null) {
                 if (thisObject.get("type").equals("FunctionDefinition")) {
@@ -569,6 +597,8 @@ public class CodeGenerator {
         };
     }
 
+    /*/ BLIVER IKKE BRUGT LÆNGERE
+
     public Boolean CheckParam(JSONArray o, JSONObject n) {
         // go through each object in parameter list.
         for (Object obj : o) {
@@ -589,4 +619,6 @@ public class CodeGenerator {
 
         return null;
     }
+
+     */
 }

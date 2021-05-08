@@ -1,46 +1,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-void megafedt (int yes);
-void megalort (int no);
-void megafedt (int yes){
-int *yesp = &yes;
-if(*yesp!=0) { 
-printf("%s","jaja, det lort virker sku!"); 
-
-}else { 
-megalort(*yesp); 
+void print (char *s);
+int pow (int a);
+void print (char *s){
+char **sp = &s;
 
 }
 
-}
-
-void megalort (int no){
-int *nop = &no;
-if(*nop==0) { 
-printf("%s","nej det er sku lort"); 
-
-}else { 
-megafedt(*nop); 
-
-}
+int pow (int a){
+int *ap = &a;
+return *ap**ap; 
 
 }
 
 int main() { 
-int a  = 67;
+int a  = 3;
 int*ap = &a;
-int b  = 5;
-int*bp = &b;
-*bp = 3;
-*ap = *bp;
-if(*apUnknown operator*bp) { 
-megafedt(*ap); 
-
-}else { 
-megalort(*bp); 
-
-}
 
 return 0;
 }
