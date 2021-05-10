@@ -43,7 +43,7 @@ action code {:
 
    public AbstractNode makeVariableDeclarationNoBody(AbstractNode type, AbstractNode id) {return new VariableDeclarationNode(type,id);}
    public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
-   public AbstractNode makeIdentifierNode(String id) {return new IdentifierNode(id);}
+   public AbstractNode makeIdentifierNode(String id, String idType) {return new IdentifierNode(id, idType);}
    public AbstractNode makeAssignmentNode(AbstractNode set, AbstractNode to) {return new AssignmentNode(set,to);}
    public AbstractNode makeFunctionDecNode(AbstractNode type, AbstractNode id, AbstractNode parems) {return new FunctionDecNode(type,id,parems);}
    public AbstractNode makeFunctionDecNodeNoParams(AbstractNode type, AbstractNode id) {return new FunctionDecNode(type,id);}
@@ -53,52 +53,83 @@ action code {:
    public AbstractNode makeReturnStatement(AbstractNode argument) {return new ReturnStatementNode(argument);}
    public AbstractNode makeFunctionCall(AbstractNode id, AbstractNode params) {return new FunctionCallNode(id, params);}
    public AbstractNode makeFunctionCallNoParams(AbstractNode id) {return new FunctionCallNode(id);}
+   public AbstractNode makeIfStatementNode(AbstractNode test, AbstractNode ifBody) {return new IfStatementNode(test, ifBody);}
+   public AbstractNode makeIfElseStatementNode(AbstractNode test, AbstractNode ifBody, AbstractNode elseBody) {return new IfStatementNode(test,ifBody,elseBody);}
+   public AbstractNode makeConditionNode (String operator, AbstractNode left, AbstractNode right) {return new ConditionNode(operator,left,right);}
+   public AbstractNode makeStringNode(String value) {return new StringNode(value);}
+   public AbstractNode makeImportNode(AbstractNode name) {return new ImportNode(name);}
+   public AbstractNode makeForLoopNode(AbstractNode initCase, AbstractNode testCase, AbstractNode continueCase, AbstractNode body) {return new ForLoopNode(initCase,testCase,continueCase,body);}
+   public void WriteAST (String fileName) {
+    try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
+                   //We can write any JSONArray or JSONObject instance to the file
+                   file.write(allNodes.toJSONString());
+                   file.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      }
 :};
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
 terminal            LEFT_PAREN, RIGHT_PAREN, LEFT_CURLY, RIGHT_CURLY, COMMA;
 terminal            RETURN;
+terminal            IS, NOT, OR, AND, GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 terminal            PROTOTYPE;
+terminal            IMPORT;
+terminal            IF,ELSE;
+terminal            FOR;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
-terminal String     IDENTIFIER;
-terminal            INT_TYPE, DECIMAL_TYPE;
+terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
+terminal String     STRING_LITERAL;
+terminal            INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
 
 non terminal AbstractNode CompilationUnit;
 non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
 non terminal AbstractNode FunctionDeclarations;
 non terminal AbstractNode FunctionDeclaration;
+non terminal AbstractNode Imports;
+non terminal AbstractNode Import;
 non terminal AbstractNode FunctionBodyDeclarations;
 non terminal AbstractNode FunctionBodyDeclaration;
 non terminal AbstractNode Params;
 non terminal AbstractNode Param;
 non terminal AbstractNode CallParams;
 non terminal AbstractNode CallParam;
-non terminal AbstractNode TypeDeclarations;
 non terminal AbstractNode TypeDeclaration;
-non terminal AbstractNode Assignments;
 non terminal AbstractNode Assignment;
-non terminal AbstractNode ListExpr;
+non terminal AbstractNode SelectiveStmt;
+non terminal AbstractNode IterativeStmt;
+non terminal AbstractNode LogicalStmt;
 non terminal AbstractNode Body;
 non terminal AbstractNode AdditiveExpr;
 non terminal AbstractNode MultiplicativeExpr;
 non terminal AbstractNode UnaryExpr;
 non terminal AbstractNode TypeName;
 non terminal AbstractNode Identifier;
+non terminal AbstractNode OnlyIdentifier;
+non terminal AbstractNode String;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
-non terminal AbstractNode FunctionCalls;
+non terminal AbstractNode ReturnType;
 non terminal AbstractNode FunctionCall;
+
 /* Precedences */
 precedence left RETURN;
-precedence left INT_TYPE, DECIMAL_TYPE;
-precedence left IDENTIFIER;
+precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
+precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
+precedence left STRING_LITERAL;
 precedence left INTEGER, DECIMAL;
+precedence left AND, OR;
+precedence left IS, NOT;
+precedence left GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 precedence left LEFT_PAREN, RIGHT_PAREN;
+precedence left IF, ELSE;
 precedence left LEFT_CURLY, RIGHT_CURLY;
 precedence left PROTOTYPE;
 precedence left COMMA;
@@ -115,21 +146,26 @@ CompilationUnit ::= Body:b
     prog.adoptChildren(b);
     addAllNodesToJSON(prog,true);
 
-
-     try (FileWriter file = new FileWriter("src/main/resources/ast.json")) {
-                //We can write any JSONArray or JSONObject instance to the file
-                file.write(allNodes.toJSONString());
-                file.flush();
-
-     } catch (IOException e) {
-         e.printStackTrace();
-     }
 :};
 
 Body                ::= FieldDeclarations:fds
                     {: RESULT = fds; :}
+                    | Imports:ims FieldDeclarations:fds
+                    {: RESULT = ims.makeSibling(fds); :}
+                    | Imports:ims FunctionDeclarations:fdss FieldDeclarations:fds
+                    {: RESULT = ims.makeSibling(fdss).makeSibling(fds); :}
                     |  FunctionDeclarations:fds FieldDeclarations:fd
                     {: RESULT = fds.makeSibling(fd); :}
+                    ;
+
+Imports             ::= Import:im
+                    {: RESULT = im; :}
+                    | Imports:ims Import:im
+                    {:RESULT = ims.makeSibling(im);:}
+                    ;
+
+Import              ::= IMPORT String:st SEMI
+                    {:RESULT = makeImportNode(st); :}
                     ;
 
 FunctionDeclarations ::= FunctionDeclaration:fd
@@ -138,9 +174,9 @@ FunctionDeclarations ::= FunctionDeclaration:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
-FunctionDeclaration ::= PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
+FunctionDeclaration ::= PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
-                    |   PROTOTYPE:p TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    |   PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
                    ;
 
@@ -171,25 +207,37 @@ FieldDeclarations ::= FieldDeclaration:fd
                   ;
 
 
-FieldDeclaration ::= TypeDeclarations:tds
+FieldDeclaration ::= TypeDeclaration:tds
                  {: RESULT = tds;:}
-                 |   ListExpr:el
-                 {: RESULT = el; :}
-                 | Assignments:as
+                 |   AdditiveExpr:ae SEMI
+                 {: RESULT = ae; :}
+                 | Assignment:as SEMI
                  {: RESULT = as; :}
-                 | FunctionCalls:fcs
-                 {: RESULT = fcs;  :}
+                 | SelectiveStmt:ss
+                 {: RESULT = ss; :}
+                 | IterativeStmt:is
+                 {: RESULT = is; :}
                  ;
 
-FunctionCalls    ::= FunctionCall:fc
-                 {: RESULT = fc;  :}
-                 |   FunctionCalls:fcs FunctionCall:fc
-                 {: RESULT = fcs.makeSibling(fc); :}
-                 ;
+SelectiveStmt   ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                  {: RESULT = makeIfStatementNode(ls,fds); :}
+                  | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FunctionBodyDeclarations:fds2 RIGHT_CURLY
+                  {: RESULT = makeIfElseStatementNode(ls,fds,fds2); :}
+                   ;
 
-FunctionCall     ::= Identifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
+
+LogicalStmt     ::= LogicalStmt:s1 AND AdditiveExpr:a1
+                    {: RESULT = makeConditionNode("AND", a1, s1); :}
+                  | LogicalStmt:s1 OR AdditiveExpr:a1
+                    {: RESULT = makeConditionNode("OR", a1, s1); :}
+                  | AdditiveExpr:a1
+                    {: RESULT = a1; :}
+                    ;
+
+
+FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN
                  {:  RESULT = makeFunctionCall(id,cps);:}
-                 |   Identifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                 |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN
                  {:  RESULT = makeFunctionCallNoParams(id);:}
                  ;
 
@@ -200,61 +248,59 @@ FunctionBodyDeclarations ::= FunctionBodyDeclaration:fd
                   ;
 
 
-FunctionBodyDeclaration ::= TypeDeclarations:tds
-                 {: RESULT = tds;:}
-                 |   ListExpr:el
-                 {: RESULT = el; :}
-                 | Assignments:as
+FunctionBodyDeclaration ::= TypeDeclaration:td
+                 {: RESULT = td;:}
+                 |  AdditiveExpr:ae SEMI
+                 {: RESULT = ae; :}
+                 | Assignment:as SEMI
                  {: RESULT = as; :}
                  | ReturnStmt:rs
                  {: RESULT = rs; :}
+                 | SelectiveStmt:ss
+                 {: RESULT = ss; :}
+                 | IterativeStmt:is
+                 {: RESULT = is; :}
                  ;
 
-TypeDeclarations ::= TypeDeclaration: td
-                 {: RESULT = td; :}
-                 |  TypeDeclarations:tds TypeDeclaration:td
-                 {: RESULT = tds.makeSibling(td); :}
-                 ;
-
-
-TypeDeclaration  ::= TypeName:tn Identifier:id SEMI
+TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
                  {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
-                 |   TypeName:tn Identifier:id EQUALS AdditiveExpr:e SEMI
+                 |   ReturnType:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
                  {: RESULT = makeNode(tn,id,e); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY  RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
-                 |   TypeName:t Identifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;
 
 
-Assignments     ::= Assignment:a
-                {: RESULT = a; :}
-                |  Assignments:as Assignment:a
-                {: RESULT = as.makeSibling(a); :}
-                ;
 
 
-Assignment      ::= Identifier:id EQUALS AdditiveExpr:e SEMI
+Assignment      ::= Identifier:id EQUALS AdditiveExpr:e
                 {: RESULT = makeAssignmentNode(id,e); :}
                 ;
 
-
-ListExpr       ::= ListExpr:el AdditiveExpr:e SEMI
-                {: RESULT = el.makeSibling(e); :}
-                | AdditiveExpr:e SEMI
-                {: RESULT = e; :}
-	    	    ;
 
 
 AdditiveExpr    ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
                 {: RESULT = makeNode(e1, e2, "+"); :}
                 |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
                 {: RESULT = makeNode(e1, e2, "-"); :}
+                | AdditiveExpr:s1 LESSER MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "LESSER");:}
+                | AdditiveExpr:s1 LESSER_EQUALS MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "LESSER_EQUALS"); :}
+                | AdditiveExpr:s1 GREATER MultiplicativeExpr:a1
+                {: RESULT = makeNode(s1,a1, "GREATER"); :}
+                | AdditiveExpr:s1 GREATER_EQUALS MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1, a1, "GREATER_EQUALS"); :}
+                | AdditiveExpr:s1 IS NOT MultiplicativeExpr:a1
+                {: RESULT = makeNode( s1,a1, "IS_NOT");:}
+                | AdditiveExpr:s1 IS MultiplicativeExpr:a1
+                {: RESULT = makeNode(s1, a1,"IS");:}
                 |   MultiplicativeExpr:e2
                 {: RESULT = e2; :}
                 ;
@@ -277,11 +323,20 @@ UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror 
                 {: RESULT = n; :}
                 | Identifier:id
                 {: RESULT = id; :}
+                | String:s
+                {: RESULT = s;:}
+                | FunctionCall:fc
+                {: RESULT = fc;:}
                 ;
 
+OnlyIdentifier  ::=IDENTIFIER:id
+                {: RESULT = makeIdentifierNode(id,""); :}
+                ;
 
-Identifier      ::= IDENTIFIER:id
-                {: RESULT = makeIdentifierNode(id); :}
+Identifier      ::= IDENTIFIERADR:id
+                {: RESULT = makeIdentifierNode(id, "adr"); :}
+                | IDENTIFIERVAL:id
+                {: RESULT = makeIdentifierNode(id, "val"); :}
                 ;
 
 
@@ -289,6 +344,18 @@ TypeName        ::= INT_TYPE:type
                 {: RESULT = makeTypeNode("int"); :}
                 |  DECIMAL_TYPE:type
                 {: RESULT = makeTypeNode("decimal"); :}
+                |  STRING_TYPE:type
+                {: RESULT = makeTypeNode("string");:}
+                ;
+
+ReturnType      ::= INT_TYPE:type
+                {: RESULT = makeTypeNode("int");:}
+                | DECIMAL_TYPE:type
+                {: RESULT = makeTypeNode("decimal");:}
+                | VOID_TYPE:type
+                {: RESULT = makeTypeNode("void");:}
+                | STRING_TYPE:type
+                {: RESULT = makeTypeNode("string");:}
                 ;
 
 
@@ -301,9 +368,18 @@ Decimal         ::= DECIMAL:n
                 {: RESULT = makeNode(n); :}
                 ;
 
+String          ::= STRING_LITERAL:sl
+                {: RESULT = makeStringNode(sl);:}
+                ;
+
 ReturnStmt      ::= RETURN AdditiveExpr:ae SEMI
                 {:  RESULT = makeReturnStatement(ae); :}
                 ;
 
+IterativeStmt   ::= FOR LEFT_PAREN TypeDeclaration:td LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeForLoopNode(td,ls,as,fds); :}
+                | FOR LEFT_PAREN Identifier:id SEMI LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeForLoopNode(id,ls,as,fds);:}
+                ;
 
 /* Et hus fuld af muuuuuuuuuuuuuuuuuuuuuuuuuus */

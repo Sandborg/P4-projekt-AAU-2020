@@ -13,6 +13,8 @@ public class FloatNode extends AbstractNode {
     }
     public String getName() {return "decimal";}
     public float getValue() {return value;}
+    public String getValueString() {return String.valueOf(value);}
+
     public void accept(Visitor v) {
         v.visitFloat(this);
     }

@@ -94,7 +94,10 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
    public void setNodeType(Type type) { this.type = type; }
 
    public String getName() { return ""; }
+   public String getValueString() {return "";}
    public String getType() { return ""; }
+   public String getIdType() {return "";}
+
    public String toString() {
       return("" + getName());
    }

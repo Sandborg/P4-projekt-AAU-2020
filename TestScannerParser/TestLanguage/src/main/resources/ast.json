@@ -1,1 +1,143 @@
-[{"type":"Program","Body":[{"FuncType":{"dataType":"int","type":"Type"},"Params":[{"Identifier":{"id":"a","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"id":"b","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}],"Id":{"id":"SwapNumbers","type":"Identifier"},"type":"FunctionDeclaration"},{"Init":{"type":"int","value":5},"Identifier":{"id":"a","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Init":{"type":"int","value":10},"Identifier":{"id":"b","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"id":{"id":"SwapNumbers","type":"Identifier"},"type":"FunctionCall","params":[{"id":"a","type":"Identifier"},{"id":"b","type":"Identifier"}]},{"dataType":{"dataType":"int","type":"Type"},"id":{"id":"SwapNumbers","type":"Identifier"},"type":"FunctionDefinition","params":[{"Identifier":{"id":"a","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"Identifier":{"id":"b","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"}],"body":[{"Init":{"id":"a","type":"Identifier"},"Identifier":{"id":"temp","type":"Identifier"},"VariableType":{"dataType":"int","type":"Type"},"type":"VariableDeclaration"},{"left":{"id":"a","type":"Identifier"},"right":{"id":"b","type":"Identifier"},"type":"AssignmentExpression"},{"left":{"id":"b","type":"Identifier"},"right":{"id":"temp","type":"Identifier"},"type":"AssignmentExpression"},{"Argument":{"type":"int","value":0},"type":"ReturnStatement"}]}]}]
+[
+  {
+    "type": "Program",
+    "Body": [
+      {
+        "name": {
+          "type": "string",
+          "value": "\"esmalib.pil\""
+        },
+        "type": "import"
+      },
+      {
+        "init": {
+          "Init": {
+            "type": "int",
+            "value": 0
+          },
+          "Identifier": {
+            "idType": "",
+            "dataType": "int",
+            "id": "i",
+            "type": "Identifier"
+          },
+          "VariableType": {
+            "dataType": "int",
+            "type": "Type"
+          },
+          "type": "VariableDeclaration"
+        },
+        "test": {
+          "result": 0.0,
+          "left": {
+            "idType": "val",
+            "dataType": "int",
+            "id": "i",
+            "type": "Identifier"
+          },
+          "right": {
+            "type": "int",
+            "value": 5
+          },
+          "type": "BinaryExpression",
+          "operator": "LESSER"
+        },
+        "continue": {
+          "left": {
+            "idType": "val",
+            "dataType": "int",
+            "id": "i",
+            "type": "Identifier"
+          },
+          "right": {
+            "result": 1.0,
+            "left": {
+              "idType": "val",
+              "dataType": "int",
+              "id": "i",
+              "type": "Identifier"
+            },
+            "right": {
+              "type": "int",
+              "value": 1
+            },
+            "type": "BinaryExpression",
+            "operator": "+"
+          },
+          "type": "AssignmentExpression"
+        },
+        "type": "ForLoop",
+        "body": [
+          {
+            "Init": {
+              "type": "string",
+              "value": "\"Jubiii 1\""
+            },
+            "Identifier": {
+              "idType": "",
+              "dataType": "string",
+              "id": "lol",
+              "type": "Identifier"
+            },
+            "VariableType": {
+              "dataType": "string",
+              "type": "Type"
+            },
+            "type": "VariableDeclaration"
+          },
+          {
+            "test": {
+              "result": 0.0,
+              "left": {
+                "idType": "val",
+                "dataType": "int",
+                "id": "i",
+                "type": "Identifier"
+              },
+              "right": {
+                "type": "int",
+                "value": 3
+              },
+              "type": "BinaryExpression",
+              "operator": "IS"
+            },
+            "ifBody": [
+              {
+                "id": {
+                  "idType": "",
+                  "dataType": "",
+                  "id": "print",
+                  "type": "Identifier"
+                },
+                "type": "FunctionCall",
+                "params": [
+                  {
+                    "type": "string",
+                    "value": "\"haha\""
+                  }
+                ]
+              }
+            ],
+            "type": "IfStatement"
+          },
+          {
+            "id": {
+              "idType": "",
+              "dataType": "",
+              "id": "print",
+              "type": "Identifier"
+            },
+            "type": "FunctionCall",
+            "params": [
+              {
+                "idType": "val",
+                "id": "lol",
+                "type": "Identifier"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

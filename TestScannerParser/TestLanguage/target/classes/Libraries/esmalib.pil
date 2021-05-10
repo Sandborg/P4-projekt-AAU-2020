@@ -1,0 +1,12 @@
+prototype void print(string s.val);
+prototype int pow(int a.val);
+
+void print(string s.val) {
+
+}
+
+
+int pow(int a.val) {
+    return a.val * a.val;
+}
+

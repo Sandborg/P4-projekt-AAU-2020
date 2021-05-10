@@ -12,6 +12,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/AST" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/SymbolTable" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/CodeGen" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/CCompiler" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/jflex" isTestSource="false" generated="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

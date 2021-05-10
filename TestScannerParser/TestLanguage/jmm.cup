@@ -228,7 +228,7 @@ QualifiedName
         ;
 
 /*
- * In a given program, FieldDeclarations can occur in any order.
+ * In a given program.pil, FieldDeclarations can occur in any order.
  * But we would like them grouped together.
  * So, structure your AST so that the items coming back from
  * FieldDeclarations are grouped by:
