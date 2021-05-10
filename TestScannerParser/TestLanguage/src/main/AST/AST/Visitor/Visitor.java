@@ -31,9 +31,11 @@ public interface Visitor {
     public void visitIfStatement(IfStatementNode n);
     public void visitIfStatement(IfStatementNode n, AbstractNode parent);
     public void visitConditionNode(ConditionNode n);
-    public  void visitConditionNode(ConditionNode n, AbstractNode parent);
+    public void visitConditionNode(ConditionNode n, AbstractNode parent);
     public void visitStringNode(StringNode n);
     public void visitStringNode(StringNode n, AbstractNode parent);
     public void visitImportNode(ImportNode n);
-    public  void visitImportNode(ImportNode n, AbstractNode parent);
+    public void visitImportNode(ImportNode n, AbstractNode parent);
+    public void visitForLoopNode(ForLoopNode n);
+    public void visitForLoopNode(ForLoopNode n, AbstractNode parent);
 }

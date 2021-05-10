@@ -186,6 +186,7 @@ public class Analyzer implements Visitor {
     }
     @Override
     public void visitAssign(AssignmentNode n) {
+
         if(n.set.getIdType() == "adr" ) {
             if(n.to instanceof IdentifierNode) {
                 if(n.to.getIdType() != "adr") {
@@ -209,11 +210,11 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitAssign(AssignmentNode n, AbstractNode parent) {
+        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
         n.set.accept(this);
         n.to.accept(this, n.set);
 
-        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
-        vd.lastAssign = n;
+
 
         if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
             n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,""));
@@ -277,13 +278,17 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitReturnStatement(ReturnStatementNode n) {
-
+        System.out.println(n.argument.getName());
+        n.argument.accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }
 
     @Override
     public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent) {
+        System.out.println(n.argument.getName());
+
+        n.argument.accept(this,parent);
         if(!CheckType(n.argument,parent)) System.out.println("Wrong return type");
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -323,6 +328,8 @@ public class Analyzer implements Visitor {
     @Override
     public void visitIfStatement(IfStatementNode n, AbstractNode parent) {
         n.test.getFirst().accept(this,parent);
+        n.ifBody.getFirst().accept(this);
+        if(n.elseBody != null) n.elseBody.getFirst().accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
     }
@@ -377,6 +384,26 @@ public class Analyzer implements Visitor {
     @Override
     public void visitImportNode(ImportNode n, AbstractNode parent) {
         if(n.getSib() != null) n.getSib().accept(this);
+    }
+
+    @Override
+    public void visitForLoopNode(ForLoopNode n) {
+        n.initCase.accept(this);
+        n.testCase.accept(this);
+        n.continueCase.accept(this);
+        n.body.getFirst().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this);
+
+    }
+
+    @Override
+    public void visitForLoopNode(ForLoopNode n, AbstractNode parent) {
+        n.initCase.accept(this,parent);
+        n.testCase.accept(this,parent);
+        n.continueCase.accept(this,parent);
+        n.body.getFirst().accept(this,parent);
+        if(n.getSib() != null) n.getSib().accept(this);
+
     }
 
     public boolean CheckCallParams(AbstractNode callNode, VariableDeclarationNode decNode, SymbolTable s) {

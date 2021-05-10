@@ -49,7 +49,7 @@ public class BinaryOPNode extends AbstractNode {
 
     public String getNumber1Type() {return number1.getName();}
     public String getNumber2Type() {return number2.getName();}
-    public String getName() {return number1 + " esbjerg " + operator + " " + number2;}
+    public String getName() {return number1 + " " + operator + " " + number2;}
     public void accept(Visitor v) {
         v.visitBinaryOP(this);
     }

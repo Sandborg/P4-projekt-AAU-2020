@@ -58,6 +58,7 @@ action code {:
    public AbstractNode makeConditionNode (String operator, AbstractNode left, AbstractNode right) {return new ConditionNode(operator,left,right);}
    public AbstractNode makeStringNode(String value) {return new StringNode(value);}
    public AbstractNode makeImportNode(AbstractNode name) {return new ImportNode(name);}
+   public AbstractNode makeForLoopNode(AbstractNode initCase, AbstractNode testCase, AbstractNode continueCase, AbstractNode body) {return new ForLoopNode(initCase,testCase,continueCase,body);}
    public void WriteAST (String fileName) {
     try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
                    //We can write any JSONArray or JSONObject instance to the file
@@ -77,6 +78,7 @@ terminal            IS, NOT, OR, AND, GREATER, LESSER, GREATER_EQUALS, LESSER_EQ
 terminal            PROTOTYPE;
 terminal            IMPORT;
 terminal            IF,ELSE;
+terminal            FOR;
 terminal Integer    INTEGER;        // our scanner provides numbers as integers
 terminal Float      DECIMAL;
 terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
@@ -99,6 +101,7 @@ non terminal AbstractNode CallParam;
 non terminal AbstractNode TypeDeclaration;
 non terminal AbstractNode Assignment;
 non terminal AbstractNode SelectiveStmt;
+non terminal AbstractNode IterativeStmt;
 non terminal AbstractNode LogicalStmt;
 non terminal AbstractNode Body;
 non terminal AbstractNode AdditiveExpr;
@@ -113,6 +116,7 @@ non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
 non terminal AbstractNode ReturnType;
 non terminal AbstractNode FunctionCall;
+
 /* Precedences */
 precedence left RETURN;
 precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
@@ -207,17 +211,17 @@ FieldDeclaration ::= TypeDeclaration:tds
                  {: RESULT = tds;:}
                  |   AdditiveExpr:ae SEMI
                  {: RESULT = ae; :}
-                 | Assignment:as
+                 | Assignment:as SEMI
                  {: RESULT = as; :}
-                 | FunctionCall:fcs
-                 {: RESULT = fcs;  :}
                  | SelectiveStmt:ss
                  {: RESULT = ss; :}
+                 | IterativeStmt:is
+                 {: RESULT = is; :}
                  ;
 
-SelectiveStmt   ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FieldDeclarations:fds RIGHT_CURLY
+SelectiveStmt   ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
                   {: RESULT = makeIfStatementNode(ls,fds); :}
-                  | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FieldDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FieldDeclarations:fds2 RIGHT_CURLY
+                  | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FunctionBodyDeclarations:fds2 RIGHT_CURLY
                   {: RESULT = makeIfElseStatementNode(ls,fds,fds2); :}
                    ;
 
@@ -231,9 +235,9 @@ LogicalStmt     ::= LogicalStmt:s1 AND AdditiveExpr:a1
                     ;
 
 
-FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN SEMI
+FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN
                  {:  RESULT = makeFunctionCall(id,cps);:}
-                 |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                 |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN
                  {:  RESULT = makeFunctionCallNoParams(id);:}
                  ;
 
@@ -246,14 +250,16 @@ FunctionBodyDeclarations ::= FunctionBodyDeclaration:fd
 
 FunctionBodyDeclaration ::= TypeDeclaration:td
                  {: RESULT = td;:}
-                 |  AdditiveExpr:ae
+                 |  AdditiveExpr:ae SEMI
                  {: RESULT = ae; :}
-                 | Assignment:as
+                 | Assignment:as SEMI
                  {: RESULT = as; :}
                  | ReturnStmt:rs
                  {: RESULT = rs; :}
                  | SelectiveStmt:ss
                  {: RESULT = ss; :}
+                 | IterativeStmt:is
+                 {: RESULT = is; :}
                  ;
 
 TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
@@ -273,7 +279,7 @@ TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
 
 
 
-Assignment      ::= Identifier:id EQUALS AdditiveExpr:e SEMI
+Assignment      ::= Identifier:id EQUALS AdditiveExpr:e
                 {: RESULT = makeAssignmentNode(id,e); :}
                 ;
 
@@ -319,6 +325,8 @@ UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror 
                 {: RESULT = id; :}
                 | String:s
                 {: RESULT = s;:}
+                | FunctionCall:fc
+                {: RESULT = fc;:}
                 ;
 
 OnlyIdentifier  ::=IDENTIFIER:id
@@ -368,5 +376,10 @@ ReturnStmt      ::= RETURN AdditiveExpr:ae SEMI
                 {:  RESULT = makeReturnStatement(ae); :}
                 ;
 
+IterativeStmt   ::= FOR LEFT_PAREN TypeDeclaration:td LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeForLoopNode(td,ls,as,fds); :}
+                | FOR LEFT_PAREN Identifier:id SEMI LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeForLoopNode(id,ls,as,fds);:}
+                ;
 
 /* Et hus fuld af muuuuuuuuuuuuuuuuuuuuuuuuuus */

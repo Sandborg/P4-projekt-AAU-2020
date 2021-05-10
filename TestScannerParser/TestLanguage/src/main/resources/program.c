@@ -15,9 +15,19 @@ return *ap**ap;
 }
 
 int main() { 
-int a  = 3;
-int*ap = &a;
-pow(*ap); 
+int i  = 0;
+int*ip = &i; 
+for(*ip;*ip<5;*ip = *ip+1) { 
+char *lol = malloc(sizeof(char) * (1000)); 
+strcpy(lol,"Jubiii 1"); 
+char **lolp = &lol;
+if(*ip==3) { 
+printf("%s","haha"); 
+
+}
+printf("%s",*lolp); 
+
+ }
 
 return 0;
 }

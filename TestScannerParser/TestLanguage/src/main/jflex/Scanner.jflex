@@ -48,7 +48,7 @@ Decimal = [0-9]*\.[0-9]+
 <YYINITIAL> "import"    { return symbol(sym.IMPORT);        }
 <YYINITIAL> "if"        { return symbol(sym.IF);            }
 <YYINITIAL> "else"      { return symbol(sym.ELSE);          }
-
+<YYINITIAL> "for"       { return symbol(sym.FOR);           }
 <YYINITIAL> "IS"        { return symbol(sym.IS);            }
 <YYINITIAL> "NOT"       { return symbol(sym.NOT);           }
 <YYINITIAL> "OR"        { return symbol(sym.OR);            }
