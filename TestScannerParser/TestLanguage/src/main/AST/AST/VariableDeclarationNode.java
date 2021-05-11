@@ -40,11 +40,8 @@ public class VariableDeclarationNode extends AbstractNode {
         }
     }
 
-    public void UpdateInitNode(String s) {
-        JSONObject o = new JSONObject();
+    public void UpdateInitNode(JSONObject o) {
         o.put("type", "string");
-        o.put("value", "\"" + s + "\"");
-        node.put("Init", o);
     }
 
     public String getType() {return type.getName();};

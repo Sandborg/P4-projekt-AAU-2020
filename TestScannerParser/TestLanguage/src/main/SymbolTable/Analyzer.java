@@ -46,7 +46,7 @@ public class Analyzer implements Visitor {
         //Accept it's id
         n.id.accept(this);
         if(n.body instanceof BinaryOPNode && n.getName().equals("string")) {
-            n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,""));
+            //n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,new JSONObject()));
         }
         //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
@@ -64,7 +64,7 @@ public class Analyzer implements Visitor {
             }
 
             if(n.body instanceof BinaryOPNode && n.getName().equals("string")) {
-                n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,""));
+                //n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,new JSONObject()));
             }
 
             n.body.accept(this, n);
@@ -81,7 +81,6 @@ public class Analyzer implements Visitor {
     public void visitId(IdentifierNode n) {
         VariableDeclarationNode vdn = null;
         if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
-
         n.AddDataType(top.get(n.getName()).getName());
 
         //Check if the identifer has been declared
@@ -199,7 +198,7 @@ public class Analyzer implements Visitor {
         VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
         vd.lastAssign = n;
         if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
-            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,""));
+            //n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
         }
 
         n.set.accept(this);
@@ -217,7 +216,7 @@ public class Analyzer implements Visitor {
 
 
         if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
-            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,""));
+            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
         }
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -230,6 +229,7 @@ public class Analyzer implements Visitor {
         n.id.accept(this);
         //Create a new scope for the new function
         SymbolTable thisScope = new SymbolTable(top);
+
         //Insert the new scope, into the list of all scopes.
         top.put(n.id.getName(), thisScope);
         //Insert the paremeters into the new scope.
@@ -313,7 +313,22 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFunctionCall(FunctionCallNode n, AbstractNode parent) {
+        if(top.prev != null) {
+            SymbolTable thisSymbolTable = top.prev.scopes.get(n.id.getName());
+            FunctionDecNode functionDecNode = (FunctionDecNode) top.prev.get(n.id.getName());
+
+            if (n.params != null) {
+                n.params.getFirst().accept(this,parent);
+                if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
+                    System.out.println("Wrong call parameters");
+            } else {
+                if (n.params == null && functionDecNode.params != null) {
+                    System.out.println("Wrong call parameters");
+                }
+            }
+        }
         if(n.getSib() != null) n.getSib().accept(this);
+
     }
 
     @Override
@@ -412,7 +427,7 @@ public class Analyzer implements Visitor {
 
         //If curr param is identifier, check if it exists
         if(callNode.getType() == "Identifier" && s.get(callNode.getName()) == null) return false;
-
+        callNode.accept(this);
         //Check if correct type
         if(!CheckType(callNode,decNode)) return false;
 
@@ -477,12 +492,11 @@ public class Analyzer implements Visitor {
         else return false;
     }
 
-    public String CreateStringFromBinaryOpNode (AbstractNode n, String s) {
+    public JSONObject CreateStringFromBinaryOpNode (AbstractNode n, JSONObject s) {
         if(n instanceof BinaryOPNode) {
             BinaryOPNode bn = (BinaryOPNode)n;
-                s+= CreateStringFromBinaryOpNode(bn.number1, "");
-                s+= CreateStringFromBinaryOpNode(bn.number2, "");
-
+                s.put("left",CreateStringFromBinaryOpNode(bn.number1, new JSONObject()));
+                s.put("right",CreateStringFromBinaryOpNode(bn.number2,new JSONObject()));
             return s;
         }else {
             if(n instanceof IdentifierNode) {
@@ -492,29 +506,36 @@ public class Analyzer implements Visitor {
                         BinaryOPNode bn = (BinaryOPNode)vd.lastAssign.to;
                         if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
                             if(vd.getType().equals("int")) {
-                                return String.valueOf((int)(bn.result));
+                                s.put("value",String.valueOf((int)(bn.result)));
+                                return s;
                             }else {
-                                return String.valueOf(bn.result);
+                                s.put("value",String.valueOf(bn.result));
+                                return s;
                             }
                         }
                     }
-                    return CreateStringFromBinaryOpNode(vd.lastAssign.to,"");
+                    return CreateStringFromBinaryOpNode(vd.lastAssign.to,new JSONObject());
                 }else{
                     if(vd.body instanceof BinaryOPNode) {
                         BinaryOPNode bn = (BinaryOPNode)vd.body;
                         if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
                             if(vd.getType().equals("int")) {
-                                return String.valueOf((int)(bn.result));
+                                s.put("value",String.valueOf((int)(bn.result)));
+                                return s;
                             }else {
-                                return String.valueOf(bn.result);
+                                s.put("value",String.valueOf(bn.result));
+                                return s;
                             }
                         }
                     }
-                    return CreateStringFromBinaryOpNode(vd.body,"");
+                    return CreateStringFromBinaryOpNode(vd.body,new JSONObject());
                     //return vd.body.getValueString();
                 }
+            }else if(n instanceof FunctionCallNode) {
+                //???
             }
-            return n.getValueString();
+            s.put("value", n.getValueString());
+            return s;
         }
     }
 }

@@ -1,10 +1,13 @@
 import "esmalib.pil";
-
-
-for(int i = 0; i.val < 5; i.val = i.val + 1) {
-    string lol = "Jubiii " + i.val;
-    if(i.val IS 3) {
-        print("haha");
-    }
-    print(lol.val);
+prototype int pik (int a.val);
+int a = 3;
+string peter = "hej" + "pik(2)" + "XD";
+print(peter.val);
+peter.val = "hahaha" + pik(2) + "wtf";
+print(peter.val);
+peter.val = a.val;
+int pik(int a.val) {
+int j = 123123;
+print(a.val);
+    return 4;
 }
