@@ -216,7 +216,7 @@ public class Analyzer implements Visitor {
 
 
         if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
-            n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
+            //n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
         }
         if(n.getSib() != null) n.getSib().accept(this);
     }
@@ -492,6 +492,7 @@ public class Analyzer implements Visitor {
         else return false;
     }
 
+    /*/ BLIR IK BRUGT LÆNGERE! :)
     public JSONObject CreateStringFromBinaryOpNode (AbstractNode n, JSONObject s) {
         if(n instanceof BinaryOPNode) {
             BinaryOPNode bn = (BinaryOPNode)n;
@@ -537,5 +538,9 @@ public class Analyzer implements Visitor {
             s.put("value", n.getValueString());
             return s;
         }
+
+
     }
+    */
+
 }
