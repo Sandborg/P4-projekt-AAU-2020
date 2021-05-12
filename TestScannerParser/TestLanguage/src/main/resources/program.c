@@ -1,17 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-int pik (int a);
+int lol (int a);
 void print (char *s);
 int pow (int base,int exp);
-int pik (int a){
+int lol (int a){
 int *ap = &a;
 char append[5];
-int j  = 123123;
-int*jp = &j;
-printf("%d",*ap);
-; 
-return 4; 
+return *ap+9; 
 
 }
 
@@ -39,28 +35,15 @@ return *resultp;
 
 int main() { 
 char append[5];
-int a  = 3;
-int*ap = &a;
-char *peter = malloc(sizeof(char) * (1000)); 
-strcpy(peter, "" );
-char **peterp = &peter;strcat(*peterp,"hej");
-strcat(*peterp,"pik(2)");
-strcat(*peterp,"XD");
+char *hahaha = malloc(sizeof(char) * (1000)); 
+strcpy(hahaha, "" );
+char **hahahap = &hahaha;strcat(*hahahap,"lol");
+strcat(*hahahap,"lol");
+sprintf(append ,"%d",lol(4));
+strcat(*hahahap,append);
 ;
-printf("%s",*peterp);
+printf("%s",*hahahap);
 ; 
-strcpy(*peterp, "");
-strcat(*peterp,"hahaha");
-sprintf(append ,"%d",pik(2));
-strcat(*peterp,append);
-strcat(*peterp,"wtf");
-;
-printf("%s",*peterp);
-; 
-strcpy(*peterp, "");
-sprintf(append,"%d",*ap);
-strcat(*peterp,append);
-;
 
 return 0;
 }

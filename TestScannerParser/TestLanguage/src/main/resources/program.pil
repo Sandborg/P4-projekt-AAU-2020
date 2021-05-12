@@ -1,0 +1,9 @@
+
+import "esmalib.pil";
+prototype int lol(int a.val);
+string hahaha = "lol" + "lol" + lol(4);
+print(hahaha.val);
+
+int lol(int a.val) {
+    return a.val + 9;
+}

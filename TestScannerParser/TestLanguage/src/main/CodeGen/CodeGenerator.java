@@ -419,12 +419,11 @@ public class CodeGenerator {
         }
 
         if (init != null) {
-            if (init.get("type").equals("BinaryExpression")) {
+            if (init.get("type").equals("BinaryExpression") && !varType.get("dataType").equals("string")) {
                 JSONObject left =(JSONObject)init.get("left");
                 JSONObject right = (JSONObject)init.get("right");
-                if(!left.get("type").equals("string") && !right.get("type").equals("string")) {
-                    expr += " = " + GetBinaryOperator(init, "",insideFunction) + ";";
-                }
+                expr += " = " + GetBinaryOperator(init, "",insideFunction) + ";";
+
             }else if(init.get("type").equals("FunctionCall")) {
                 expr += " = " + GetFunctionCall(init, "",insideFunction) + ";";
             }
@@ -463,12 +462,11 @@ public class CodeGenerator {
 
         if(varType.get("dataType").equals("string") && init != null) {
             expr+= ";" + GetStringConcat(init,"",id,insideFunction);
-        }else if(init != null && init.get("type").equals("BinaryExpression")) {
+        }else if(init != null && init.get("type").equals("BinaryExpression") && varType.get("dataType").equals("string")) {
             JSONObject left =(JSONObject)init.get("left");
             JSONObject right = (JSONObject)init.get("right");
-            if((left.get("type").equals("string") || right.get("type").equals("string"))) {
-                expr+= ";" + GetStringConcat(init,"",id,insideFunction);
-            }
+            expr+= ";" + GetStringConcat(init,"",id,insideFunction);
+
         }
         return expr;
     }

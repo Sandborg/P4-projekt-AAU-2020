@@ -1,13 +1,9 @@
+
 import "esmalib.pil";
-prototype int pik (int a.val);
-int a = 3;
-string peter = "hej" + "pik(2)" + "XD";
-print(peter.val);
-peter.val = "hahaha" + pik(2) + "wtf";
-print(peter.val);
-peter.val = a.val;
-int pik(int a.val) {
-int j = 123123;
-print(a.val);
-    return 4;
+prototype int lol(int a.val);
+string hahaha = "lol" + "lol" + lol(4);
+print(hahaha.val);
+
+int lol(int a.val) {
+    return a.val + 9;
 }
