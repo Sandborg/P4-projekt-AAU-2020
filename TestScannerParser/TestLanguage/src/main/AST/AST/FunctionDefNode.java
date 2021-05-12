@@ -28,6 +28,17 @@ public class FunctionDefNode extends AbstractNode {
         node.put("body", bodyList);
         addBodyToList (body.getFirst());
     }
+    public FunctionDefNode(AbstractNode type, AbstractNode id, String params, AbstractNode body) {
+        this.id = id;
+        this.type = type;
+        this.body =body;
+
+        node.put("type", "FunctionDefinition");
+        node.put("dataType", type.node);
+        node.put("id", id.node);
+        node.put("body", bodyList);
+        addBodyToList (body.getFirst());
+    }
 
     public FunctionDefNode(AbstractNode type, AbstractNode id, AbstractNode params) {
         this.id = id;

@@ -188,8 +188,16 @@ public class CodeGenerator {
                 expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
             }
             if(o.get("type").equals("Identifier")) {
-                expr+= "sprintf(append,\"%d\"," + GetIdentifier(o,"",insideFunction) + ");\n";
-                expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                if(o.get("dataType").equals("string")) {
+                    expr+= "sprintf(append,\"%s\"," + GetIdentifier(o,"",insideFunction) + ");\n";
+                    expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                }else if(o.get("dataType").equals("decimal")){
+                    expr+= "sprintf(append,\"%f\"," + GetIdentifier(o,"",insideFunction) + ");\n";
+                    expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                }else{
+                    expr+= "sprintf(append,\"%d\"," + GetIdentifier(o,"",insideFunction) + ");\n";
+                    expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                }
             }
         }
 
@@ -207,7 +215,9 @@ public class CodeGenerator {
             expr += GetParameters(params, "",false) + "){\n";
         } else expr += "){\n";
 
-        expr += GetBodyParams(params, "");
+        if(params != null) {
+            expr += GetBodyParams(params, "");
+        }
         if (body != null) {
             expr += GetBody(body, "", true, params) + "\n}\n";
         } else expr += "\n}\n";
@@ -253,6 +263,7 @@ public class CodeGenerator {
     }
 
     public String GetParameters(JSONArray o, String expr, Boolean insideFunction) {
+        int i = 0;
         for (Object obj : o) {
             JSONObject thisObject = (JSONObject) obj;
             if (thisObject.get("type").equals("VariableDeclaration")) {
@@ -268,9 +279,10 @@ public class CodeGenerator {
             } else {
                 expr += thisObject.get("value");
             }
-            if (o.indexOf(thisObject) != o.size() - 1) {
+            if (i != o.size() - 1) {
                 expr += ",";
             }
+            i++;
         }
         return expr;
     }
@@ -418,8 +430,8 @@ public class CodeGenerator {
             expr += varType.get("dataType") + " " + id.get("id") + (init == null ? ";" : " ");
         }
 
-        if (init != null) {
-            if (init.get("type").equals("BinaryExpression") && !varType.get("dataType").equals("string")) {
+        if (init != null && !varType.get("dataType").equals("string")) {
+            if (init.get("type").equals("BinaryExpression")) {
                 expr += " = " + GetBinaryOperator(init, "",insideFunction) + ";";
             }else if(init.get("type").equals("FunctionCall")) {
                 expr += " = " + GetFunctionCall(init, "",insideFunction) + ";";
@@ -642,6 +654,11 @@ public class CodeGenerator {
             case "GREATER_EQUALS" -> ">=";
             case "LESSER" -> "<";
             case "LESSER_EQUALS" -> "<=";
+            case "%" -> "%";
+            case "+" -> "+";
+            case "-" -> "-";
+            case "/" -> "/";
+            case "*" -> "*";
             default -> "Unknown operator";
         };
     }

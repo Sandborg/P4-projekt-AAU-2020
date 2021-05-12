@@ -49,6 +49,7 @@ action code {:
    public AbstractNode makeFunctionDecNodeNoParams(AbstractNode type, AbstractNode id) {return new FunctionDecNode(type,id);}
    public AbstractNode makeFunctionDefNode(AbstractNode type, AbstractNode id, AbstractNode params, AbstractNode body) {return new FunctionDefNode(type,id,params,body);}
    public AbstractNode makeFunctionDefNodeNoBody(AbstractNode type, AbstractNode id, AbstractNode params) {return new FunctionDefNode(type,id,params);}
+   public AbstractNode makeFunctionDefNodeNoParams(AbstractNode type, AbstractNode id, String params, AbstractNode body) {return new FunctionDefNode(type,id,params,body);}
    public AbstractNode makeFunctionDefNodeNoBodyNoParams(AbstractNode type, AbstractNode id) {return new FunctionDefNode(type,id);}
    public AbstractNode makeReturnStatement(AbstractNode argument) {return new ReturnStatementNode(argument);}
    public AbstractNode makeFunctionCall(AbstractNode id, AbstractNode params) {return new FunctionCallNode(id, params);}
@@ -118,20 +119,11 @@ non terminal AbstractNode ReturnType;
 non terminal AbstractNode FunctionCall;
 
 /* Precedences */
-precedence left RETURN;
-precedence left INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
-precedence left IDENTIFIER,IDENTIFIERVAL,IDENTIFIERADR;
-precedence left STRING_LITERAL;
-precedence left INTEGER, DECIMAL;
 precedence left AND, OR;
 precedence left IS, NOT;
 precedence left GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
-precedence left LEFT_PAREN, RIGHT_PAREN;
-precedence left IF, ELSE;
-precedence left LEFT_CURLY, RIGHT_CURLY;
-precedence left PROTOTYPE;
 precedence left COMMA;
 
 /* The grammar rules */
@@ -271,7 +263,7 @@ TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
                  |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
                  |   ReturnType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                 {: RESULT = makeFunctionDefNodeNoBody(t,id,fds); :}
+                 {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
                  |   ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
                  {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;

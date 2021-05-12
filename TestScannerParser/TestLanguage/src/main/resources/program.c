@@ -1,16 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-int lol (int a);
 void print (char *s);
 int pow (int base,int exp);
-int lol (int a){
-int *ap = &a;
-char append[5];
-return *ap+9; 
-
-}
-
 void print (char *s){
 char **sp = &s;
 
@@ -35,14 +27,9 @@ return *resultp;
 
 int main() { 
 char append[5];
-char *hahaha = malloc(sizeof(char) * (1000)); 
-strcpy(hahaha, "" );
-char **hahahap = &hahaha;strcat(*hahahap,"lol");
-strcat(*hahahap,"lol");
-sprintf(append ,"%d",lol(4));
-strcat(*hahahap,append);
-;
-printf("%s",*hahahap);
+int a  = 2+2*7/2;
+int*ap = &a;
+printf("%d",*ap);
 ; 
 
 return 0;

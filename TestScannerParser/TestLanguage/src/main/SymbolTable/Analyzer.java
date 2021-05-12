@@ -63,10 +63,6 @@ public class Analyzer implements Visitor {
                 System.out.println("Cant declare a variable to itself");
             }
 
-            if(n.body instanceof BinaryOPNode && n.getName().equals("string")) {
-                //n.UpdateInitNode(CreateStringFromBinaryOpNode(n.body,new JSONObject()));
-            }
-
             n.body.accept(this, n);
         }
 
@@ -100,11 +96,15 @@ public class Analyzer implements Visitor {
         //Check if the identifer has been declared
         VariableDeclarationNode vdn = null;
         if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
-        if(vdn == null) System.out.println(n.getName() + " is not declared");
-        //Check if the identifiers type is compatible with the parent:
-        if(!CheckType(n,parent)) System.out.println("type error identifier");
         //Update AST
         n.AddDataType(top.get(n.getName()).getName());
+        if(vdn == null) System.out.println(n.getName() + " is not declared");
+        //Check if the identifiers type is compatible with the parent:
+
+        if (!top.get(n.getName()).getName().equals("string")) {
+            if( !CheckType(n,parent)) System.out.println("type error identifier");
+        }
+
         if(vdn != null && vdn.isParameter) {
             JSONObject o = new JSONObject();
             o.put("type", "parameterInfo");
@@ -112,7 +112,7 @@ public class Analyzer implements Visitor {
             n.node.put("parameterInfo",o);
         }
         //Continue with the next sibling
-        if(n.getSib() != null) n.getSib().accept(this, parent);
+        if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
@@ -138,8 +138,8 @@ public class Analyzer implements Visitor {
 
     public void visitBinaryOP(BinaryOPNode n,AbstractNode parent) {
         //A binarayOP node has two numbers. Accept them:
-        n.number1.accept(this,parent);
-        n.number2.accept(this,parent);
+        n.number1.accept(this);
+        n.number2.accept(this);
 
         //Continue with the next sibling
         if(n.getSib() != null)
@@ -167,7 +167,7 @@ public class Analyzer implements Visitor {
         //Check if the integer is compatible with its parent.
         if(!CheckType(n,parent)) System.out.println("Type error Integer");
         //Continue with the next sibling
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class Analyzer implements Visitor {
         //Check if the float is compatible with its parent.
         if(!CheckType(n,parent)) System.out.println("Type error decimal");
         //Continue with the next sibling
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
     @Override
     public void visitAssign(AssignmentNode n) {
@@ -197,9 +197,8 @@ public class Analyzer implements Visitor {
         }
         VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
         vd.lastAssign = n;
-        if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
-            //n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
-        }
+
+
 
         n.set.accept(this);
         n.to.accept(this, n.set);
@@ -209,16 +208,22 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitAssign(AssignmentNode n, AbstractNode parent) {
+        if(n.set.getIdType() == "adr" ) {
+            if(n.to instanceof IdentifierNode) {
+                if(n.to.getIdType() != "adr") {
+                    System.out.println("adr must be set to another adr");
+                }
+            }else{
+                System.out.println("adr must be set to another adr");
+            }
+        }
         VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
+        vd.lastAssign = n;
         n.set.accept(this);
         n.to.accept(this, n.set);
 
 
-
-        if(n.to instanceof BinaryOPNode && top.get(n.set.getName()).getName().equals("string")) {
-            //n.UpdateRightNode(CreateStringFromBinaryOpNode(n.to,new JSONObject()));
-        }
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -273,7 +278,7 @@ public class Analyzer implements Visitor {
     @Override
     public void visitFuncDef(FunctionDefNode n, AbstractNode parent) {
         //This is for functions inside functions
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -286,11 +291,9 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent) {
-        System.out.println(n.argument.getName());
-
         n.argument.accept(this,parent);
         if(!CheckType(n.argument,parent)) System.out.println("Wrong return type");
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -318,7 +321,7 @@ public class Analyzer implements Visitor {
             FunctionDecNode functionDecNode = (FunctionDecNode) top.prev.get(n.id.getName());
 
             if (n.params != null) {
-                n.params.getFirst().accept(this,parent);
+                 n.params.getFirst().accept(this);
                 if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
                     System.out.println("Wrong call parameters");
             } else {
@@ -327,7 +330,7 @@ public class Analyzer implements Visitor {
                 }
             }
         }
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
 
     }
 
@@ -343,9 +346,9 @@ public class Analyzer implements Visitor {
     @Override
     public void visitIfStatement(IfStatementNode n, AbstractNode parent) {
         n.test.getFirst().accept(this,parent);
-        n.ifBody.getFirst().accept(this);
-        if(n.elseBody != null) n.elseBody.getFirst().accept(this);
-        if(n.getSib() != null) n.getSib().accept(this);
+        n.ifBody.getFirst().accept(this, parent);
+        if(n.elseBody != null) n.elseBody.getFirst().accept(this,parent);
+        if(n.getSib() != null) n.getSib().accept(this, parent);
 
     }
 
@@ -361,7 +364,7 @@ public class Analyzer implements Visitor {
     public void visitConditionNode(ConditionNode n, AbstractNode parent) {
         n.left.getFirst().accept(this, parent);
         n.right.getFirst().accept(this, parent);
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
 
     }
 
@@ -373,7 +376,8 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitStringNode(StringNode n, AbstractNode parent) {
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(!CheckType(n,parent)) System.out.println("Type error String");
+        if(n.getSib() != null) n.getSib().accept(this, parent);
 
     }
 
@@ -398,7 +402,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitImportNode(ImportNode n, AbstractNode parent) {
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
@@ -417,7 +421,7 @@ public class Analyzer implements Visitor {
         n.testCase.accept(this,parent);
         n.continueCase.accept(this,parent);
         n.body.getFirst().accept(this,parent);
-        if(n.getSib() != null) n.getSib().accept(this);
+        if(n.getSib() != null) n.getSib().accept(this,parent);
 
     }
 
@@ -471,8 +475,8 @@ public class Analyzer implements Visitor {
         if(n2 instanceof VariableDeclarationNode) n2Type = n2.getName();
         if(n1 instanceof IdentifierNode) n1Type = top.get(n1.getName()).getName();
         if(n2 instanceof IdentifierNode) n2Type = top.get(n2.getName()).getName();
-        if(n1 instanceof IntegerNode || n1 instanceof FloatNode) n1Type = n1.getName();
-        if(n2 instanceof IntegerNode || n2 instanceof FloatNode) n2Type = n2.getName();
+        if(n1 instanceof IntegerNode || n1 instanceof FloatNode || n1 instanceof StringNode) n1Type = n1.getName();
+        if(n2 instanceof IntegerNode || n2 instanceof FloatNode ||n2 instanceof StringNode) n2Type = n2.getName();
         if(n1 instanceof FunctionDecNode || n1 instanceof FunctionDefNode) n1Type = n1.getType();
         if(n2 instanceof FunctionDecNode || n2 instanceof FunctionDefNode) n2Type = n2.getType();
 
@@ -487,60 +491,10 @@ public class Analyzer implements Visitor {
             return (test1 && test2);
         }
 
+
         //Check if the types are equal
-        if(n1Type == n2Type) return true;
-        else return false;
-    }
-
-    /*/ BLIR IK BRUGT LÆNGERE! :)
-    public JSONObject CreateStringFromBinaryOpNode (AbstractNode n, JSONObject s) {
-        if(n instanceof BinaryOPNode) {
-            BinaryOPNode bn = (BinaryOPNode)n;
-                s.put("left",CreateStringFromBinaryOpNode(bn.number1, new JSONObject()));
-                s.put("right",CreateStringFromBinaryOpNode(bn.number2,new JSONObject()));
-            return s;
-        }else {
-            if(n instanceof IdentifierNode) {
-                VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.getName());
-                if(vd.lastAssign != null) {
-                    if(vd.lastAssign.to instanceof BinaryOPNode) {
-                        BinaryOPNode bn = (BinaryOPNode)vd.lastAssign.to;
-                        if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
-                            if(vd.getType().equals("int")) {
-                                s.put("value",String.valueOf((int)(bn.result)));
-                                return s;
-                            }else {
-                                s.put("value",String.valueOf(bn.result));
-                                return s;
-                            }
-                        }
-                    }
-                    return CreateStringFromBinaryOpNode(vd.lastAssign.to,new JSONObject());
-                }else{
-                    if(vd.body instanceof BinaryOPNode) {
-                        BinaryOPNode bn = (BinaryOPNode)vd.body;
-                        if(!(bn.number1 instanceof StringNode) && !(bn.number2 instanceof StringNode)) {
-                            if(vd.getType().equals("int")) {
-                                s.put("value",String.valueOf((int)(bn.result)));
-                                return s;
-                            }else {
-                                s.put("value",String.valueOf(bn.result));
-                                return s;
-                            }
-                        }
-                    }
-                    return CreateStringFromBinaryOpNode(vd.body,new JSONObject());
-                    //return vd.body.getValueString();
-                }
-            }else if(n instanceof FunctionCallNode) {
-                //???
-            }
-            s.put("value", n.getValueString());
-            return s;
-        }
-
+        if(n2Type != "string") return n1Type == n2Type;
+        else return true;
 
     }
-    */
-
 }
