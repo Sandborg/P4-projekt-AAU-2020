@@ -1,6 +1,7 @@
 package AST;
 
 import AST.Visitor.Visitor;
+import Exceptions.WrongParamsException;
 import lab7.AbstractNode;
 import org.json.simple.JSONArray;
 
@@ -34,11 +35,23 @@ public class FunctionCallNode extends AbstractNode {
 
     @Override
     public void accept(Visitor analyzer) {
-        analyzer.visitFunctionCall(this);
+        try {
+            analyzer.visitFunctionCall(this);
+        } catch (WrongParamsException e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+
+        }
     }
 
     @Override
     public void accept(Visitor analyzer, AbstractNode parent) {
-        analyzer.visitFunctionCall(this,parent);
+        try {
+            analyzer.visitFunctionCall(this,parent);
+        } catch (WrongParamsException e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+
+        }
     }
 }

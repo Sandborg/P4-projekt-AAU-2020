@@ -20,7 +20,13 @@ public class IntegerNode extends AbstractNode {
         v.visitInt(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitInt(this, parent);
+        try {
+            v.visitInt(this, parent);
+        }catch(Exception e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+
+        }
     }
 
 }

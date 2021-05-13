@@ -77,7 +77,11 @@ public class FunctionDefNode extends AbstractNode {
 
     @Override
     public void accept(Visitor analyzer) {
-        analyzer.visitFuncDef(this);
+        try {
+            analyzer.visitFuncDef(this);
+        }catch(Exception e) {
+            System.out.println(e);
+        }
     }
 
     @Override

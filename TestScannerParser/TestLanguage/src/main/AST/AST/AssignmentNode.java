@@ -21,12 +21,25 @@ public class AssignmentNode extends AbstractNode {
         node.put("right", s);
     }
 
+
+    public String getName() {return set.getName();}
     public String getType() {return set.getType();}
     public void accept(Visitor v) {
-        v.visitAssign(this);
+        try {
+            v.visitAssign(this);
+
+        }catch(Exception e) {
+            System.out.println(e + "\n");
+        }
     }
+
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitAssign(this, parent);
+        try {
+            v.visitAssign(this, parent);
+        }catch(Exception e){
+            System.out.println(e + "\n");
+            System.exit(0);
+        }
     }
 
 }

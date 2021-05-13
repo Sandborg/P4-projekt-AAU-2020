@@ -115,17 +115,17 @@ non terminal AbstractNode String;
 non terminal AbstractNode Literal;
 non terminal AbstractNode Decimal;
 non terminal AbstractNode ReturnStmt;
-non terminal AbstractNode ReturnType;
+non terminal AbstractNode VoidType;
 non terminal AbstractNode FunctionCall;
+non terminal AbstractNode FunctionDefinition;
 
 /* Precedences */
+precedence left COMMA;
 precedence left AND, OR;
 precedence left IS, NOT;
 precedence left GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
-precedence left COMMA;
-
 /* The grammar rules */
 
 start with CompilationUnit;
@@ -166,9 +166,13 @@ FunctionDeclarations ::= FunctionDeclaration:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
-FunctionDeclaration ::= PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
+FunctionDeclaration ::= PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
-                    |   PROTOTYPE:p ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    |   PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
+                    {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
+                    |   PROTOTYPE:p VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
+                    {:  RESULT = makeFunctionDecNode(t,id,pas); :}
+                    |   PROTOTYPE:p VoidType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
                    ;
 
@@ -201,6 +205,8 @@ FieldDeclarations ::= FieldDeclaration:fd
 
 FieldDeclaration ::= TypeDeclaration:tds
                  {: RESULT = tds;:}
+                 | FunctionDefinition:fd
+                 {: RESULT = fd;:}
                  |   AdditiveExpr:ae SEMI
                  {: RESULT = ae; :}
                  | Assignment:as SEMI
@@ -252,21 +258,33 @@ FunctionBodyDeclaration ::= TypeDeclaration:td
                  {: RESULT = ss; :}
                  | IterativeStmt:is
                  {: RESULT = is; :}
+                 |FunctionDefinition:fd
+                 {:RESULT = fd;:}
                  ;
 
-TypeDeclaration  ::= ReturnType:tn OnlyIdentifier:id SEMI
+TypeDeclaration  ::= TypeName:tn OnlyIdentifier:id SEMI
                  {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
-                 |   ReturnType:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
+                 |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
                  {: RESULT = makeNode(tn,id,e); :}
-                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                 {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                 {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                 {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
-                 |   ReturnType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                 {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
                  ;
+
+FunctionDefinition::=   VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
+                |   VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
+                |   VoidType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
+                |   VoidType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
+                | TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
+                |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
+                |   TypeName:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
+                |   TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
+                ;
 
 
 
@@ -340,14 +358,8 @@ TypeName        ::= INT_TYPE:type
                 {: RESULT = makeTypeNode("string");:}
                 ;
 
-ReturnType      ::= INT_TYPE:type
-                {: RESULT = makeTypeNode("int");:}
-                | DECIMAL_TYPE:type
-                {: RESULT = makeTypeNode("decimal");:}
-                | VOID_TYPE:type
+VoidType      ::= VOID_TYPE:type
                 {: RESULT = makeTypeNode("void");:}
-                | STRING_TYPE:type
-                {: RESULT = makeTypeNode("string");:}
                 ;
 
 

@@ -1,3 +1,1 @@
-import "esmalib.pil";
-int a = 2 + 2 * 7 / 2;
-print(a.val);
+int a = "hahahaha";

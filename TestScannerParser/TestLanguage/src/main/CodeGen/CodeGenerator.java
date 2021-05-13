@@ -424,7 +424,7 @@ public class CodeGenerator {
         if (varType.get("dataType").equals("decimal")) {
             expr += "float " + id.get("id") + (init == null ? ";" : " ");
         } else if (varType.get("dataType").equals("string")) {
-            expr += "char *" + id.get("id") + " = malloc(sizeof(char) * (1000)); \n";
+            expr += "char *" + id.get("id") + " = malloc(sizeof(char) * (2000)); \n";
             expr += "strcpy(" + id.get("id") + ", \"\" );\n";
         } else {
             expr += varType.get("dataType") + " " + id.get("id") + (init == null ? ";" : " ");

@@ -1,6 +1,8 @@
 package AST;
 
 import AST.Visitor.Visitor;
+import Exceptions.VarNotFoundException;
+import Exceptions.WrongTypeException;
 import lab7.*;
 
 public class IdentifierNode extends AbstractNode {
@@ -29,10 +31,20 @@ public class IdentifierNode extends AbstractNode {
 
 
     public void accept(Visitor v) {
-        v.visitId(this);
+        try {
+            v.visitId(this);
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitId(this, parent);
+        try {
+            v.visitId(this, parent);
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package AST;
 
 import AST.Visitor.Visitor;
+import Exceptions.VarAlreadyDeclaredException;
 import lab7.*;
 import org.json.simple.JSONObject;
 
@@ -45,12 +46,22 @@ public class VariableDeclarationNode extends AbstractNode {
     }
 
     public String getType() {return type.getName();};
-    public String getName() {return type.getName();};
+    public String getName() {return id.getName();};
     public void accept(Visitor v) {
-        v.visitVarDec(this);
+        try {
+            v.visitVarDec(this);
+        } catch (VarAlreadyDeclaredException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitVarDec(this, parent);
+        try {
+            v.visitVarDec(this, parent);
+        } catch (VarAlreadyDeclaredException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
 
 }

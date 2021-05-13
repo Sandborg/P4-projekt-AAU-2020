@@ -16,10 +16,20 @@ public class FloatNode extends AbstractNode {
     public String getValueString() {return String.valueOf(value);}
 
     public void accept(Visitor v) {
-        v.visitFloat(this);
+        try{
+            v.visitFloat(this);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitFloat(this, parent);
+        try{
+            v.visitFloat(this, parent);
+        } catch (Exception e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+
+        }
     }
 
 }

@@ -27,10 +27,8 @@ return *resultp;
 
 int main() { 
 char append[5];
-int a  = 2+2*7/2;
+int a  = *a;
 int*ap = &a;
-printf("%d",*ap);
-; 
 
 return 0;
 }
