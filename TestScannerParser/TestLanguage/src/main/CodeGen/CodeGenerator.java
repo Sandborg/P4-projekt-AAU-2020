@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.Iterator;
 
 public class CodeGenerator {
@@ -88,6 +89,7 @@ public class CodeGenerator {
 
     public String GetBody(JSONArray body, String expr, Boolean insideFunction, JSONArray params) {
         expr += "char append[2000];\n";
+        expr += "char lastValue[2000];\n";
         for (Object o : body) {
             JSONObject thisObject = (JSONObject) o;
             if (thisObject.get("type") != null) {
@@ -206,7 +208,11 @@ public class CodeGenerator {
             }
             if(o.get("type").equals("Identifier")) {
                 if(o.get("dataType").equals("string")) {
-                    //expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + "," + GetIdentifier(o,"",insideFunction) + ");\n";
+                    if(o.get("id").equals(Identifier.get("id"))) {
+                        expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",lastValue);\n";
+                    }else{
+                        expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + "," + GetIdentifier(o,"",insideFunction) + ");\n";
+                    }
                 }else if(o.get("dataType").equals("decimal")){
                     expr+= "sprintf(append,\"%f\"," + GetIdentifier(o,"",insideFunction) + ");\n";
                     expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
@@ -362,6 +368,8 @@ public class CodeGenerator {
         //First we make left side of the assignment:
         //Check if the assignment is inside a function
         if (left.get("dataType").equals("string")) {
+            expr += "strcpy(lastValue," + GetIdentifier(left,"",insideFunction) + ");";
+            expr += "strcpy(" + GetIdentifier(left,"",insideFunction) + ", \"\");\n";
             expr += GetStringConcat(right,"",left,insideFunction);
         } else {
             if (insideFunction) {

@@ -15,5 +15,8 @@ print("\n" + testfunc(10.2,"awesome"));
 
 string testfunc(decimal kurt.val, string awesome.val){
 awesome.val = awesome.val + kurt.val;
+string peter = "hahah";
+peter.val = peter.val + kurt.val;
+print(peter.val);
 return awesome.val;
 }
