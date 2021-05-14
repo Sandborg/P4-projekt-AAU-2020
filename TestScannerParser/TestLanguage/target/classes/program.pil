@@ -1,1 +1,14 @@
-int a = "hahahaha";
+import "esmalib.pil";
+prototype void pik (int a.val);
+int a = 2;
+
+string hej = pik(622);
+print(hej.val);
+
+void pik(int a.val) {
+    for(int i = 0; i.val < a.val; i.val = i.val + 1) {
+        if(i.val IS 5) {
+            int c= 3;
+        }
+     }
+}

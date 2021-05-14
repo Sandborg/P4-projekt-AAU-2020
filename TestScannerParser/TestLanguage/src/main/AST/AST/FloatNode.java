@@ -20,6 +20,7 @@ public class FloatNode extends AbstractNode {
             v.visitFloat(this);
         } catch (Exception e) {
             System.out.println(e);
+            System.exit(0);
         }
     }
     public void accept(Visitor v, AbstractNode parent) {

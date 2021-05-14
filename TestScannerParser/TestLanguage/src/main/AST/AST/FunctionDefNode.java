@@ -81,6 +81,7 @@ public class FunctionDefNode extends AbstractNode {
             analyzer.visitFuncDef(this);
         }catch(Exception e) {
             System.out.println(e);
+            System.exit(0);
         }
     }
 

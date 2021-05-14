@@ -49,7 +49,7 @@ public class FunctionCallNode extends AbstractNode {
         try {
             analyzer.visitFunctionCall(this,parent);
         } catch (WrongParamsException e) {
-            System.out.print(e + "\n");
+            e.printStackTrace();
             System.exit(0);
 
         }

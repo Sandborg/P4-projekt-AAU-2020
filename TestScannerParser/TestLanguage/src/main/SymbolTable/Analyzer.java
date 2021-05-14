@@ -351,13 +351,12 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitFunctionCall(FunctionCallNode n, AbstractNode parent) throws WrongParamsException {
+        n.id.accept(this);
         if(top.prev != null) {
-            SymbolTable thisSymbolTable = top.prev.scopes.get(n.id.getName());
             FunctionDecNode functionDecNode = (FunctionDecNode) top.prev.get(n.id.getName());
-
             if (n.params != null) {
                  n.params.getFirst().accept(this);
-                if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
+                if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), top))
                     throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
             } else {
                 if (n.params == null && functionDecNode.params != null) {
@@ -466,9 +465,12 @@ public class Analyzer implements Visitor {
 
         //If curr param is identifier, check if it exists
         if(callNode.getType() == "Identifier" && s.get(callNode.getName()) == null) return false;
+
         callNode.accept(this);
         //Check if correct type
-        if(!CheckType(callNode,decNode)) return false;
+        if(decNode.getType() != "string") {
+            if (!CheckType(callNode, decNode)) return false;
+        }
 
         //Check for next param
         if(callNode.getSib() != null) return CheckCallParams(callNode.getSib(), (VariableDeclarationNode) decNode.getSib(), s);
@@ -486,7 +488,9 @@ public class Analyzer implements Visitor {
         //Check if the provided parmams exist in the prototype :)
         if(s.get(n.id.getName()) != null) {
             //Check if correct type
-            if(!CheckType(n,s.get(n.id.getName()))) return false;
+            if(n.getType() != "string") {
+                if (!CheckType(n, s.get(n.id.getName()))) return false;
+            }
             if(n.getSib() != null) return CheckParams((VariableDeclarationNode)n.getSib(),s,numberOfSiblings);
         }else return false;
 

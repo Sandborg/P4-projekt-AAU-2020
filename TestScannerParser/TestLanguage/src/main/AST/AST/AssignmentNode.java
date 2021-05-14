@@ -30,6 +30,7 @@ public class AssignmentNode extends AbstractNode {
 
         }catch(Exception e) {
             System.out.println(e + "\n");
+            System.exit(0);
         }
     }
 

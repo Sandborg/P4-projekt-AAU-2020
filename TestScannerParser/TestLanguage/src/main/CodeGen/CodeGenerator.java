@@ -154,11 +154,14 @@ public class CodeGenerator {
             if(o.get("type").equals("string")) expr+="printf(\"%s\"," + o.get("value") + ");\n";
             if(o.get("type").equals("FunctionCall")) expr+="printf(\"%d\"," + GetFunctionCall(o,"", insideFunction) +");\n";
             if(o.get("type").equals("int")) expr+="printf(\"%d\"," + o.get("value") + ");\n";
-            if(o.get("type").equals("decimal")) expr+="printf(\"%d\"," + o.get("value") + ");\n";
+            if(o.get("type").equals("decimal")) expr+="printf(\"%f\"," + o.get("value") + ");\n";
             if(o.get("type").equals("Identifier")) {
                 if(o.get("dataType").equals("string")) {
                     expr+="printf(\"%s\"," + GetIdentifier(o,"",insideFunction) + ");\n";
-                }else{
+                }else if(o.get("dataType").equals("decimal")) {
+                    expr+="printf(\"%f\"," + GetIdentifier(o,"",insideFunction) + ");\n";
+                }
+                else{
                     expr+="printf(\"%d\"," + GetIdentifier(o,"",insideFunction) + ");\n";
                 }
             }
@@ -176,8 +179,13 @@ public class CodeGenerator {
         if(left == null) {
             if(o.get("type").equals("string")) expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + "," + o.get("value") + ");\n";
             if(o.get("type").equals("FunctionCall")) {
-                expr+= "sprintf(append ,\"%d\"," + GetFunctionCall(o,"",insideFunction) + ");\n";
-                expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                JSONObject id = (JSONObject)o.get("id");
+                if(id.get("dataType").equals("string")) {
+                    expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + "," + GetFunctionCall(o,"",insideFunction) + " );\n";
+                }else {
+                    expr += "sprintf(append ,\"%d\"," + GetFunctionCall(o, "", insideFunction) + ");\n";
+                    expr += "strcat(" + GetIdentifier(Identifier, "", insideFunction) + ",append);\n";
+                }
             }
             if(o.get("type").equals("int")) {
                 expr+= "sprintf(append,\"%d\"," + o.get("value") + ");\n";
@@ -210,7 +218,15 @@ public class CodeGenerator {
         JSONArray params = (JSONArray) o.get("params");
         JSONArray body = (JSONArray) o.get("body");
 
-        expr += type.get("dataType") + " " + id.get("id") + " (";
+        if(type.get("dataType").equals("string")) {
+            expr+="char * " + id.get("id") + " (";
+        }else if(type.get("dataType").equals("decimal")) {
+            expr+= "float " + id.get("id") + " (";
+        }
+        else {
+            expr += type.get("dataType") + " " + id.get("id") + " (";
+
+        }
         if (params != null) {
             expr += GetParameters(params, "",false) + "){\n";
         } else expr += "){\n";
@@ -253,7 +269,16 @@ public class CodeGenerator {
         JSONObject funcType = (JSONObject) o.get("FuncType");
         JSONObject id = (JSONObject) o.get("Id");
         JSONArray params = (JSONArray) o.get("Params");
-        expr += funcType.get("dataType") + " " + id.get("id") + " (";
+        if(funcType.get("dataType").equals("string")) {
+            expr+="char * " + id.get("id") + " (";
+        }else if(funcType.get("dataType").equals("decimal")) {
+            expr+= "float " + id.get("id") + " (";
+        }
+        else {
+            expr += funcType.get("dataType") + " " + id.get("id") + " (";
+
+        }
+
         if (params != null) {
             expr += GetParameters((JSONArray) o.get("Params"), "",false) + ")";
         } else {
