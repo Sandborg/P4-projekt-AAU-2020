@@ -87,7 +87,7 @@ public class CodeGenerator {
     }
 
     public String GetBody(JSONArray body, String expr, Boolean insideFunction, JSONArray params) {
-        expr += "char append[5];\n";
+        expr += "char append[2000];\n";
         for (Object o : body) {
             JSONObject thisObject = (JSONObject) o;
             if (thisObject.get("type") != null) {
@@ -206,8 +206,7 @@ public class CodeGenerator {
             }
             if(o.get("type").equals("Identifier")) {
                 if(o.get("dataType").equals("string")) {
-                    expr+= "sprintf(append,\"%s\"," + GetIdentifier(o,"",insideFunction) + ");\n";
-                    expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
+                    //expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + "," + GetIdentifier(o,"",insideFunction) + ");\n";
                 }else if(o.get("dataType").equals("decimal")){
                     expr+= "sprintf(append,\"%f\"," + GetIdentifier(o,"",insideFunction) + ");\n";
                     expr+="strcat(" + GetIdentifier(Identifier,"",insideFunction) + ",append);\n";
@@ -363,7 +362,6 @@ public class CodeGenerator {
         //First we make left side of the assignment:
         //Check if the assignment is inside a function
         if (left.get("dataType").equals("string")) {
-            expr += "strcpy(" + GetIdentifier(left,"",insideFunction) + ", \"\");\n";
             expr += GetStringConcat(right,"",left,insideFunction);
         } else {
             if (insideFunction) {

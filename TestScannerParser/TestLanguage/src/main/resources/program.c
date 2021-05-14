@@ -1,30 +1,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-void pik (int a);
+char * testfunc (float kurt,char *awesome);
 int print (char *s);
 int pow (int base,int exp);
-void pik (int a){
-int *ap = &a;
-char append[5];
-int i  = 0;
-int*ip = &i; 
-for(*ip;*ip<*ap;*ip = *ip+1) { 
-char append[5];
-if(*ip==5) { 
-char append[5];
-int c  = 3;
-int*cp = &c;
-
-}
-
- }
+char * testfunc (float kurt,char *awesome){
+float *kurtp = &kurt;
+char **awesomep = &awesome;
+char append[2000];
+sprintf(append,"%f",*kurtp);
+strcat(*awesomep,append);
+;
+return *awesomep; 
 
 }
 
 int print (char *s){
 char **sp = &s;
-char append[5];
+char append[2000];
 return 0; 
 
 }
@@ -32,13 +25,13 @@ return 0;
 int pow (int base,int exp){
 int *basep = &base;
 int *expp = &exp;
-char append[5];
+char append[2000];
 int result  = 1;
 int*resultp = &result;
 int i  = 0;
 int*ip = &i; 
 for(*ip;*ip<*expp;*ip = *ip+1) { 
-char append[5];
+char append[2000];
 *resultp = *resultp**basep;
 
  }
@@ -47,15 +40,29 @@ return *resultp;
 }
 
 int main() { 
-char append[5];
-int a  = 2;
+char append[2000];
+int a  = 5;
 int*ap = &a;
-char *hej = malloc(sizeof(char) * (2000)); 
-strcpy(hej, "" );
-char **hejp = &hej;sprintf(append ,"%d",pik(622));
-strcat(*hejp,append);
+int b;
+int*bp = &b;
+*bp = *ap;
+int c;
+int*cp = &c;
+if(*ap==*bp) { 
+char append[2000];
+*cp = 2;
+
+}
+char *fdgisgfj = malloc(sizeof(char) * (2000)); 
+strcpy(fdgisgfj, "" );
+char **fdgisgfjp = &fdgisgfj;strcat(*fdgisgfjp,"awesome");
 ;
-printf("%s",*hejp);
+printf("%d",pow(14,8));
+printf("%s","hej hej");
+; 
+printf("%s","
+");
+printf("%s",testfunc(10.2,"awesome"));
 ; 
 
 return 0;

@@ -1,0 +1,19 @@
+import "esmalib.pil";
+prototype string testfunc(decimal kurt.val, string awesome.val);
+int a = 5;
+int b;
+b.val = a.val;
+int c;
+if ( a.val IS b.val) {
+c.val = 2;
+
+}
+string fdgisgfj = "awesome";
+print(pow(14,8) + "hej hej");
+print("\n" + testfunc(10.2,"awesome"));
+
+
+string testfunc(decimal kurt.val, string awesome.val){
+awesome.val = awesome.val + kurt.val;
+return awesome.val;
+}
