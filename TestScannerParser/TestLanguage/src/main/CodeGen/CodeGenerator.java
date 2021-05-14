@@ -152,7 +152,16 @@ public class CodeGenerator {
 
         if(left == null) {
             if(o.get("type").equals("string")) expr+="printf(\"%s\"," + o.get("value") + ");\n";
-            if(o.get("type").equals("FunctionCall")) expr+="printf(\"%d\"," + GetFunctionCall(o,"", insideFunction) +");\n";
+            if(o.get("type").equals("FunctionCall")) {
+                JSONObject id = (JSONObject)o.get("id");
+                if(id.get("dataType").equals("string")) {
+                    expr+="printf(\"%s\"," + GetFunctionCall(o,"", insideFunction) +");\n";
+                }else if(id.get("dataType").equals("decimal")) {
+                    expr+="printf(\"%f\"," + GetFunctionCall(o,"", insideFunction) +");\n";
+                }else{
+                    expr+="printf(\"%d\"," + GetFunctionCall(o,"", insideFunction) +");\n";
+                }
+            }
             if(o.get("type").equals("int")) expr+="printf(\"%d\"," + o.get("value") + ");\n";
             if(o.get("type").equals("decimal")) expr+="printf(\"%f\"," + o.get("value") + ");\n";
             if(o.get("type").equals("Identifier")) {
