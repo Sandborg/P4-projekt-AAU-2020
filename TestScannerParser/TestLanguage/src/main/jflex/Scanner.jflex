@@ -1,7 +1,6 @@
 import java_cup.runtime.*;
 
 %%
-
 %class Scanner
 %cup
 %line
@@ -9,16 +8,18 @@ import java_cup.runtime.*;
 %column
 %char
 
-
 %{
-StringBuffer string = new StringBuffer();
 
-private Symbol symbol(int type) {
-return new Symbol(type, yyline, yycolumn);
-}
-private Symbol symbol(int type, Object value) {
-return new Symbol(type, yyline, yycolumn, value);
-}
+    StringBuffer string = new StringBuffer();
+
+    private Symbol symbol(int type) {
+    return new Symbol(type, yyline, yycolumn);
+    }
+
+    private Symbol symbol(int type, Object value) {
+    return new Symbol(type, yyline, yycolumn, value);
+    }
+
 %}
 
 LineTerminator = \r|\n|\r\n
@@ -56,55 +57,53 @@ Decimal = [0-9]*\.[0-9]+
 
 <YYINITIAL> {
 /* identifiers */
-{Identifier}    { return symbol(sym.IDENTIFIER, yytext());                              }
-{IdentifierVal} { return symbol(sym.IDENTIFIERVAL, yytext());                           }
-{IdentifierAdr} { return symbol(sym.IDENTIFIERADR, yytext());                           }
+{Identifier}            { return symbol(sym.IDENTIFIER, yytext());           }
+{IdentifierVal}         { return symbol(sym.IDENTIFIERVAL, yytext());        }
+{IdentifierAdr}         { return symbol(sym.IDENTIFIERADR, yytext());        }
+
 /* literals */
 {Int}           { return symbol(sym.INTEGER, new Integer(Integer.parseInt(yytext()))); }
 {Decimal}       { return symbol(sym.DECIMAL, new Float(Float.parseFloat(yytext())));   }
-\"              { string.setLength(0); yybegin(STRING); }
+\"              { string.setLength(0); yybegin(STRING);                                }
 
 /* operators */
-"+"				{ return symbol(sym.PLUS);          }
-"-"				{ return symbol(sym.MINUS);         }
-"*"				{ return symbol(sym.TIMES);         }
-"/"             { return symbol(sym.DIVIDE);        }
-"%"             { return symbol(sym.MOD);           }
-"="             { return symbol(sym.EQUALS);        }
+"+"				{ return symbol(sym.PLUS);           }
+"-"				{ return symbol(sym.MINUS);          }
+"*"				{ return symbol(sym.TIMES);          }
+"/"             { return symbol(sym.DIVIDE);         }
+"%"             { return symbol(sym.MOD);            }
+"="             { return symbol(sym.EQUALS);         }
 
 /* logical operators */
-">"             { return symbol(sym.GREATER);       }
-"<"             { return symbol(sym.LESSER);        }
+">"             { return symbol(sym.GREATER);        }
+"<"             { return symbol(sym.LESSER);         }
 ">="            { return symbol(sym.GREATER_EQUALS); }
 "<="            { return symbol(sym.LESSER_EQUALS);  }
 
-
 /* reserved symbols */
-"("             { return symbol(sym.LEFT_PAREN);    }
-")"             { return symbol(sym.RIGHT_PAREN);   }
-"{"             { return symbol(sym.LEFT_CURLY);    }
-"}"             { return symbol(sym.RIGHT_CURLY);   }
-","             { return symbol(sym.COMMA);         }
-";" 		    { return symbol(sym.SEMI);          }
-
-/* comments */
+"("             { return symbol(sym.LEFT_PAREN);     }
+")"             { return symbol(sym.RIGHT_PAREN);    }
+"{"             { return symbol(sym.LEFT_CURLY);     }
+"}"             { return symbol(sym.RIGHT_CURLY);    }
+","             { return symbol(sym.COMMA);          }
+";" 		    { return symbol(sym.SEMI);           }
 
 /* whitespace */
 {WhiteSpace}                   { /* ignore */ }
 }
 
-    <STRING> {
-      \"                             { yybegin(YYINITIAL);
-                                       return symbol(sym.STRING_LITERAL,
-                                       string.toString()); }
-      [^\n\r\"\\]+                   { string.append( yytext() ); }
-      \\t                            { string.append('\t'); }
-      \\n                            { string.append('\n'); }
+<STRING> {
+  \"               { yybegin(YYINITIAL);
+                     return symbol(sym.STRING_LITERAL,
+                     string.toString());        }
+  [^\n\r\"\\]+     { string.append( yytext() ); }
+  \\t              { string.append('\t');       }
+  \\n              { string.append('\n');       }
 
-      \\r                            { string.append('\r'); }
-      \\\"                           { string.append('\"'); }
-      \\                             { string.append('\\'); }
-    }
+  \\r              { string.append('\r');       }
+  \\\"             { string.append('\"');       }
+  \\               { string.append('\\');       }
+}
 
 
 

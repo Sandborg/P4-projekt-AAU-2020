@@ -16,6 +16,7 @@ action code {:
       public AbstractNode addAllNodesToJSON (AbstractNode n, boolean addToList) {
                      if(n.getChild() != null) {
                          n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
+
                          if(addToList) {
                              allNodes.add(n.node);
                          }
@@ -25,8 +26,8 @@ action code {:
 
                  public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
                      array.add(n.node);
-                     if(n.getChild() != null)
-                     {
+
+                     if(n.getChild() != null) {
                          addAllNodesToJSON(n,false);
                      }
 
@@ -60,6 +61,7 @@ action code {:
    public AbstractNode makeStringNode(String value) {return new StringNode(value);}
    public AbstractNode makeImportNode(AbstractNode name) {return new ImportNode(name);}
    public AbstractNode makeForLoopNode(AbstractNode initCase, AbstractNode testCase, AbstractNode continueCase, AbstractNode body) {return new ForLoopNode(initCase,testCase,continueCase,body);}
+
    public void WriteAST (String fileName) {
     try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
                    //We can write any JSONArray or JSONObject instance to the file
@@ -71,6 +73,7 @@ action code {:
         }
       }
 :};
+
 /* Terminals (tokens returned by the scanner). */
 terminal            SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD, EQUALS;
 terminal            LEFT_PAREN, RIGHT_PAREN, LEFT_CURLY, RIGHT_CURLY, COMMA;
@@ -86,6 +89,7 @@ terminal String     IDENTIFIER, IDENTIFIERVAL, IDENTIFIERADR;
 terminal String     STRING_LITERAL;
 terminal            INT_TYPE, DECIMAL_TYPE, VOID_TYPE, STRING_TYPE;
 
+/* Non terminals */
 non terminal AbstractNode CompilationUnit;
 non terminal AbstractNode FieldDeclarations;
 non terminal AbstractNode FieldDeclaration;
@@ -126,11 +130,12 @@ precedence left IS, NOT;
 precedence left GREATER, LESSER, GREATER_EQUALS, LESSER_EQUALS;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
-/* The grammar rules */
 
+
+/* The grammar rules */
 start with CompilationUnit;
 
-CompilationUnit ::= Body:b
+CompilationUnit     ::= Body:b
 {:
     prog = new ProgramNode(b);
     prog.node.put("type", "Program");
@@ -150,21 +155,25 @@ Body                ::= FieldDeclarations:fds
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
 
+
 Imports             ::= Import:im
                     {: RESULT = im; :}
                     | Imports:ims Import:im
-                    {:RESULT = ims.makeSibling(im);:}
+                    {: RESULT = ims.makeSibling(im); :}
                     ;
 
+
 Import              ::= IMPORT String:st SEMI
-                    {:RESULT = makeImportNode(st); :}
+                    {: RESULT = makeImportNode(st); :}
                     ;
+
 
 FunctionDeclarations ::= FunctionDeclaration:fd
                     {: RESULT = fd; :}
                     | FunctionDeclarations:fds FunctionDeclaration:fd
                     {: RESULT = fds.makeSibling(fd); :}
                     ;
+
 
 FunctionDeclaration ::= PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
@@ -174,216 +183,225 @@ FunctionDeclaration ::= PROTOTYPE:p TypeName:t OnlyIdentifier:id LEFT_PAREN Para
                     {:  RESULT = makeFunctionDecNode(t,id,pas); :}
                     |   PROTOTYPE:p VoidType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN SEMI
                     {:  RESULT = makeFunctionDecNodeNoParams(t,id); :}
-                   ;
-
-Params            ::= Param:pa
-                   {: RESULT = pa;:}
-                   | Params:pas COMMA Param:pa
-                   {: RESULT = pas.makeSibling(pa); :}
-                   ;
-
-Param             ::= TypeName:t Identifier:id
-                   {: RESULT = makeVariableDeclarationNoBody(t, id);:}
-                   ;
-
-CallParams        ::= CallParam:cp
-                   {: RESULT = cp;:}
-                   | CallParams:cps COMMA CallParam:cp
-                   {: RESULT = cps.makeSibling(cp); :}
-                   ;
-
-CallParam         ::= AdditiveExpr:ae
-                   {: RESULT = ae; :}
-                   ;
-
-FieldDeclarations ::= FieldDeclaration:fd
-                  {: RESULT = fd; :}
-                  |   FieldDeclarations:fds FieldDeclaration:fd
-                  {: RESULT = fds.makeSibling(fd); :}
-                  ;
+                    ;
 
 
-FieldDeclaration ::= TypeDeclaration:tds
-                 {: RESULT = tds;:}
-                 | FunctionDefinition:fd
-                 {: RESULT = fd;:}
-                 |   AdditiveExpr:ae SEMI
-                 {: RESULT = ae; :}
-                 | Assignment:as SEMI
-                 {: RESULT = as; :}
-                 | SelectiveStmt:ss
-                 {: RESULT = ss; :}
-                 | IterativeStmt:is
-                 {: RESULT = is; :}
-                 ;
-
-SelectiveStmt   ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                  {: RESULT = makeIfStatementNode(ls,fds); :}
-                  | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FunctionBodyDeclarations:fds2 RIGHT_CURLY
-                  {: RESULT = makeIfElseStatementNode(ls,fds,fds2); :}
-                   ;
+Params              ::= Param:pa
+                    {: RESULT = pa;:}
+                    | Params:pas COMMA Param:pa
+                    {: RESULT = pas.makeSibling(pa); :}
+                    ;
 
 
-LogicalStmt     ::= LogicalStmt:s1 AND AdditiveExpr:a1
+Param               ::= TypeName:t Identifier:id
+                    {: RESULT = makeVariableDeclarationNoBody(t, id); :}
+                    ;
+
+
+CallParams          ::= CallParam:cp
+                    {: RESULT = cp;:}
+                    | CallParams:cps COMMA CallParam:cp
+                    {: RESULT = cps.makeSibling(cp); :}
+                    ;
+
+
+CallParam           ::= AdditiveExpr:ae
+                    {: RESULT = ae; :}
+                    ;
+
+
+FieldDeclarations   ::= FieldDeclaration:fd
+                    {: RESULT = fd; :}
+                    |   FieldDeclarations:fds FieldDeclaration:fd
+                    {: RESULT = fds.makeSibling(fd); :}
+                    ;
+
+
+FieldDeclaration    ::= TypeDeclaration:tds
+                    {: RESULT = tds; :}
+                    | FunctionDefinition:fd
+                    {: RESULT = fd; :}
+                    |   AdditiveExpr:ae SEMI
+                    {: RESULT = ae; :}
+                    | Assignment:as SEMI
+                    {: RESULT = as; :}
+                    | SelectiveStmt:ss
+                    {: RESULT = ss; :}
+                    | IterativeStmt:is
+                    {: RESULT = is; :}
+                    ;
+
+
+SelectiveStmt       ::= IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeIfStatementNode(ls,fds); :}
+                    | IF LEFT_PAREN LogicalStmt:ls RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY ELSE LEFT_CURLY FunctionBodyDeclarations:fds2 RIGHT_CURLY
+                    {: RESULT = makeIfElseStatementNode(ls,fds,fds2); :}
+                    ;
+
+IterativeStmt       ::= FOR LEFT_PAREN TypeDeclaration:td LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeForLoopNode(td,ls,as,fds); :}
+                    | FOR LEFT_PAREN Identifier:id SEMI LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeForLoopNode(id,ls,as,fds); :}
+                    ;
+
+LogicalStmt         ::= LogicalStmt:s1 AND AdditiveExpr:a1
                     {: RESULT = makeConditionNode("AND", a1, s1); :}
-                  | LogicalStmt:s1 OR AdditiveExpr:a1
+                    | LogicalStmt:s1 OR AdditiveExpr:a1
                     {: RESULT = makeConditionNode("OR", a1, s1); :}
-                  | AdditiveExpr:a1
+                    | AdditiveExpr:a1
                     {: RESULT = a1; :}
                     ;
 
 
-FunctionCall     ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN
-                 {:  RESULT = makeFunctionCall(id,cps);:}
-                 |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN
-                 {:  RESULT = makeFunctionCallNoParams(id);:}
-                 ;
+FunctionCall        ::= OnlyIdentifier:id LEFT_PAREN CallParams:cps RIGHT_PAREN
+                    {:  RESULT = makeFunctionCall(id,cps); :}
+                    |   OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN
+                    {:  RESULT = makeFunctionCallNoParams(id); :}
+                    ;
+
 
 FunctionBodyDeclarations ::= FunctionBodyDeclaration:fd
-                  {: RESULT = fd; :}
-                  |   FunctionBodyDeclarations:fds FunctionBodyDeclaration:fd
-                  {: RESULT = fds.makeSibling(fd); :}
-                  ;
+                    {: RESULT = fd; :}
+                    |   FunctionBodyDeclarations:fds FunctionBodyDeclaration:fd
+                    {: RESULT = fds.makeSibling(fd); :}
+                    ;
 
 
 FunctionBodyDeclaration ::= TypeDeclaration:td
-                 {: RESULT = td;:}
-                 |  AdditiveExpr:ae SEMI
-                 {: RESULT = ae; :}
-                 | Assignment:as SEMI
-                 {: RESULT = as; :}
-                 | ReturnStmt:rs
-                 {: RESULT = rs; :}
-                 | SelectiveStmt:ss
-                 {: RESULT = ss; :}
-                 | IterativeStmt:is
-                 {: RESULT = is; :}
-                 |FunctionDefinition:fd
-                 {:RESULT = fd;:}
-                 ;
+                    {: RESULT = td; :}
+                    |  AdditiveExpr:ae SEMI
+                    {: RESULT = ae; :}
+                    | Assignment:as SEMI
+                    {: RESULT = as; :}
+                    | ReturnStmt:rs
+                    {: RESULT = rs; :}
+                    | SelectiveStmt:ss
+                    {: RESULT = ss; :}
+                    | IterativeStmt:is
+                    {: RESULT = is; :}
+                    |FunctionDefinition:fd
+                    {: RESULT = fd; :}
+                    ;
 
-TypeDeclaration  ::= TypeName:tn OnlyIdentifier:id SEMI
-                 {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
-                 |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
-                 {: RESULT = makeNode(tn,id,e); :}
-                 ;
-
-FunctionDefinition::=   VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                |   VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                |   VoidType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
-                |   VoidType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
-                | TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
-                |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
-                |   TypeName:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
-                |   TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
-                {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
-                ;
+ReturnStmt          ::= RETURN AdditiveExpr:ae SEMI
+                    {:  RESULT = makeReturnStatement(ae); :}
+                    ;
 
 
+TypeDeclaration     ::= TypeName:tn OnlyIdentifier:id SEMI
+                    {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
+                    |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
+                    {: RESULT = makeNode(tn,id,e); :}
+                    ;
 
 
-Assignment      ::= Identifier:id EQUALS AdditiveExpr:e
-                {: RESULT = makeAssignmentNode(id,e); :}
-                ;
+FunctionDefinition  ::= VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
+                    |   VoidType:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
+                    |   VoidType:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
+                    |   VoidType:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
+                    |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNode(t,id,pas,fds); :}
+                    |   TypeName:t OnlyIdentifier:id LEFT_PAREN Params:pas RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoBody(t,id,pas); :}
+                    |   TypeName:t OnlyIdentifier:id LEFT_PAREN  RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoParams(t,id,"null",fds); :}
+                    |   TypeName:t OnlyIdentifier:id LEFT_PAREN RIGHT_PAREN LEFT_CURLY RIGHT_CURLY
+                    {: RESULT = makeFunctionDefNodeNoBodyNoParams(t,id); :}
+                    ;
 
 
-
-AdditiveExpr    ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
-                {: RESULT = makeNode(e1, e2, "+"); :}
-                |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
-                {: RESULT = makeNode(e1, e2, "-"); :}
-                | AdditiveExpr:s1 LESSER MultiplicativeExpr:a1
-                {: RESULT = makeNode( s1,a1, "LESSER");:}
-                | AdditiveExpr:s1 LESSER_EQUALS MultiplicativeExpr:a1
-                {: RESULT = makeNode( s1,a1, "LESSER_EQUALS"); :}
-                | AdditiveExpr:s1 GREATER MultiplicativeExpr:a1
-                {: RESULT = makeNode(s1,a1, "GREATER"); :}
-                | AdditiveExpr:s1 GREATER_EQUALS MultiplicativeExpr:a1
-                {: RESULT = makeNode( s1, a1, "GREATER_EQUALS"); :}
-                | AdditiveExpr:s1 IS NOT MultiplicativeExpr:a1
-                {: RESULT = makeNode( s1,a1, "IS_NOT");:}
-                | AdditiveExpr:s1 IS MultiplicativeExpr:a1
-                {: RESULT = makeNode(s1, a1,"IS");:}
-                |   MultiplicativeExpr:e2
-                {: RESULT = e2; :}
-                ;
+Assignment          ::= Identifier:id EQUALS AdditiveExpr:e
+                    {: RESULT = makeAssignmentNode(id,e); :}
+                    ;
 
 
-MultiplicativeExpr ::= MultiplicativeExpr:e1 TIMES UnaryExpr:e2
-                {: RESULT = makeNode(e1, e2, "*"); :}
-                |   MultiplicativeExpr:e1 DIVIDE UnaryExpr:e2
-                {: RESULT = makeNode(e1, e2, "/"); :}
-                |   MultiplicativeExpr:e1 MOD UnaryExpr:e2
-                {: RESULT = makeNode(e1, e2, "%"); :}
-                |   UnaryExpr:e2
-                {: RESULT = e2; :}
-                ;
+AdditiveExpr        ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
+                    {: RESULT = makeNode(e1, e2, "+"); :}
+                    |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
+                    {: RESULT = makeNode(e1, e2, "-"); :}
+                    | AdditiveExpr:s1 LESSER MultiplicativeExpr:a1
+                    {: RESULT = makeNode( s1,a1, "LESSER");:}
+                    | AdditiveExpr:s1 LESSER_EQUALS MultiplicativeExpr:a1
+                    {: RESULT = makeNode( s1,a1, "LESSER_EQUALS"); :}
+                    | AdditiveExpr:s1 GREATER MultiplicativeExpr:a1
+                    {: RESULT = makeNode(s1,a1, "GREATER"); :}
+                    | AdditiveExpr:s1 GREATER_EQUALS MultiplicativeExpr:a1
+                    {: RESULT = makeNode( s1, a1, "GREATER_EQUALS"); :}
+                    | AdditiveExpr:s1 IS NOT MultiplicativeExpr:a1
+                    {: RESULT = makeNode( s1,a1, "IS_NOT");:}
+                    | AdditiveExpr:s1 IS MultiplicativeExpr:a1
+                    {: RESULT = makeNode(s1, a1,"IS");:}
+                    |   MultiplicativeExpr:e2
+                    {: RESULT = e2; :}
+                    ;
 
 
-UnaryExpr       ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror vi kan tilføje den igen her. */
-                {: RESULT = n; :}
-                | Decimal:n
-                {: RESULT = n; :}
-                | Identifier:id
-                {: RESULT = id; :}
-                | String:s
-                {: RESULT = s;:}
-                | FunctionCall:fc
-                {: RESULT = fc;:}
-                ;
-
-OnlyIdentifier  ::=IDENTIFIER:id
-                {: RESULT = makeIdentifierNode(id,""); :}
-                ;
-
-Identifier      ::= IDENTIFIERADR:id
-                {: RESULT = makeIdentifierNode(id, "adr"); :}
-                | IDENTIFIERVAL:id
-                {: RESULT = makeIdentifierNode(id, "val"); :}
-                ;
+MultiplicativeExpr  ::= MultiplicativeExpr:e1 TIMES UnaryExpr:e2
+                    {: RESULT = makeNode(e1, e2, "*"); :}
+                    |   MultiplicativeExpr:e1 DIVIDE UnaryExpr:e2
+                    {: RESULT = makeNode(e1, e2, "/"); :}
+                    |   MultiplicativeExpr:e1 MOD UnaryExpr:e2
+                    {: RESULT = makeNode(e1, e2, "%"); :}
+                    |   UnaryExpr:e2
+                    {: RESULT = e2; :}
+                    ;
 
 
-TypeName        ::= INT_TYPE:type
-                {: RESULT = makeTypeNode("int"); :}
-                |  DECIMAL_TYPE:type
-                {: RESULT = makeTypeNode("decimal"); :}
-                |  STRING_TYPE:type
-                {: RESULT = makeTypeNode("string");:}
-                ;
-
-VoidType      ::= VOID_TYPE:type
-                {: RESULT = makeTypeNode("void");:}
-                ;
-
-
-Literal         ::= INTEGER:n
-                {: RESULT = makeNode(n); :}
-                ;
+UnaryExpr           ::= Literal:n           /* MINUS expr:e er blevet fjernet. Tror vi kan tilføje den igen her. */
+                    {: RESULT = n; :}
+                    | Decimal:n
+                    {: RESULT = n; :}
+                    | Identifier:id
+                    {: RESULT = id; :}
+                    | String:s
+                    {: RESULT = s;:}
+                    | FunctionCall:fc
+                    {: RESULT = fc;:}
+                    ;
 
 
-Decimal         ::= DECIMAL:n
-                {: RESULT = makeNode(n); :}
-                ;
+OnlyIdentifier      ::=IDENTIFIER:id
+                    {: RESULT = makeIdentifierNode(id,""); :}
+                    ;
 
-String          ::= STRING_LITERAL:sl
-                {: RESULT = makeStringNode(sl);:}
-                ;
 
-ReturnStmt      ::= RETURN AdditiveExpr:ae SEMI
-                {:  RESULT = makeReturnStatement(ae); :}
-                ;
+Identifier          ::= IDENTIFIERADR:id
+                    {: RESULT = makeIdentifierNode(id, "adr"); :}
+                    | IDENTIFIERVAL:id
+                    {: RESULT = makeIdentifierNode(id, "val"); :}
+                    ;
 
-IterativeStmt   ::= FOR LEFT_PAREN TypeDeclaration:td LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeForLoopNode(td,ls,as,fds); :}
-                | FOR LEFT_PAREN Identifier:id SEMI LogicalStmt:ls SEMI Assignment:as RIGHT_PAREN LEFT_CURLY FunctionBodyDeclarations:fds RIGHT_CURLY
-                {: RESULT = makeForLoopNode(id,ls,as,fds);:}
-                ;
+
+TypeName            ::= INT_TYPE:type
+                    {: RESULT = makeTypeNode("int"); :}
+                    |  DECIMAL_TYPE:type
+                    {: RESULT = makeTypeNode("decimal"); :}
+                    |  STRING_TYPE:type
+                    {: RESULT = makeTypeNode("string");:}
+                    ;
+
+//Have to be seperate from  TypeName, otherwise shift-reduce conficts.
+VoidType            ::= VOID_TYPE:type
+                    {: RESULT = makeTypeNode("void");:}
+                    ;
+
+
+Literal             ::= INTEGER:n
+                    {: RESULT = makeNode(n); :}
+                    ;
+
+
+Decimal             ::= DECIMAL:n
+                    {: RESULT = makeNode(n); :}
+                    ;
+
+
+String              ::= STRING_LITERAL:sl
+                    {: RESULT = makeStringNode(sl);:}
+                    ;
 
 /* Et hus fuld af muuuuuuuuuuuuuuuuuuuuuuuuuus */

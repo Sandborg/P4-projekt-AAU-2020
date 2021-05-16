@@ -5,9 +5,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
-import java.util.Iterator;
-
 public class CodeGenerator {
 
     public CodeGenerator() throws IOException, ParseException {
@@ -38,7 +35,7 @@ public class CodeGenerator {
             esmaLibBody = (JSONArray)object.get("Body");
         }
 
-        //Always include the stdio.h libary
+        //Always to include the these C libraries
         program.write("#include <stdio.h>\n");
         program.write("#include <string.h>\n");
         program.write("#include <stdlib.h>\n");
@@ -263,15 +260,9 @@ public class CodeGenerator {
             JSONObject varType = (JSONObject) thisObject.get("VariableType");
             if (!id.get("idType").equals("adr")) {
                 switch ((String) varType.get("dataType")) {
-                    case "decimal":
-                        expr += "float *" + id.get("id") + "p = &" + id.get("id") + ";\n";
-                        break;
-                    case "string":
-                        expr += "char **" + id.get("id") + "p = &" + id.get("id") + ";\n";
-                        break;
-                    default:
-                        expr += varType.get("dataType") + " *" + id.get("id") + "p = &" + id.get("id") + ";\n";
-                        break;
+                    case "decimal" -> expr += "float *" + id.get("id") + "p = &" + id.get("id") + ";\n";
+                    case "string" -> expr += "char **" + id.get("id") + "p = &" + id.get("id") + ";\n";
+                    default -> expr += varType.get("dataType") + " *" + id.get("id") + "p = &" + id.get("id") + ";\n";
                 }
             }
         }
@@ -333,28 +324,16 @@ public class CodeGenerator {
 
         if (id.get("idType").equals("adr")) {
             switch ((String) varType.get("dataType")) {
-                case "decimal":
-                    expr += "float **" + id.get("id");
-                    break;
-                case "string":
-                    expr += "char ***" + id.get("id");
-                    break;
-                default:
-                    expr += varType.get("dataType") + " **" + id.get("id");
-                    break;
+                case "decimal" -> expr += "float **" + id.get("id");
+                case "string" -> expr += "char ***" + id.get("id");
+                default -> expr += varType.get("dataType") + " **" + id.get("id");
             }
 
         } else {
             switch ((String) varType.get("dataType")) {
-                case "decimal":
-                    expr += "float " + id.get("id");
-                    break;
-                case "string":
-                    expr += "char *" + id.get("id");
-                    break;
-                default:
-                    expr += varType.get("dataType") + " " + id.get("id");
-                    break;
+                case "decimal" -> expr += "float " + id.get("id");
+                case "string" -> expr += "char *" + id.get("id");
+                default -> expr += varType.get("dataType") + " " + id.get("id");
             }
         }
         return expr;
@@ -584,11 +563,8 @@ public class CodeGenerator {
     }
 
     public String GetLogicalExpression(JSONObject o, String s, Boolean insideFunction) {
-        JSONObject left = new JSONObject();
-        JSONObject right = new JSONObject();
-
-        left = (JSONObject)o.get("left");
-        right = (JSONObject)o.get("right");
+        JSONObject left = (JSONObject)o.get("left");
+        JSONObject right = (JSONObject)o.get("right");
 
         if(left != null && left.get("type").equals("BinaryExpression")) {
             s+=GetIfStatementTestCase((JSONObject)left.get("left"), "",insideFunction);

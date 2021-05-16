@@ -57,7 +57,7 @@ public class Analyzer implements Visitor {
 
         //If the variable has a body, accept it
         if(n.body != null) {
-            if(n.body instanceof IdentifierNode && n.body.getName() == n.id.getName()) {
+            if(n.body instanceof IdentifierNode && n.body.getName().equals(n.id.getName())) {
                 throw new VarAlreadyDeclaredException("Cant set variable \"" + n.id.getName() + "\" to itself");
             }
             n.body.accept(this, n);
@@ -106,7 +106,7 @@ public class Analyzer implements Visitor {
             }
         }
 
-        if(vdn != null && vdn.isParameter) {
+        if(vdn.isParameter) {
             JSONObject o = new JSONObject();
             o.put("type", "parameterInfo");
             o.put("parameterType", vdn.id.getIdType());
@@ -168,7 +168,6 @@ public class Analyzer implements Visitor {
         //Check if the integer is compatible with its parent.
         if(!CheckType(n,parent)) {
             if(parent instanceof VariableDeclarationNode) {
-                VariableDeclarationNode vn = (VariableDeclarationNode)parent;
                 throw new WrongTypeException("Can't declare \"" + parent.getType() + " " + parent.getName() + "\" to int");
             }else {
                 throw new WrongTypeException("Can't set \"" + parent.getName() + "\" to int");
@@ -189,7 +188,6 @@ public class Analyzer implements Visitor {
         //Check if the float is compatible with its parent.
         if(!CheckType(n,parent)) {
             if(parent instanceof VariableDeclarationNode) {
-                VariableDeclarationNode vn = (VariableDeclarationNode)parent;
                 throw new WrongTypeException("Can't declare \"" + parent.getType() + " " + parent.getName() + "\" to decimal");
             }else {
                 throw new WrongTypeException("Can't set \"" + parent.getName() + "\" to decimal");
@@ -203,9 +201,9 @@ public class Analyzer implements Visitor {
 
         IdentifierNode set = (IdentifierNode)n.set;
 
-        if(n.set.getIdType() == "adr" ) {
+        if(n.set.getIdType().equals("adr")) {
             if(n.to instanceof IdentifierNode) {
-                if(n.to.getIdType() != "adr") {
+                if(!n.to.getIdType().equals("adr")) {
                     IdentifierNode to = (IdentifierNode)n.to;
                     throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to \"" + to.getName() + ".val\"");
                 }
@@ -213,7 +211,7 @@ public class Analyzer implements Visitor {
                 throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to a value");
             }
         }else {
-            if(n.to instanceof IdentifierNode && n.to.getIdType() == "adr") {
+            if(n.to instanceof IdentifierNode && n.to.getIdType().equals("adr")) {
                 IdentifierNode to = (IdentifierNode)n.to;
                 throw new PointerException("Can't set \"" +  set.getName() + ".val\" to \"" + to.getName() + ".adr\"" );
             }
@@ -233,9 +231,9 @@ public class Analyzer implements Visitor {
     public void visitAssign(AssignmentNode n, AbstractNode parent) throws PointerException {
         IdentifierNode set = (IdentifierNode)n.set;
 
-        if(n.set.getIdType() == "adr" ) {
+        if(n.set.getIdType().equals("adr")) {
             if(n.to instanceof IdentifierNode) {
-                if(n.to.getIdType() != "adr") {
+                if(!n.to.getIdType().equals("adr")) {
                     IdentifierNode to = (IdentifierNode)n.to;
                     throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to \"" + to.getName() + ".val\"");
                 }
@@ -243,7 +241,7 @@ public class Analyzer implements Visitor {
                 throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to a value");
             }
         }else {
-            if(n.to instanceof IdentifierNode && n.to.getIdType() == "adr") {
+            if(n.to instanceof IdentifierNode && n.to.getIdType().equals("adr")) {
                 IdentifierNode to = (IdentifierNode)n.to;
                 throw new PointerException("Can't set \"" +  set.getName() + ".val\" to \"" + to.getName() + ".adr\"" );
             }
@@ -342,7 +340,7 @@ public class Analyzer implements Visitor {
             if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
                 throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
         }else {
-            if(n.params == null && functionDecNode.params != null) {
+            if(functionDecNode.params != null) {
                 throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
             }
         }
@@ -359,7 +357,7 @@ public class Analyzer implements Visitor {
                 if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), top))
                     throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
             } else {
-                if (n.params == null && functionDecNode.params != null) {
+                if (functionDecNode.params != null) {
                     throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
                 }
             }
@@ -464,11 +462,11 @@ public class Analyzer implements Visitor {
         if(GetNumberOfSiblings(callNode,1) != GetNumberOfSiblings(decNode, 1)) return false;
 
         //If curr param is identifier, check if it exists
-        if(callNode.getType() == "Identifier" && s.get(callNode.getName()) == null) return false;
+        if(callNode.getType().equals("Identifier") && s.get(callNode.getName()) == null) return false;
 
         callNode.accept(this);
         //Check if correct type
-        if(decNode.getType() != "string") {
+        if(!decNode.getType().equals("string")) {
             if (!CheckType(callNode, decNode)) return false;
         }
 
@@ -488,7 +486,7 @@ public class Analyzer implements Visitor {
         //Check if the provided parmams exist in the prototype :)
         if(s.get(n.id.getName()) != null) {
             //Check if correct type
-            if(n.getType() != "string") {
+            if(!n.getType().equals("string")) {
                 if (!CheckType(n, s.get(n.id.getName()))) return false;
             }
             if(n.getSib() != null) return CheckParams((VariableDeclarationNode)n.getSib(),s,numberOfSiblings);
@@ -547,7 +545,7 @@ public class Analyzer implements Visitor {
 
 
         //Check if the types are equal
-        if(n2Type != "string") return n1Type == n2Type;
+        if(!n2Type.equals("string")) return n1Type.equals(n2Type);
         else return true;
 
     }
