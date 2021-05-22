@@ -42,6 +42,8 @@ return *ap;
 int main() { 
 char append[2000];
 char lastValue[2000];
+printf("%s","HEJ");
+; 
 
 return 0;
 }

@@ -1,6 +1,7 @@
 import "esmalib.pil";
 prototype int func(int a.val);
 
+print("HEJ");
 
 int func(int a.val) {
     return a.val;

@@ -6,4 +6,4 @@ echo.
 echo.
 pause
 :: Fjern exe filen efter debug er done.
-::exit
+exit
