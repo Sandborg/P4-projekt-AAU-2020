@@ -13,11 +13,11 @@ import java_cup.runtime.*;
     StringBuffer string = new StringBuffer();
 
     private Symbol symbol(int type) {
-    return new Symbol(type, yyline, yycolumn);
+        return new Symbol(type, yyline, yycolumn);
     }
 
     private Symbol symbol(int type, Object value) {
-    return new Symbol(type, yyline, yycolumn, value);
+        return new Symbol(type, yyline, yycolumn, value);
     }
 
 %}

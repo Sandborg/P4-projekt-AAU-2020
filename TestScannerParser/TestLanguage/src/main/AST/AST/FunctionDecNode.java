@@ -10,6 +10,7 @@ public class FunctionDecNode extends AbstractNode{
     public AbstractNode params;
 
     public JSONArray paramList = new JSONArray();
+
     public FunctionDecNode (AbstractNode type, AbstractNode id, AbstractNode params) {
         this.type = type;
         this.id = id;
@@ -18,9 +19,9 @@ public class FunctionDecNode extends AbstractNode{
         node.put("type", "FunctionDeclaration");
         node.put("Id", id.node);
         node.put("FuncType", type.node);
-        addParamsToList(params.getFirst());
         node.put("Params", paramList);
 
+        addParamsToList(params.getFirst());
     }
 
     public FunctionDecNode (AbstractNode type, AbstractNode id) {
@@ -30,7 +31,6 @@ public class FunctionDecNode extends AbstractNode{
         node.put("type", "FunctionDeclaration");
         node.put("Id", id.node);
         node.put("FuncType", type.node);
-
     }
     public  void addParamsToList (AbstractNode n) {
         paramList.add(n.node);

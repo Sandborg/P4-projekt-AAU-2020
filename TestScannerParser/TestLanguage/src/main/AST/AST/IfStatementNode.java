@@ -15,24 +15,26 @@ public class IfStatementNode extends AbstractNode {
     public JSONArray elseBodyList = new JSONArray();
     public IfStatementNode (AbstractNode test, AbstractNode ifBody) {
         this.test = test;
-        this.elseBody = elseBody;
         this.ifBody = ifBody;
+
         node.put("type", "IfStatement");
         node.put("ifBody", ifBodyList);
-        addBodyToList (ifBody.getFirst(),ifBodyList);
         node.put("test", test.node);
+
+        addBodyToList (ifBody.getFirst(),ifBodyList);
     }
 
     public IfStatementNode (AbstractNode test, AbstractNode ifBody, AbstractNode elseBody) {
-            this.elseBody = elseBody;
-            this.ifBody = ifBody;
-            this.test = test;
-            node.put("type", "IfStatement");
-            node.put("test", test.node);
-            node.put("ifBody", ifBodyList);
-            addBodyToList (ifBody.getFirst(),ifBodyList);
-            node.put("elseBody", elseBodyList);
-            addBodyToList (elseBody.getFirst(),elseBodyList);
+        this.elseBody = elseBody;
+        this.ifBody = ifBody;
+        this.test = test;
+        node.put("type", "IfStatement");
+        node.put("test", test.node);
+        node.put("ifBody", ifBodyList);
+        node.put("elseBody", elseBodyList);
+
+        addBodyToList (ifBody.getFirst(),ifBodyList);
+        addBodyToList (elseBody.getFirst(),elseBodyList);
     }
 
     public void addBodyToList (AbstractNode n, JSONArray list) {

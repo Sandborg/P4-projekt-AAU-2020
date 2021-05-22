@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 public class AssignmentNode extends AbstractNode {
     public AbstractNode set;
     public AbstractNode to;
-    public JSONObject varType;
+
     public AssignmentNode(AbstractNode set, AbstractNode to) {
         this.set = set;
         this.to = to;
@@ -16,14 +16,9 @@ public class AssignmentNode extends AbstractNode {
         node.put("right", to.node);
     }
 
-    public void UpdateRightNode (JSONObject s) {
-        varType = s;
-        node.put("right", s);
-    }
-
-
     public String getName() {return set.getName();}
     public String getType() {return set.getType();}
+
     public void accept(Visitor v) {
         try {
             v.visitAssign(this);

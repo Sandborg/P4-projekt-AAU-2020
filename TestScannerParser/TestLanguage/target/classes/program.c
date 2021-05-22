@@ -33,10 +33,17 @@ return *resultp;
 int main() { 
 char append[2000];
 char lastValue[2000];
-int p  = 2;
-int*pp = &p;
-int p  = 3;
-int*pp = &p;
+int a  = 8;
+int*ap = &a;
+*ap = 3+3*7+2/2;
+char *p = malloc(sizeof(char) * (2000)); 
+strcpy(p, "" );
+char **pp = &p;sprintf(append,"%d",*ap);
+strcat(*pp,append);
+strcat(*pp,"hej");
+;
+printf("%s",*pp);
+; 
 
 return 0;
 }

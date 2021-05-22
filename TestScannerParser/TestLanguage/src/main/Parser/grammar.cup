@@ -9,39 +9,35 @@ import org.json.simple.JSONObject;
 action code {:
 
    public JSONArray allNodes = new JSONArray();
-   public JSONArray allNodesUnderProg = new JSONArray();
-   public JSONArray expressions = new JSONArray();
-
    public AbstractNode prog;
-      public AbstractNode addAllNodesToJSON (AbstractNode n, boolean addToList) {
-                     if(n.getChild() != null) {
-                         n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
 
-                         if(addToList) {
-                             allNodes.add(n.node);
-                         }
-                     }
-                     return null;
-                 }
+   public AbstractNode addAllNodesToJSON (AbstractNode n, boolean addToList) {
+        if(n.getChild() != null) {
+            n.node.put("Body", AddAllChild(n.getChild(),new JSONArray()));
 
-                 public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
-                     array.add(n.node);
+            if(addToList) {
+                allNodes.add(n.node);
+            }
+        }
+        return null;
+   }
 
-                     if(n.getChild() != null) {
-                         addAllNodesToJSON(n,false);
-                     }
+   public JSONArray AddAllChild (AbstractNode n, JSONArray array) {
+       array.add(n.node);
+       if(n.getChild() != null) {
+           addAllNodesToJSON(n,false);
+       }
 
-                     if(n.getSib() != null) {
-                         AddAllChild(n.getSib(),array);
-                     }
-                     return array;
-                 }
+       if(n.getSib() != null) {
+           AddAllChild(n.getSib(),array);
+       }
+       return array;
+   }
 
-   public AbstractNode makeNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
-   public AbstractNode makeNode(int value) {return new IntegerNode(value);}
-   public AbstractNode makeNode(float value) {return new FloatNode(value);}
-   public AbstractNode makeNode(AbstractNode type, AbstractNode id, AbstractNode body) {return new VariableDeclarationNode(type,id, body);}
-
+   public AbstractNode makeBinaryNode(AbstractNode number1, AbstractNode number2, String operator) {return new BinaryOPNode(number1,number2, operator);}
+   public AbstractNode makeIntegerNode(int value) {return new IntegerNode(value);}
+   public AbstractNode makeFloatNode(float value) {return new FloatNode(value);}
+   public AbstractNode makeVariableDeclarationNode(AbstractNode type, AbstractNode id, AbstractNode body) {return new VariableDeclarationNode(type,id, body);}
    public AbstractNode makeVariableDeclarationNoBody(AbstractNode type, AbstractNode id) {return new VariableDeclarationNode(type,id);}
    public AbstractNode makeTypeNode(String type) {return new TypeNode(type);}
    public AbstractNode makeIdentifierNode(String id, String idType) {return new IdentifierNode(id, idType);}
@@ -63,15 +59,14 @@ action code {:
    public AbstractNode makeForLoopNode(AbstractNode initCase, AbstractNode testCase, AbstractNode continueCase, AbstractNode body) {return new ForLoopNode(initCase,testCase,continueCase,body);}
 
    public void WriteAST (String fileName) {
-    try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
-                   //We can write any JSONArray or JSONObject instance to the file
-                   file.write(allNodes.toJSONString());
-                   file.flush();
-
+        try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
+            //We can write any JSONArray or JSONObject instance to the file
+            file.write(allNodes.toJSONString());
+            file.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-      }
+    }
 :};
 
 /* Terminals (tokens returned by the scanner). */
@@ -291,7 +286,7 @@ ReturnStmt          ::= RETURN AdditiveExpr:ae SEMI
 TypeDeclaration     ::= TypeName:tn OnlyIdentifier:id SEMI
                     {: RESULT = makeVariableDeclarationNoBody(tn,id); :}
                     |   TypeName:tn OnlyIdentifier:id EQUALS AdditiveExpr:e SEMI
-                    {: RESULT = makeNode(tn,id,e); :}
+                    {: RESULT = makeVariableDeclarationNode(tn,id,e); :}
                     ;
 
 
@@ -320,32 +315,32 @@ Assignment          ::= Identifier:id EQUALS AdditiveExpr:e
 
 
 AdditiveExpr        ::= AdditiveExpr:e1 PLUS MultiplicativeExpr:e2
-                    {: RESULT = makeNode(e1, e2, "+"); :}
+                    {: RESULT = makeBinaryNode(e1, e2, "+"); :}
                     |   AdditiveExpr:e1 MINUS MultiplicativeExpr:e2
-                    {: RESULT = makeNode(e1, e2, "-"); :}
+                    {: RESULT = makeBinaryNode(e1, e2, "-"); :}
                     | AdditiveExpr:s1 LESSER MultiplicativeExpr:a1
-                    {: RESULT = makeNode( s1,a1, "LESSER");:}
+                    {: RESULT = makeBinaryNode( s1,a1, "LESSER");:}
                     | AdditiveExpr:s1 LESSER_EQUALS MultiplicativeExpr:a1
-                    {: RESULT = makeNode( s1,a1, "LESSER_EQUALS"); :}
+                    {: RESULT = makeBinaryNode( s1,a1, "LESSER_EQUALS"); :}
                     | AdditiveExpr:s1 GREATER MultiplicativeExpr:a1
-                    {: RESULT = makeNode(s1,a1, "GREATER"); :}
+                    {: RESULT = makeBinaryNode(s1,a1, "GREATER"); :}
                     | AdditiveExpr:s1 GREATER_EQUALS MultiplicativeExpr:a1
-                    {: RESULT = makeNode( s1, a1, "GREATER_EQUALS"); :}
+                    {: RESULT = makeBinaryNode( s1, a1, "GREATER_EQUALS"); :}
                     | AdditiveExpr:s1 IS NOT MultiplicativeExpr:a1
-                    {: RESULT = makeNode( s1,a1, "IS_NOT");:}
+                    {: RESULT = makeBinaryNode( s1,a1, "IS_NOT");:}
                     | AdditiveExpr:s1 IS MultiplicativeExpr:a1
-                    {: RESULT = makeNode(s1, a1,"IS");:}
+                    {: RESULT = makeBinaryNode(s1, a1,"IS");:}
                     |   MultiplicativeExpr:e2
                     {: RESULT = e2; :}
                     ;
 
 
 MultiplicativeExpr  ::= MultiplicativeExpr:e1 TIMES UnaryExpr:e2
-                    {: RESULT = makeNode(e1, e2, "*"); :}
+                    {: RESULT = makeBinaryNode(e1, e2, "*"); :}
                     |   MultiplicativeExpr:e1 DIVIDE UnaryExpr:e2
-                    {: RESULT = makeNode(e1, e2, "/"); :}
+                    {: RESULT = makeBinaryNode(e1, e2, "/"); :}
                     |   MultiplicativeExpr:e1 MOD UnaryExpr:e2
-                    {: RESULT = makeNode(e1, e2, "%"); :}
+                    {: RESULT = makeBinaryNode(e1, e2, "%"); :}
                     |   UnaryExpr:e2
                     {: RESULT = e2; :}
                     ;
@@ -391,12 +386,12 @@ VoidType            ::= VOID_TYPE:type
 
 
 Literal             ::= INTEGER:n
-                    {: RESULT = makeNode(n); :}
+                    {: RESULT = makeIntegerNode(n); :}
                     ;
 
 
 Decimal             ::= DECIMAL:n
-                    {: RESULT = makeNode(n); :}
+                    {: RESULT = makeFloatNode(n); :}
                     ;
 
 

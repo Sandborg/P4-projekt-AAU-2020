@@ -24,8 +24,9 @@ public class FunctionDefNode extends AbstractNode {
         node.put("dataType", type.node);
         node.put("id", id.node);
         node.put("params", paramList);
-        addParamsToList(params.getFirst());
         node.put("body", bodyList);
+
+        addParamsToList(params.getFirst());
         addBodyToList (body.getFirst());
     }
     public FunctionDefNode(AbstractNode type, AbstractNode id, String params, AbstractNode body) {
@@ -37,6 +38,7 @@ public class FunctionDefNode extends AbstractNode {
         node.put("dataType", type.node);
         node.put("id", id.node);
         node.put("body", bodyList);
+
         addBodyToList (body.getFirst());
     }
 
@@ -46,17 +48,19 @@ public class FunctionDefNode extends AbstractNode {
         this.params = params;
         if(params instanceof VariableDeclarationNode) this.params = params;
         else this.body = params;
+
         node.put("type", "FunctionDefinition");
         node.put("dataType", type.node);
         node.put("id", id.node);
         node.put("params", paramList);
+
         addParamsToList(params.getFirst());
     }
 
     public FunctionDefNode(AbstractNode type, AbstractNode id) {
         this.id = id;
         this.type = type;
-        this.params = params;
+
         node.put("type", "FunctionDefinition");
         node.put("dataType", type.node);
         node.put("id", id.node);

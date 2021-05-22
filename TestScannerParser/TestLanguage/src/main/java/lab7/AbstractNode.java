@@ -12,9 +12,8 @@ import org.json.simple.JSONObject;
   * link itself with other siblings and adopt children.
   * Each node gets a node number to help identify it distinctly in an AST.
   */
-public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable {
-   private static int nodeNums = 0;
-   private int nodeNum;
+public abstract class AbstractNode {
+
    private AbstractNode mysib;
    private AbstractNode parent;
    private AbstractNode child;
@@ -27,7 +26,6 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       mysib    = null;
       firstSib = this;
       child    = null;
-      nodeNum = ++nodeNums;
    }
 
    /** Join the end of this sibling's list with the supplied sibling's list */
@@ -59,16 +57,6 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
       return this;
    }
 
-   public AbstractNode orphan() {
-      mysib = parent = null;
-      firstSib = this;
-      return this;
-   }
-
-   public AbstractNode abandonChildren() {
-      child = null;
-      return this;
-   }
 
    public void setParent(AbstractNode p) {
       this.parent = p;
@@ -100,79 +88,6 @@ public abstract class AbstractNode implements ReflectiveVisitable, NodeDumpable 
 
    public String toString() {
       return("" + getName());
-   }
-
-   public String dump() {
-      Type t = getNodeType();
-      String tString = (t != null) ? ("<"+t.toString()+"> ") : "";
-
-     return  "" + getNodeNum() + ": " + tString + whatAmI() +
-            "  \"" + toString()+"\"";
-   }
-
-
-   public int getNodeNum() { return nodeNum; }
-
-   private static String trimClass(String cl) {
-      int dollar = cl.lastIndexOf('$');
-      int dot    = cl.lastIndexOf('.');
-      int trimAt = (dollar > dot) ? dollar : dot;
-      if (trimAt >= 0) cl = cl.substring(trimAt+1);
-      return cl;
-   }
-
-   private static Class objectClass = (new Object()).getClass();
-   private static void debugMsg(String s) { }
-   private static Enumeration interfaces(Class c) {
-      Class iClass = c;
-      Vector v = new Vector();
-      while (iClass != objectClass) {
-	debugMsg("Looking for interface  match in " + iClass.getName());
-	Class[] interfaces = iClass.getInterfaces();
-         for (int i = 0; i < interfaces.length; i++) {
-	      debugMsg("   trying interface " + interfaces[i]);
-              v.addElement(interfaces[i]);
-            Class[] superInterfaces = interfaces[i].getInterfaces();
-            for (int j=0; j < superInterfaces.length; ++j) {
-	      debugMsg("   trying super interface " + superInterfaces[j]);
-                  v.addElement(superInterfaces[j]);
-            }
-
-         }
-	 iClass = iClass.getSuperclass();
-      }
-      return v.elements();
-   }
-
-   /** Reflectively indicate the class of "this" node */
-   public String whatAmI() {
-      Set s = new HashSet();
-      String ans = trimClass(getClass().toString());
-      Enumeration e = interfaces(getClass());
-      while (e.hasMoreElements()) {
-         Class c = (Class) e.nextElement();
-         String str = trimClass(c.toString());
-         if (!(str.equals("DontPrintMe") || str.equals("ReflectiveVisitable")))
-            s.add(trimClass(c.toString()));
-      }
-      return ans + s.toString();
-   }
-
-   private void internWalk(int level, Visitable v) {
-      v.pre(level, this);
-      for (AbstractNode c = child; c != null; c=c.mysib) {
-         c.internWalk(level + 1, v);
-         
-      }
-      v.post(level, this);
-   }
-
-   /** Reflective visitor pattern */
-   public final void accept(ReflectiveVisitor v) { v.dispatch(this); }
-
-   /** Obsolete, do not use! */
-   public void walkTree(Visitable v) {
-      internWalk(0, v);
    }
 
    public abstract void accept(Visitor analyzer);

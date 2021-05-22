@@ -11,20 +11,19 @@ import java.io.FileReader;
 public class Analyzer implements Visitor {
     private SymbolTable top;
 
+    //For starting global scope
     public Analyzer (ProgramNode program, SymbolTable table) {
         top = table;
         program.accept(this);
     }
 
+    //For inserting vars into new scope
     public Analyzer (VariableDeclarationNode program, SymbolTable table) {
         top = table;
         program.accept(this);
     }
 
-    public Analyzer (AbstractNode start, SymbolTable table) {
-        top = table;
-        start.getFirst().accept(this);
-    }
+    //For starting function body
     public Analyzer (AbstractNode start, SymbolTable table, AbstractNode parent) {
         top = table;
         start.getFirst().accept(this,parent);
@@ -33,7 +32,7 @@ public class Analyzer implements Visitor {
     @Override
     public void visitVarDec(VariableDeclarationNode n) throws VarAlreadyDeclaredException {
         //Insert the variable into the symboltable
-        top.put(n.id.getName(),n);
+        if(!top.put(n.id.getName(),n)) throw new VarAlreadyDeclaredException("Variable already declared");
 
         //If the variable has a body, accept it
         if(n.body != null) {
@@ -53,7 +52,7 @@ public class Analyzer implements Visitor {
     @Override
     public void visitVarDec(VariableDeclarationNode n, AbstractNode parent) throws VarAlreadyDeclaredException {
         //Insert the variable into the symboltable
-        top.put(n.id.getName(),n);
+        if(!top.put(n.id.getName(),n)) throw new VarAlreadyDeclaredException("Variable already declared");
 
         //If the variable has a body, accept it
         if(n.body != null) {
@@ -72,12 +71,18 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitId(IdentifierNode n) throws VarNotFoundException {
+        //Find the identifiers parent
+        AbstractNode parent = top.get(n.getName());
+        //Check if the identifer has been declared
+        if(parent == null) throw new VarNotFoundException(n.getName() + " hasn't been declared");
+
         VariableDeclarationNode vdn = null;
-        if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
+        if(parent instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)parent;
+
+        //Add parent data type to Identifier in ast
         n.AddDataType(top.get(n.getName()).getType());
 
-        //Check if the identifer has been declared
-        if(top.get(n.getName()) == null) throw new VarNotFoundException(n.getName() + " hasn't been declared");
+        //Check if the parent comes from a parameter. If so, add it to the identifier in the AST.
         if(vdn != null && vdn.isParameter) {
             JSONObject o = new JSONObject();
             o.put("type", "parameterInfo");
@@ -85,6 +90,7 @@ public class Analyzer implements Visitor {
             n.node.put("parameterInfo",o);
         }
 
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
@@ -93,11 +99,12 @@ public class Analyzer implements Visitor {
         //Check if the identifer has been declared
         VariableDeclarationNode vdn = null;
         if(top.get(n.getName()) instanceof VariableDeclarationNode) vdn = (VariableDeclarationNode)top.get((n.getName()));
-        //Update AST
-        n.AddDataType(top.get(n.getName()).getType());
         if(vdn == null)throw new VarNotFoundException(n.getName() + " hasn't been declared");
-        //Check if the identifiers type is compatible with the parent
 
+        //Add parent data type to Identifier in ast
+        n.AddDataType(top.get(n.getName()).getType());
+
+        //Check if the identifiers type is compatible with the parent
         if (!top.get(n.getName()).getType().equals("string")) {
             if(parent instanceof VariableDeclarationNode) {
                 if( !CheckType(n,parent)) throw new WrongTypeException("Can't set " + parent.getType() + " " + parent.getName() + " to " + n.getName());
@@ -106,6 +113,7 @@ public class Analyzer implements Visitor {
             }
         }
 
+        //Check if the parent comes from a parameter. If so, add it to the identifier in the AST.
         if(vdn.isParameter) {
             JSONObject o = new JSONObject();
             o.put("type", "parameterInfo");
@@ -124,12 +132,12 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitProg(ProgramNode n, AbstractNode parent) {
-
+        //Is never used.
     }
 
     @Override
     public void visitBinaryOP(BinaryOPNode n) {
-        //A binarayOP node has two numbers. Accept them:
+        //A binarayOP node has two nodes. Accept them:
         n.number1.accept(this);
         n.number2.accept(this);
         //Continue with the next sibling
@@ -138,7 +146,7 @@ public class Analyzer implements Visitor {
     }
 
     public void visitBinaryOP(BinaryOPNode n,AbstractNode parent) {
-        //A binarayOP node has two numbers. Accept them:
+        //A binarayOP node has two nodes. Accept them:
         n.number1.accept(this);
         n.number2.accept(this);
 
@@ -155,7 +163,8 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitType(TypeNode n, AbstractNode parent) {
-
+        //Continue with the next sibling
+        if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
@@ -198,32 +207,34 @@ public class Analyzer implements Visitor {
     }
     @Override
     public void visitAssign(AssignmentNode n) throws PointerException {
-
+        //Get the variable we are trying to set.
         IdentifierNode set = (IdentifierNode)n.set;
 
-        if(n.set.getIdType().equals("adr")) {
+
+        if(set.getIdType().equals("adr")) {
             if(n.to instanceof IdentifierNode) {
                 if(!n.to.getIdType().equals("adr")) {
+                    //This means that we are trying to set adr to val
                     IdentifierNode to = (IdentifierNode)n.to;
                     throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to \"" + to.getName() + ".val\"");
                 }
             }else{
+                //This means that we are trying to set adr to a number.
                 throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to a value");
             }
         }else {
             if(n.to instanceof IdentifierNode && n.to.getIdType().equals("adr")) {
+                //this means that we are trying to set val to adr.
                 IdentifierNode to = (IdentifierNode)n.to;
                 throw new PointerException("Can't set \"" +  set.getName() + ".val\" to \"" + to.getName() + ".adr\"" );
             }
         }
-        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
-        vd.lastAssign = n;
 
-
-
+        //Accept set and to.
         n.set.accept(this);
         n.to.accept(this, n.set);
 
+        //Continue with next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
@@ -231,27 +242,30 @@ public class Analyzer implements Visitor {
     public void visitAssign(AssignmentNode n, AbstractNode parent) throws PointerException {
         IdentifierNode set = (IdentifierNode)n.set;
 
-        if(n.set.getIdType().equals("adr")) {
+        if(set.getIdType().equals("adr")) {
             if(n.to instanceof IdentifierNode) {
                 if(!n.to.getIdType().equals("adr")) {
+                    //This means that we are trying to set adr to val
                     IdentifierNode to = (IdentifierNode)n.to;
                     throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to \"" + to.getName() + ".val\"");
                 }
             }else{
+                //This means that we are trying to set adr to a number.
                 throw new PointerException("Can't set \"" +  set.getName() + ".adr\" to a value");
             }
         }else {
             if(n.to instanceof IdentifierNode && n.to.getIdType().equals("adr")) {
+                //this means that we are trying to set val to adr.
                 IdentifierNode to = (IdentifierNode)n.to;
                 throw new PointerException("Can't set \"" +  set.getName() + ".val\" to \"" + to.getName() + ".adr\"" );
             }
         }
-        VariableDeclarationNode vd = (VariableDeclarationNode)top.get(n.set.getName());
-        vd.lastAssign = n;
+
+        //Accept set and two
         n.set.accept(this);
         n.to.accept(this, n.set);
 
-
+        //Continue with next sibling
         if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
@@ -263,7 +277,6 @@ public class Analyzer implements Visitor {
         n.id.accept(this);
         //Create a new scope for the new function
         SymbolTable thisScope = new SymbolTable(top);
-
         //Insert the new scope, into the list of all scopes.
         top.put(n.id.getName(), thisScope);
         //Insert the paremeters into the new scope.
@@ -284,28 +297,35 @@ public class Analyzer implements Visitor {
     @Override
     public void visitFuncDec(FunctionDecNode n, AbstractNode parent) {
         //This is never used
-        System.out.println("weird :shrug: tillykke med at have fundet dette easteregg xD");
     }
 
     @Override
     public void visitFuncDef(FunctionDefNode n) throws MissingReturnException, WrongTypeException, WrongParamsException {
+        //Check if the function exists
         n.id.accept(this);
 
+        //Get this function scope.
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
-
+        //Make sure that the declaration and definition has the same return type.
         if(!CheckType(n, top.get(n.id.getName()))) throw new WrongTypeException("Function definition \"" + n.id.getName() + "\" has type \"" + n.getType() + "\" but doesn't match prototype");
+
+        //Make sure the parameters match the function declaration.
         if(n.params != null) {
             if (!CheckParams((VariableDeclarationNode) n.params.getFirst(), thisSymbolTable, GetNumberOfSiblings(n.params.getFirst(), 1)))
                 throw new WrongParamsException("Function definition \"" + n.id.getName() + "\" parameters doesn't match prototype parameters");
         }
         if(n.body != null) {
+            //Make sure that there exist a prototype, if the return type isnt void
             if(!n.getType().equals("void")) {
                 if(!LookForReturnStmt(n.body.getFirst())) throw new MissingReturnException("Missing return stmt");
             }
+            //Type check the body
             Analyzer analyzer = new Analyzer(n.body.getFirst(), thisSymbolTable,n);
         }else {
             throw new MissingReturnException("Missing return stmt");
         }
+
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
@@ -317,6 +337,7 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitReturnStatement(ReturnStatementNode n) {
+        //This only checks if return is an identifer, and if so, if it exist.
         n.argument.accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
 
@@ -324,18 +345,23 @@ public class Analyzer implements Visitor {
 
     @Override
     public void visitReturnStatement(ReturnStatementNode n, AbstractNode parent) throws WrongTypeException {
+        //This only checks if return is an identifer, and if so, if it exist.
         n.argument.accept(this,parent);
+        //Check return type
         if(!CheckType(n.argument,parent)) throw new WrongTypeException("Incorrect return type");
         if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
     @Override
     public void visitFunctionCall(FunctionCallNode n) throws WrongParamsException {
+        //Check if the function exist
         n.id.accept(this);
+        //Get the function scope
         SymbolTable thisSymbolTable = top.scopes.get(n.id.getName());
-
         //Find prototype node
         FunctionDecNode functionDecNode = (FunctionDecNode)top.get(n.id.getName());
+
+        //Make sure the parameters match
         if(n.params != null) {
             if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), thisSymbolTable))
                 throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
@@ -344,14 +370,20 @@ public class Analyzer implements Visitor {
                 throw new WrongParamsException("Parameters in function call \"" + n.id.getName() + "\" doesn't match it's prototype");
             }
         }
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
     public void visitFunctionCall(FunctionCallNode n, AbstractNode parent) throws WrongParamsException {
+        //Make sure the function exist.
         n.id.accept(this);
+
+        //If we are not in the global scope.
         if(top.prev != null) {
+            //Get the function dec node from global scope.
             FunctionDecNode functionDecNode = (FunctionDecNode) top.prev.get(n.id.getName());
+            //Make sure the parameters match
             if (n.params != null) {
                  n.params.getFirst().accept(this);
                 if (!CheckCallParams(n.params.getFirst(), (VariableDeclarationNode) functionDecNode.params.getFirst(), top))
@@ -362,6 +394,8 @@ public class Analyzer implements Visitor {
                 }
             }
         }
+
+        //Continue with the next sibling
         if(n.getSib() != null) n.getSib().accept(this,parent);
 
     }
@@ -372,7 +406,6 @@ public class Analyzer implements Visitor {
         n.ifBody.getFirst().accept(this);
         if(n.elseBody != null) n.elseBody.getFirst().accept(this);
         if(n.getSib() != null) n.getSib().accept(this);
-
     }
 
     @Override
@@ -406,7 +439,6 @@ public class Analyzer implements Visitor {
     public void visitStringNode(StringNode n, AbstractNode parent) throws WrongTypeException {
         if(!CheckType(n,parent)){
             if(parent instanceof VariableDeclarationNode) {
-                VariableDeclarationNode vn = (VariableDeclarationNode)parent;
                 throw new WrongTypeException("Can't declare \"" + parent.getType() + " " + parent.getName() + "\" to string");
             }else {
                 throw new WrongTypeException("Can't set \"" + parent.getName() + "\" to string");
@@ -419,23 +451,28 @@ public class Analyzer implements Visitor {
     public void visitImportNode(ImportNode n) {
         String filename = n.name.getValueString();
         parser p = null;
+        //make an instance of the parser.
         try {
             p = new parser(new Scanner(new FileReader("src/main/resources/Libraries/" + filename)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        //parse.
         try {
             p.parse();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //Type check the libaray
         Analyzer analyzer = new Analyzer((ProgramNode)p.action_obj.prog,top);
+        //Write the AST.
         p.action_obj.WriteAST(n.name.getValueString() + ".json");
         if(n.getSib() != null) n.getSib().accept(this);
     }
 
     @Override
     public void visitImportNode(ImportNode n, AbstractNode parent) {
+        //This is never used
         if(n.getSib() != null) n.getSib().accept(this,parent);
     }
 
@@ -477,7 +514,6 @@ public class Analyzer implements Visitor {
     }
 
     public boolean CheckParams(VariableDeclarationNode n, SymbolTable s, int numberOfSiblings) {
-
         //Check if there is the correct number of parameters
         if(s.table.size() != numberOfSiblings) {
             return false;
@@ -497,14 +533,17 @@ public class Analyzer implements Visitor {
 
     public Boolean LookForReturnStmt(AbstractNode n) {
         if(n instanceof ReturnStatementNode) return true;
+
         if(n instanceof IfStatementNode) {
             IfStatementNode in = (IfStatementNode)n;
+            //If the if statement has an elsebody
             if(in.elseBody != null) {
                 if(LookForReturnStmt(in.ifBody) && LookForReturnStmt(in.elseBody)) return true;
             }
-        }
-        if(n instanceof ForLoopNode) {
+            //NOTE: if the if statement doesn't has a else body, then it is invalid.
+        }else if(n instanceof ForLoopNode) {
             ForLoopNode fn = (ForLoopNode)n;
+            //Look for a return stmt, in the loop body
             if(LookForReturnStmt(fn.body)) return true;
         }
 
@@ -516,6 +555,7 @@ public class Analyzer implements Visitor {
         if(n.getSib() != null) return GetNumberOfSiblings(n.getSib(), number + 1);
         else return number;
     }
+
     //This function checks if two type are compatable with each other.
     //Returns true if yes, false if not.
     public boolean CheckType (AbstractNode n1, AbstractNode n2) {

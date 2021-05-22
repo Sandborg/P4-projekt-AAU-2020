@@ -10,18 +10,17 @@ public class VariableDeclarationNode extends AbstractNode {
     public AbstractNode id;
     public AbstractNode body;
 
-    public AssignmentNode lastAssign;
     public Boolean isParameter = false;
-    public String dataType;
+
     public VariableDeclarationNode (AbstractNode type, AbstractNode id, AbstractNode body) {
         this.type = type;
         this.id = id;
         this.body = body;
 
-
         node.put("type", "VariableDeclaration");
         node.put("Identifier", id.node);
         node.put("VariableType", type.node);
+
         if(body != null) {
             node.put("Init", body.node);
         }
@@ -32,21 +31,14 @@ public class VariableDeclarationNode extends AbstractNode {
         this.type = type;
         this.id = id;
 
-
         node.put("type", "VariableDeclaration");
         node.put("Identifier", id.node);
         node.put("VariableType", type.node);
-        if(body != null) {
-            node.put("Init", body.node);
-        }
-    }
-
-    public void UpdateInitNode(JSONObject o) {
-        o.put("type", "string");
     }
 
     public String getType() {return type.getName();};
     public String getName() {return id.getName();};
+
     public void accept(Visitor v) {
         try {
             v.visitVarDec(this);

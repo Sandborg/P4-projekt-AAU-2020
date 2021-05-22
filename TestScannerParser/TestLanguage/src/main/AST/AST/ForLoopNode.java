@@ -24,8 +24,8 @@ public class ForLoopNode extends AbstractNode {
         node.put("continue",continueCase.node);
         node.put("body", bodyList);
         addBodyToList (body.getFirst());
-
     }
+
     public void addBodyToList (AbstractNode n) {
         bodyList.add(n.node);
         if(n.getSib() != null) addBodyToList(n.getSib());

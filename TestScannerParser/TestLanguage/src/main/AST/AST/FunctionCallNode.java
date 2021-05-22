@@ -8,10 +8,9 @@ import org.json.simple.JSONArray;
 public class FunctionCallNode extends AbstractNode {
     public AbstractNode id;
     public AbstractNode params;
-
     public JSONArray paramList = new JSONArray();
 
-    public  FunctionCallNode(AbstractNode id, AbstractNode params) {
+    public FunctionCallNode(AbstractNode id, AbstractNode params) {
         this.id = id;
         this.params = params;
 
@@ -21,14 +20,14 @@ public class FunctionCallNode extends AbstractNode {
         addParamsToList(params.getFirst());
     }
 
-    public  FunctionCallNode(AbstractNode id) {
+    public FunctionCallNode(AbstractNode id) {
         this.id = id;
 
         node.put("type", "FunctionCall");
         node.put("id", id.node);
     }
 
-    public  void addParamsToList (AbstractNode n) {
+    public void addParamsToList (AbstractNode n) {
         paramList.add(n.node);
         if(n.getSib() != null) addParamsToList(n.getSib());
     }
@@ -40,7 +39,6 @@ public class FunctionCallNode extends AbstractNode {
         } catch (WrongParamsException e) {
             System.out.print(e + "\n");
             System.exit(0);
-
         }
     }
 
@@ -51,7 +49,6 @@ public class FunctionCallNode extends AbstractNode {
         } catch (WrongParamsException e) {
             e.printStackTrace();
             System.exit(0);
-
         }
     }
 }

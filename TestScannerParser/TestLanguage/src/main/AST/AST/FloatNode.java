@@ -9,7 +9,6 @@ public class FloatNode extends AbstractNode {
         this.value = value;
         node.put("type", "decimal");
         node.put("value", value);
-
     }
     public String getName() {return "decimal";}
     public float getValue() {return value;}
@@ -29,7 +28,6 @@ public class FloatNode extends AbstractNode {
         } catch (Exception e) {
             System.out.print(e + "\n");
             System.exit(0);
-
         }
     }
 
