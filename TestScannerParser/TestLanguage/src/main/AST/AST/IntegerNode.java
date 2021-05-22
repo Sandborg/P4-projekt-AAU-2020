@@ -1,7 +1,7 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.*;
+
 public class IntegerNode extends AbstractNode {
     int value;
     public IntegerNode(int value) {
@@ -20,7 +20,13 @@ public class IntegerNode extends AbstractNode {
         v.visitInt(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitInt(this, parent);
+        try {
+            v.visitInt(this, parent);
+        }catch(Exception e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+
+        }
     }
 
 }

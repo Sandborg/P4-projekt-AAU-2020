@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
 
 public class ConditionNode extends AbstractNode {
     public  AbstractNode left;

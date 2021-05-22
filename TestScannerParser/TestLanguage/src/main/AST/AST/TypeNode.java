@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.*;
 
 public class TypeNode extends AbstractNode {
     public String type;

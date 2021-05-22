@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.*;
 
 public class FloatNode extends AbstractNode {
     float value;
@@ -9,17 +8,26 @@ public class FloatNode extends AbstractNode {
         this.value = value;
         node.put("type", "decimal");
         node.put("value", value);
-
     }
     public String getName() {return "decimal";}
     public float getValue() {return value;}
     public String getValueString() {return String.valueOf(value);}
 
     public void accept(Visitor v) {
-        v.visitFloat(this);
+        try{
+            v.visitFloat(this);
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitFloat(this, parent);
+        try{
+            v.visitFloat(this, parent);
+        } catch (Exception e) {
+            System.out.print(e + "\n");
+            System.exit(0);
+        }
     }
 
 }

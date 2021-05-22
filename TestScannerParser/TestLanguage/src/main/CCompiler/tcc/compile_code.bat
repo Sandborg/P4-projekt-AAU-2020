@@ -5,5 +5,4 @@ tcc program.c && (program.exe) || (echo Compile failed)
 echo.
 echo.
 pause
-:: Fjern exe filen efter debug er done.
-::exit
+exit

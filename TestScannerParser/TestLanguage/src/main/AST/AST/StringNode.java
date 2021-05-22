@@ -1,7 +1,7 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
+import Exceptions.WrongTypeException;
 
 public class StringNode  extends AbstractNode {
     String value;
@@ -20,7 +20,12 @@ public class StringNode  extends AbstractNode {
         v.visitStringNode(this);
     }
     public void accept(Visitor v, AbstractNode parent) {
-        v.visitStringNode(this, parent);
+        try {
+            v.visitStringNode(this, parent);
+        } catch (WrongTypeException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
 }
 

@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
 
 public class ProgramNode extends AbstractNode {
     public AbstractNode decls;

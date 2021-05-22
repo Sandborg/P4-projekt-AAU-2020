@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
 import org.json.simple.JSONArray;
 
 public class ForLoopNode extends AbstractNode {
@@ -24,8 +23,8 @@ public class ForLoopNode extends AbstractNode {
         node.put("continue",continueCase.node);
         node.put("body", bodyList);
         addBodyToList (body.getFirst());
-
     }
+
     public void addBodyToList (AbstractNode n) {
         bodyList.add(n.node);
         if(n.getSib() != null) addBodyToList(n.getSib());

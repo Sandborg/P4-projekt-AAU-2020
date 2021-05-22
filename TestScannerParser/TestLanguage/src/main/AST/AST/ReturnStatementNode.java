@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
 
 public class ReturnStatementNode extends AbstractNode{
     public AbstractNode argument;
@@ -19,6 +18,11 @@ public class ReturnStatementNode extends AbstractNode{
 
     @Override
     public void accept(Visitor analyzer, AbstractNode parent) {
-        analyzer.visitReturnStatement(this, parent);
+        try {
+            analyzer.visitReturnStatement(this, parent);
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
 }

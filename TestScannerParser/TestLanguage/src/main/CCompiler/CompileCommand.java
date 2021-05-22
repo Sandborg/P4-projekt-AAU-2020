@@ -16,14 +16,11 @@ public class CompileCommand {
         //Compile the C file in tcc with the compile_code.bat. An exit command is commented out in the bat file, it will stop the terminal from showing up
         Runtime.getRuntime().exec("cmd /c start compile_code.bat",null,new File("src/main/CCompiler/tcc/"));
 
-        //Needs 0.25 seconds to compile before the .exe file can be moved.
+        //Needs 1 second to compile before the .exe file can be moved.
         Thread.sleep(1000);
 
         //Move both files to the resources folder.
         Files.move(C_file, C_file_Destination, REPLACE_EXISTING);
-        //Files.move(Executable, Exe_Destination,REPLACE_EXISTING);
-
-        //Run program.pil.exe if necessary
-        //Runtime.getRuntime().exec("cmd /c start program.pil.exe",null,new File("src/main/resources/"));
+        Files.move(Executable, Exe_Destination,REPLACE_EXISTING);
     }
 }
