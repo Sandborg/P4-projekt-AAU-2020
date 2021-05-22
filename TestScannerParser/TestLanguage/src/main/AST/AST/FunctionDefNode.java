@@ -1,7 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
 import org.json.simple.JSONArray;
 
 public class FunctionDefNode extends AbstractNode {

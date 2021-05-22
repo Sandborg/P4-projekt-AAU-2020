@@ -2,7 +2,7 @@ package AST.Visitor;
 
 import AST.*;
 import Exceptions.*;
-import lab7.AbstractNode;
+import AST.AbstractNode;
 
 public interface Visitor {
     public void visitVarDec(VariableDeclarationNode n) throws VarAlreadyDeclaredException;

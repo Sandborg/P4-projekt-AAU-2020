@@ -2,8 +2,6 @@ package AST;
 
 import AST.Visitor.Visitor;
 import Exceptions.VarAlreadyDeclaredException;
-import lab7.*;
-import org.json.simple.JSONObject;
 
 public class VariableDeclarationNode extends AbstractNode {
     public AbstractNode type;

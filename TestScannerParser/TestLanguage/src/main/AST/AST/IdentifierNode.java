@@ -1,9 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import Exceptions.VarNotFoundException;
-import Exceptions.WrongTypeException;
-import lab7.*;
 
 public class IdentifierNode extends AbstractNode {
     public String id;

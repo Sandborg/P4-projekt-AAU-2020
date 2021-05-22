@@ -1,8 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.AbstractNode;
-import org.json.simple.JSONObject;
 
 public class AssignmentNode extends AbstractNode {
     public AbstractNode set;

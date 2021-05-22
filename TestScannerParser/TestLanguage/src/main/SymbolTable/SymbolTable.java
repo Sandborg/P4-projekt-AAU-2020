@@ -1,5 +1,7 @@
 import java.util.*;
-import lab7.*;
+
+import AST.AbstractNode;
+
 public class SymbolTable {
     public String name;
 

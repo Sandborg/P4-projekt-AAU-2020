@@ -1,8 +1,6 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import Exceptions.WrongTypeException;
-import lab7.AbstractNode;
 
 public class ReturnStatementNode extends AbstractNode{
     public AbstractNode argument;

@@ -4,13 +4,10 @@
 // Sat May 22 13:14:03 CEST 2021
 //----------------------------------------------------
 
-import java_cup.runtime.*;
-import lab7.*;
 import AST.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 /** CUP v0.11a beta 20060608 generated parser.
   * @version Sat May 22 13:14:03 CEST 2021

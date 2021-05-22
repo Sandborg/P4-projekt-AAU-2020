@@ -1,7 +1,7 @@
 package AST;
 
 import AST.Visitor.Visitor;
-import lab7.*;
+
 public class IntegerNode extends AbstractNode {
     int value;
     public IntegerNode(int value) {

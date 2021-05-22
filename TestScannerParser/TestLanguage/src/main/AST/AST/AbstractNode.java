@@ -1,11 +1,6 @@
-package lab7;
+package AST;
 
 import AST.Visitor.Visitor;
-
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.json.simple.JSONObject;
 /** All AST nodes are subclasses of this node.  This node knows how to
@@ -18,7 +13,6 @@ public abstract class AbstractNode {
    private AbstractNode parent;
    private AbstractNode child;
    private AbstractNode firstSib;
-   private Type         type;
    public JSONObject node = new JSONObject();
 
    public AbstractNode() {
@@ -61,25 +55,18 @@ public abstract class AbstractNode {
    public void setParent(AbstractNode p) {
       this.parent = p;
    }
-
    public AbstractNode getParent() {
       return(parent);
    }
-
    public AbstractNode getSib() {
       return(mysib);
    }
-
    public AbstractNode getChild() {
       return(child);
    }
-
    public AbstractNode getFirst() {
       return(firstSib);
    }
-
-   public Type getNodeType() { return type; }
-   public void setNodeType(Type type) { this.type = type; }
 
    public String getName() { return ""; }
    public String getValueString() {return "";}

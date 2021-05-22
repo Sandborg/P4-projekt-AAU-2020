@@ -2,7 +2,6 @@ package AST;
 
 import AST.Visitor.Visitor;
 import Exceptions.WrongTypeException;
-import lab7.AbstractNode;
 
 public class StringNode  extends AbstractNode {
     String value;

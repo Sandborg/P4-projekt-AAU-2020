@@ -2,7 +2,7 @@ import AST.*;
 import AST.Visitor.Visitor;
 import Exceptions.*;
 import Exceptions.MissingReturnException;
-import lab7.AbstractNode;
+import AST.AbstractNode;
 import org.json.simple.JSONObject;
 
 import java.io.FileNotFoundException;

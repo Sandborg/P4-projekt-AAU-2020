@@ -2,7 +2,6 @@ package AST;
 
 import AST.Visitor.Visitor;
 import Exceptions.WrongParamsException;
-import lab7.AbstractNode;
 import org.json.simple.JSONArray;
 
 public class FunctionCallNode extends AbstractNode {

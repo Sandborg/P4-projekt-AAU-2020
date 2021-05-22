@@ -1,6 +1,6 @@
 package AST;
 import AST.Visitor.Visitor;
-import lab7.*;
+
 public class BinaryOPNode extends AbstractNode {
     public AbstractNode number1;
     public AbstractNode number2;
